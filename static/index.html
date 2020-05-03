@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <link type="text/css" rel="stylesheet" href="css/style.css" id="style">
+
+    <title>quicklist</title>
+</head>
+<body>
+    <div id="tint"></div>
+
+    <div class="wrapper">
+        <div id="hwrap">
+            <button onclick="reset()">home</button>
+            <input type="text" class="input" id="additem">
+            <button onclick="additem()">add</button>
+        </div>
+        <div class="biggap"></div>
+        <div id="ui"></div>
+    </div>
+
+</body>
+    <script src="js/ql.js"></script>
+    <script type="text/javascript">window.onload = qlinit();</script>
+</html>
