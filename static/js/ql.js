@@ -6,10 +6,17 @@ function qlinit() {
     mkxhr(req, procresp);
 }
 
+// Returns true if a list is open
+function isinlist() {
+
+    if(clist === undefined || clist == "") return false
+    else return true
+}
+
 // Returns clist request string if applicable
 function getclist() {
 
-    if(clist === undefined || clist == "") return ""
+    if(isinlist()) return ""
     else return "&list=" + clist;
 }
 
@@ -80,7 +87,7 @@ function adduiitem(id, name) {
     let rm = document.createElement("div");
 
     item.classList.add("item");
-    item.onclick = function() { openlist(this); };
+    if(!isinlist()) item.onclick = function() { openlist(this); };
 
     rm.classList.add("rm");
     rm.onclick = function() { rmitem(this); };
