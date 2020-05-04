@@ -12,21 +12,18 @@ function qlinit() {
 
 // Returns true if a list is open
 function isinlist() {
-
     if(clist === undefined || clist == "") return false;
     else return true;
 }
 
 // Returns clist request string if applicable
 function getclist() {
-
     if(isinlist()) return "";
     else return "&list=" + clist;
 }
 
 // Adds item to current list
 function additem() {
-
     let i = document.getElementById("additem").value;
     var req = "/additem?name=" + i + getclist();
     mkxhr(req, procresp);
