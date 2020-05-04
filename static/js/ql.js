@@ -36,25 +36,16 @@ function additem() {
     let i = document.getElementById("additem").value;
     var req = "/additem?name=" + i + getclist();
     mkxhr(req, procresp);
-
-    console.log("Additem req: " + req);
-    console.log("Adding item: " + i);
 }
 
 // Removes item
 function rmitem(e) {
-
-    console.log("Remove: " + e.parentNode.innerText);
-
     let req = "/rmitem?name=" + e.parentNode.innerText + getclist();
     mkxhr(req, procresp);
 }
 
 // Opens selected list
 function openlist(e) {
-
-    console.log("Open: " + e.innerText);
-
     let req = "/openlist?list=" + e.innerText;
     mkxhr(req, procresp);
 }
@@ -112,8 +103,6 @@ function procresp(resp) {
 
     var j = JSON.parse(resp.responseText);
     clearui();
-
-    console.log("DEBUG procresp: " + j);
 
     if(j.Code == 1) {
         clist = j.Name;

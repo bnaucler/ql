@@ -104,8 +104,6 @@ func getlists(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
 
     resp := getindex(db, LBUC)
 
-    fmt.Printf("DEBUG %+v\n", resp)
-
     enc := json.NewEncoder(w)
     enc.Encode(resp)
 }
@@ -131,8 +129,6 @@ func addtoindex(db *bolt.DB, name string, buc []byte) {
 
     i.Items = append(i.Items, name)
     wrindex(db, i, buc)
-
-    fmt.Printf("DEBUG addtoindex: %+v\n", i)
 }
 
 // Returns correct bucket based on name
@@ -145,9 +141,6 @@ func getbuc(c Apicall) []byte {
     } else {
         buc = []byte(c.List)
     }
-
-    fmt.Printf("DEBUG c.List: |%+v|\n", c.List)
-    fmt.Printf("DEBUG bucket ret: %+v\n", string(buc))
 
     return buc
 }
@@ -166,9 +159,6 @@ func additem(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
     addtoindex(db, c.Name, buc)
 
     resp := getindex(db, buc)
-
-    fmt.Printf("DEBUG %+v\n", c)
-    fmt.Printf("DEBUG %+v\n", resp)
 
     enc := json.NewEncoder(w)
     enc.Encode(resp)
@@ -193,8 +183,6 @@ func rmitem(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
 
     enc := json.NewEncoder(w)
     enc.Encode(nlindex)
-
-    fmt.Printf("DEBUG remove %+v\n", c)
 }
 
 // Opens a list and returns contents
@@ -205,8 +193,6 @@ func openlist(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
     resp := getindex(db, []byte(c.List))
     resp.Name = c.List
     resp.Code = 1
-
-    fmt.Printf("DEBUG open %+v\n", resp)
 
     enc := json.NewEncoder(w)
     enc.Encode(resp)
