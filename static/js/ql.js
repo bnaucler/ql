@@ -17,6 +17,12 @@ function isinlist() {
     else return true
 }
 
+// Updates header text
+function updatehdr(txt) {
+    let hdr = document.getElementById("hdr");
+    hdr.innerHTML = txt;
+}
+
 // Returns clist request string if applicable
 function getclist() {
 
@@ -109,7 +115,12 @@ function procresp(resp) {
 
     console.log("DEBUG procresp: " + j);
 
-    if(j.Code == 1) clist = j.Name;
+    if(j.Code == 1) {
+        clist = j.Name;
+        updatehdr(j.Name);
+    } else {
+        updatehdr("home");
+    }
 
     for(l of j.Items) {
         adduiitem(0, l);
