@@ -11,11 +11,12 @@ body {
 }
 
 button {
-    display: inline-block;
+    display: block;
     position: relative;
+    float: left;
     border: none;
     background-color: #333;
-    border-radius: 4px;
+    border: 1px #333 solid;
     outline: none;
     color: #eee;
     padding: 10px;
@@ -23,47 +24,54 @@ button {
     font-weight: bold;
     cursor: pointer;
     transition: .3s;
-    width: 23%;
+    width: 24%;
 }
 
 button:hover {
 }
 
+#cur {
+    width: 100%;
+    text-align: center;
+    padding: 10px;
+    font-size: 1.4em;
+    background-color: #eee;
+    color: #333;
+}
+
 #hwrap {
-    width: 80%;
+    display: block;
+    position: relative;
+    width: 100%;
     margin: 0 auto;
-    margin-top: 20px;
-    /* TODO merge margin */
+    margin-bottom: 10px;
 }
 
 #additem {
-    display: inline-block;
+    display: block;
     position: relative;
+    float: left;
     font-size: 1.2em;
     font-weight: bold;
     padding: 10px;
     background: #fff;
-    border: none;
-    /* border: 2px #1e1e1e solid; */
-    border-radius: 4px;
+    border: 1px #333 solid;
     width: 50%;
 }
 
 #ui {
-    width: 80%;
-    margin: 0 auto;
+    width: 100%;
 }
 
 .item {
     position: relative;
     display: block;
     padding: 10px;
-    margin-top: 10px;
     font-size: 1.2em;
-    background-color: #333;
-    color: #fff;
-    border-radius: 4px;
+    background-color: #eee;
+    color: #333;
     cursor: pointer;
+    border-bottom: 1px #333 solid;
 }
 
 .rm {
@@ -71,9 +79,17 @@ button:hover {
     position: absolute;
     top: 0;
     right: 0;
-    width: 30px;
+    width: 10%;
     height: 100%;
     background-color: #DA5232;
     cursor: pointer;
-    border-radius: 4px;
+    border-left: 1px #333 solid;
+}
+
+.clear {
+    margin: 0;
+    padding: 0;
+    height: 0;
+    width: 0;
+    clear: both;
 }
