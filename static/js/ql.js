@@ -122,6 +122,8 @@ function procresp(resp) {
         updatehdr("home");
     }
 
+    if(!j.Items) return;
+
     for(l of j.Items) {
         adduiitem(0, l);
     }
