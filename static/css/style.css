@@ -14,7 +14,6 @@ button {
     display: block;
     position: relative;
     float: left;
-    border: none;
     background-color: #333;
     border: 1px #333 solid;
     outline: none;
