@@ -13,20 +13,14 @@ function qlinit() {
 // Returns true if a list is open
 function isinlist() {
 
-    if(clist === undefined || clist == "") return false
-    else return true
-}
-
-// Updates header text
-function updatehdr(txt) {
-    let hdr = document.getElementById("hdr");
-    hdr.innerHTML = txt;
+    if(clist === undefined || clist == "") return false;
+    else return true;
 }
 
 // Returns clist request string if applicable
 function getclist() {
 
-    if(isinlist()) return ""
+    if(isinlist()) return "";
     else return "&list=" + clist;
 }
 
@@ -52,11 +46,10 @@ function openlist(e) {
 
 // Returns to home screen
 function reset() {
-    clearui();
     clist = "";
 
-    let url = "/getlists";
-    mkxhr(url, procresp);
+    let req = "/getlists";
+    mkxhr(req, procresp);
 }
 
 // Creates XHR and calls rfunc with response
@@ -73,11 +66,6 @@ function mkxhr(dest, rfunc) {
     }
 
     xhr.send();
-}
-
-// Removes all listed items in UI
-function clearui() {
-    document.getElementById("ui").innerHTML = "";
 }
 
 // Adds item to UI
@@ -100,16 +88,19 @@ function adduiitem(id, name) {
 
 // Processes lists request response
 function procresp(resp) {
+    let hdr = document.getElementById("hdr");
 
     var j = JSON.parse(resp.responseText);
-    clearui();
 
     if(j.Code == 1) {
         clist = j.Name;
-        updatehdr(j.Name);
+        hdr.innerHTML = j.Name;
+
     } else {
-        updatehdr("home");
+        hdr.innerHTML = "home";
     }
+
+    document.getElementById("ui").innerHTML = "";
 
     if(!j.Items) return;
 
