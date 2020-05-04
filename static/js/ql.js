@@ -4,6 +4,10 @@ var clist = "";
 function qlinit() {
     let req = "/getlists";
     mkxhr(req, procresp);
+
+    document.getElementById('additem').onkeydown = function(e){
+       if(e.keyCode == 13){ additem(); } // enter
+    };
 }
 
 // Returns true if a list is open
