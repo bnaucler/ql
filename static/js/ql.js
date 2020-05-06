@@ -25,6 +25,8 @@ function getclist() {
 // Adds item to current list
 function additem() {
     let i = document.getElementById("additem").value;
+    document.getElementById("additem").value = "";
+
     var req = "/additem?name=" + i + getclist();
     mkxhr(req, procresp);
 }
