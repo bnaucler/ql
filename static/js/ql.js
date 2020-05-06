@@ -22,12 +22,19 @@ function getclist() {
     else return "&list=" + clist;
 }
 
-// Adds item to current list
-function additem() {
-    let i = document.getElementById("additem").value;
+// Processes input field and validates string
+function readinput() {
+    let s = document.getElementById("additem").value;
     document.getElementById("additem").value = "";
 
-    var req = "/additem?name=" + i + getclist();
+    if(s.includes('&')) return "INVALID";
+
+    return s;
+}
+
+// Adds item to current list
+function additem() {
+    var req = "/additem?name=" + readinput() + getclist();
     mkxhr(req, procresp);
 }
 
