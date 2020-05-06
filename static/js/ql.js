@@ -18,7 +18,7 @@ function isinlist() {
 
 // Returns clist request string if applicable
 function getclist() {
-    if(isinlist()) return "";
+    if(!isinlist()) return "";
     else return "&list=" + clist;
 }
 
@@ -52,6 +52,8 @@ function reset() {
 // Creates XHR and calls rfunc with response
 function mkxhr(dest, rfunc) {
     var xhr = new XMLHttpRequest();
+
+    console.log(dest);
 
     xhr.open("POST", dest, true);
     xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -88,6 +90,8 @@ function procresp(resp) {
     let hdr = document.getElementById("hdr");
 
     var j = JSON.parse(resp.responseText);
+
+    console.log(j);
 
     if(j.Code == 1) {
         clist = j.Name;
