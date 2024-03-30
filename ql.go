@@ -3,28 +3,69 @@ package main
 import (
     "fmt"
     "log"
+    "time"
     "net/http"
+    "math/rand"
     "encoding/json"
 
-    "github.com/boltdb/bolt"
+    bolt "go.etcd.io/bbolt"
+    bcrypt "golang.org/x/crypto/bcrypt"
 )
 
 const PORT = 9955
 const DBNAME = "./data/ql.db"
 
-var INDEX = []byte(".index")
-var LBUC = []byte(".lbuc")
+const SKLEN = 40            // Skey length
+const IDLEN = 40            // ID length
+const SKNUM = 5             // Max number of concurrent skeys
+
+const HOMENAME = "home"     // Name for root/head list
+
+var GLOB = []byte("glob")   // Global settings
+var IBUC = []byte("lbuc")   // Item bucket
+var UBUC = []byte("ubuc")   // User bucket
 
 type Apicall struct {
-    Id string               // Id of item to process
-    List string             // List name
-    Name string             // Name of item to process
+    ID string               // Id of item to process
+    Action string           // Requested action
+    Value string            // Name of item to process
+    Type string             // Data type
+    Uname string            // Username
+    Fname string            // Username
+    Lname string            // Username
+    Pass string             // Password
+    Skey string             // Session key
+    Cpos string             // Current list
 }
 
 type Resp struct {
-    Code int                // Status code
-    Name string             // List name
-    Items []string          // Item names
+    Status int              // Status code
+    Head Item               // Current head / list
+    Contents []Item         // List contents
+    User User               // Current user
+}
+
+type User struct {
+    Uname string            // Username
+    Pass []byte             // Encrypted password
+    Skey []string           // Session keys
+    Fname string            // First name
+    Lname string            // Last name
+    Cpos string             // Current list
+    Root string             // Root item ID
+}
+
+type Item struct {
+    ID string               // Item ID
+    Parent string           // Parent item id (blank if at root)
+    Contents []string       // Items contained (if list)
+    Owner string            // Owner username
+    Members []string        // Other users with access to item
+    Type string             // Item or list
+    Active bool             // Item visible
+    Value string            // Item name
+    CTime time.Time         // Time of creation
+    ETime time.Time         // End time (item closed)
 }
 
 // Log all errors
@@ -33,13 +74,16 @@ func cherr(e error) error {
     return e
 }
 
-// Opens the database
-func opendb(dbname string) *bolt.DB {
+// Create random string of length ln
+func randstr(ln int) (string){
 
-    db, e := bolt.Open(dbname, 0640, nil)
-    cherr(e)
+    const charset = "0123456789abcdefghijklmnopqrstuvwxyz"
+    var cslen = len(charset)
 
-    return db
+    b := make([]byte, ln)
+    for i := range b { b[i] = charset[rand.Intn(cslen)] }
+
+    return string(b)
 }
 
 // Write JSON encoded byte slice to DB
@@ -65,9 +109,25 @@ func rdb(db *bolt.DB, k []byte, cbuc []byte) (v []byte, e error) {
         if b == nil { return fmt.Errorf("No bucket!") }
 
         v = b.Get(k)
+        if len(v) < 1 { return fmt.Errorf("No data!") }
+
         return nil
     })
     return
+}
+
+// Retrieves user object from database
+func getuser(db *bolt.DB, uname string) User {
+
+    u := User{}
+
+    btuser, e := rdb(db, []byte(uname), UBUC)
+
+    if e == nil {
+        e = json.Unmarshal(btuser, &u)
+    }
+
+    return u
 }
 
 // Processes API call
@@ -77,149 +137,350 @@ func getcall(r *http.Request) Apicall {
     cherr(e)
 
     ret := Apicall{
-        Name:       r.FormValue("name"),
-        List:       r.FormValue("list"),
-        Id:         r.FormValue("id"),
+        ID:         r.FormValue("id"),
+        Action:     r.FormValue("action"),
+        Value:      r.FormValue("value"),
+        Type:       r.FormValue("type"),
+        Uname:      r.FormValue("uname"),
+        Fname:      r.FormValue("fname"),
+        Lname:      r.FormValue("lname"),
+        Pass:       r.FormValue("pass"),
+        Skey:       r.FormValue("skey"),
+        Cpos:       r.FormValue("cpos"),
     }
 
     return ret
 }
 
-// Reads list index from database
-func getindex(db *bolt.DB, buc []byte) Resp {
+// Stores user object in database
+func wruser(db *bolt.DB, u User) {
 
-    i := Resp{Code: 0}
+    fmt.Printf("DEBUG User to write: %+v\n\n", u)
 
-    lraw, e := rdb(db, INDEX, buc)
+    btu, e := json.Marshal(u)
     cherr(e)
 
-    e = json.Unmarshal(lraw, &i)
+    e = wrdb(db, []byte(u.Uname), btu, UBUC)
     cherr(e)
+}
+
+// Adds new user to database
+func mkuser(db *bolt.DB, call Apicall) User {
+
+    u := User{}
+
+    // TODO input sanitization
+    u.Uname = call.Uname
+    u.Fname = call.Fname
+    u.Lname = call.Lname
+    u.Pass, _ = bcrypt.GenerateFromPassword([]byte(call.Pass), bcrypt.DefaultCost)
+
+    i := mkheaditem(db, u)
+
+    u.Root = i.ID
+    u.Cpos = i.ID
+
+    u = addskey(db, u) // Also commits user to db
+
+    return u
+}
+
+// Adds new skey to slice, replacing the SKLEN:th oldest key
+func addskey(db *bolt.DB, u User) User {
+
+    u.Skey = append(u.Skey, randstr(SKLEN))
+
+    if len(u.Skey) > SKNUM { u.Skey = u.Skey[1:] }
+
+    wruser(db, u)
+
+    return u
+}
+
+// Attempts user login
+func loginuser(db *bolt.DB, call Apicall) (User, int) {
+
+    u := getuser(db, call.Uname)
+    status := 0
+
+    e := bcrypt.CompareHashAndPassword(u.Pass, []byte(call.Pass))
+
+    if e != nil {
+        status = 1
+
+    } else {
+        u = addskey(db, u)
+        u.Cpos = u.Root
+    }
+
+    u.Skey = u.Skey[len(u.Skey) - 1:]
+
+    return u, status
+}
+
+// Processes request for skey validation
+func valskey(db *bolt.DB, call Apicall) (User, int) {
+
+    u := getuser(db, call.Uname)
+    status := 1
+
+    for _, v := range u.Skey {
+        if v == call.Skey { status = 0 }
+    }
+
+    return u, status
+}
+
+// Handles user related requests
+func h_user(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
+
+    call := getcall(r)
+    enc := json.NewEncoder(w)
+
+    resp := Resp{}
+    resp.Status = 0
+
+    switch call.Action {
+        case "get":
+            resp.User = getuser(db, call.Uname)
+
+        case "new":
+            resp.User = mkuser(db, call)
+
+        case "login":
+            resp.User, resp.Status = loginuser(db, call)
+
+        case "valskey":
+            resp.User, resp.Status = valskey(db, call)
+
+        default:
+            resp.Status = 1
+    }
+
+    if call.Action != "login" && call.Action != "new" {
+        resp.User.Skey = []string{}
+    }
+
+    if resp.Status != 0 {
+        resp.Head = Item{}
+
+    } else {
+        resp.Head, resp.Status = getitem(db, resp.User.Cpos)
+        resp.Contents, resp.Status = getcontents(db, resp.Head)
+    }
+
+    resp.User.Pass = []byte("")
+    enc.Encode(resp)
+}
+
+// Retrieves item from database based on ID
+func getitem(db *bolt.DB, callid string) (Item, int) {
+
+    i := Item{}
+    status := 0
+
+    btitem, e := rdb(db, []byte(callid), IBUC)
+
+    if e == nil {
+        e = json.Unmarshal(btitem, &i)
+
+    } else {
+        status = 1
+    }
+
+    return i, status
+}
+
+// Stores item object in database
+func writem(db *bolt.DB, i Item) {
+
+    fmt.Printf("DEBUG Item to write: %+v\n\n", i)
+
+    bti, e := json.Marshal(i)
+    cherr(e)
+
+    e = wrdb(db, []byte(i.ID), bti, IBUC)
+    cherr(e)
+}
+
+// Adds item as child to specified parent
+func setitemchild(db *bolt.DB, ci Item) Item {
+
+    pi, _ := getitem(db, ci.Parent)
+    pi.Contents = append(pi.Contents, ci.ID)
+    writem(db, pi)
+
+    return pi
+}
+
+// Creates root level item for (new) user
+func mkheaditem(db *bolt.DB, u User) Item {
+
+    i := Item{}
+    i.Owner = u.Uname
+    i.ID = randstr(IDLEN)
+    i.Type = "list"
+    i.CTime = time.Now()
+    i.Active = true
+    i.Value = HOMENAME
+
+    writem(db, i) // TODO error handling
 
     return i
 }
 
-// Handles incoming requests for list index
-func getlists(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
+// Creates new item
+func mkitem(db *bolt.DB, val string, parent string, tp string, u User) (Item, int) {
 
-    resp := getindex(db, LBUC)
+    i := Item{}
+    p, status := getitem(db, parent)
 
-    enc := json.NewEncoder(w)
-    enc.Encode(resp)
-}
+    i.ID = randstr(IDLEN)
+    i.Value = val
+    i.Parent = parent
+    i.Owner = u.Uname
+    i.CTime = time.Now()
+    i.Active = true
 
-// Writes list index to database
-func wrindex(db *bolt.DB, i Resp, buc []byte) {
+    if tp == "item" || tp == "list" {
+        i.Type = tp
 
-    iraw, e := json.Marshal(i)
-    cherr(e)
-
-    e = wrdb(db, INDEX, iraw, buc)
-    cherr(e)
-}
-
-// Adds list to index
-func addtoindex(db *bolt.DB, name string, buc []byte) {
-
-    iraw, e := rdb(db, INDEX, buc)
-    cherr(e)
-
-    i := Resp{}
-    e = json.Unmarshal(iraw, &i)
-
-    i.Items = append(i.Items, name)
-    wrindex(db, i, buc)
-}
-
-// Returns correct bucket based on name
-func getbuc(c Apicall) []byte {
-
-    var buc []byte
-
-    if len(c.List) < 1 {
-        buc = LBUC
     } else {
-        buc = []byte(c.List)
+        status = 1
     }
 
-    return buc
+    if status == 0 {
+        writem(db, i)
+        p = setitemchild(db, i)
+    }
+
+    return p, status
 }
 
-// Handles incoming requests to add lists
-func additem(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
+// Apicall wrapper for mkitem()
+func mkitemfromcall(db *bolt.DB, call Apicall) (Item, int) {
 
-    c := getcall(r)
-    buc := getbuc(c)
+    u := getuser(db, call.Uname)
 
-    var name = []byte(c.Name)
+    if len(u.Uname) < 1 { return Item{}, 1 } // TODO clean up
 
-    e := wrdb(db, name, name, buc)
-    cherr(e)
+    i, status := mkitem(db, call.Value, call.Cpos, call.Type, u)
 
-    addtoindex(db, c.Name, buc)
+    return i, status
+}
 
-    resp := getindex(db, buc)
+// Retrieves data objects from database based on parent
+func getcontents(db *bolt.DB, head Item) ([]Item, int) {
 
+    ret := []Item{}
+    ci := Item{}
+    status := 0
+
+    for _, iid := range head.Contents {
+        ci, status = getitem(db, iid)
+        if status == 0 { ret = append(ret, ci) }
+    }
+
+    return ret, status
+}
+
+// Sets requested items status to inactive
+func closeitem(db *bolt.DB, call Apicall) (Item, int) {
+
+    i, status := getitem(db, call.ID)
+    p, _ := getitem(db, call.Cpos)
+
+    if status == 0 {
+        i.Active = false
+        i.ETime = time.Now()
+        writem(db, i)
+    }
+
+    return p, status
+}
+
+// Handles item related requests
+func h_item(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
+
+    call := getcall(r)
     enc := json.NewEncoder(w)
-    enc.Encode(resp)
-}
 
-// Removes a list from index
-func rmitem(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
+    fmt.Printf("DEBUG Item handler call: %+v\n\n", call)
 
-    c := getcall(r)
-    buc := getbuc(c)
+    resp := Resp{}
+    resp.User, resp.Status = valskey(db, call)
+    resp.User.Skey = []string{}
 
-    lindex := getindex(db, buc)
-    nlindex := Resp{}
+    if(resp.Status == 0) {
+        switch call.Action {
+            case "get":
+                resp.Head, resp.Status = getitem(db, call.ID)
 
-    for _, v := range lindex.Items {
-        if v != c.Name {
-            nlindex.Items = append(nlindex.Items, v)
+            case "new":
+                resp.Head, resp.Status = mkitemfromcall(db, call)
+
+            case "close":
+                resp.Head, resp.Status = closeitem(db, call)
+
+            default:
+                resp.Status = 1
         }
     }
 
-    wrindex(db, nlindex, buc)
+    if resp.Status == 0 {
+        resp.Contents, resp.Status = getcontents(db, resp.Head)
 
-    enc := json.NewEncoder(w)
-    enc.Encode(nlindex)
+    } else {
+        resp.Head = Item{}
+    }
+
+    resp.User.Pass = []byte("")
+    enc.Encode(resp)
 }
 
-// Opens a list and returns contents
-func openlist(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
+// Creates requested bucket if it doesn't already exist
+func mkbucket(db *bolt.DB, cbuc []byte) error {
+    e := db.Update(func(tx *bolt.Tx) error {
+        tx.CreateBucketIfNotExists(cbuc)
+        return nil
+    })
 
-    c := getcall(r);
+    return e
+}
 
-    resp := getindex(db, []byte(c.List))
-    resp.Name = c.List
-    resp.Code = 1
+// Opens the database
+func opendb(dbname string) *bolt.DB {
 
-    enc := json.NewEncoder(w)
-    enc.Encode(resp)
+    db, e := bolt.Open(dbname, 0640, nil)
+    cherr(e)
+
+    return db
+}
+
+// Initialize server
+func qlinit(db *bolt.DB) {
+
+    mkbucket(db, IBUC)
+    mkbucket(db, UBUC)
 }
 
 func main() {
 
+    db := opendb(DBNAME)
+    defer db.Close()
+    qlinit(db)
+
     // Static content
     http.Handle("/", http.FileServer(http.Dir("./static")))
 
-    db := opendb(DBNAME)
-    defer db.Close()
-
-    http.HandleFunc("/getlists", func(w http.ResponseWriter, r *http.Request) {
-        getlists(w, r, db)
+    // Handler for user-related requests
+    http.HandleFunc("/user", func(w http.ResponseWriter, r *http.Request) {
+        h_user(w, r, db)
     })
 
-    http.HandleFunc("/additem", func(w http.ResponseWriter, r *http.Request) {
-        additem(w, r, db)
-    })
-
-    http.HandleFunc("/rmitem", func(w http.ResponseWriter, r *http.Request) {
-        rmitem(w, r, db)
-    })
-
-    http.HandleFunc("/openlist", func(w http.ResponseWriter, r *http.Request) {
-        openlist(w, r, db)
+    // Handler for item-related requests
+    http.HandleFunc("/item", func(w http.ResponseWriter, r *http.Request) {
+        h_item(w, r, db)
     })
 
     lport := fmt.Sprintf(":%d", PORT)

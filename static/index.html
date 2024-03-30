@@ -11,17 +11,47 @@
 </head>
 <body>
 
-    <div id="hwrap">
-        <div id="hdr">home</div>
-        <button onclick="reset()" id="homebtn">home</button>
-        <input type="text" class="input" id="additem">
-        <button onclick="additem()" id="addbtn">+</button>
+    <div id="login">
+        <div class="giantgap"></div>
+        <form id="loginform" onsubmit="loginuser(this); return false;" method="post">
+            <input id="unameinput" type="text" name="uname" Placeholder="Username">
+            </input><br>
+            <input id="passinput" type="password" name="pass" Placeholder="Password">
+            </input><br>
+            <input type="submit" value="Log in">
+            <div class="smallgap"></div>
+            <button onclick="openmkuser(); return false;" id="opennewuser">Create account</button>
+        </form>
     </div>
 
-    <div class="clear"></div>
+    <div id="newuser">
+        <div class="giantgap"></div>
+        <form id="newuserform" onsubmit="mkuser(this); return false;" method="post">
+            <input id="newunameinput" type="text" name="uname" Placeholder="Username">
+            </input><br>
+            <input id="newpassinput" type="password" name="pass" Placeholder="Password">
+            </input><br>
+            <input id="fnameinput" type="text" name="pass" Placeholder="First name">
+            </input><br>
+            <input id="lnameinput" type="text" name="pass" Placeholder="Last name">
+            </input><br>
+            <input type="submit" value="Create account">
+        </form>
+    </div>
+
+    <div id="hwrap">
+        <div id="hdr"></div>
+        <div id="logoutbutton" onclick='logoutuser(); return false;'>X</div>
+        <button onclick="goback(); return false;" id="backbtn">back</button>
+        <form id="additemform" onsubmit="additem(this); return false;" method="post">
+            <input type="text" class="input" id="itemval" Placeholder="Item to add">
+            <input type="submit" value="+" id="additemsubmit">
+        </form>
+        <div class="clear"></div>
+    </div>
+
     <div id="ui"></div>
 
 </body>
     <script src="js/ql.js"></script>
-    <script type="text/javascript">window.onload = qlinit();</script>
 </html>

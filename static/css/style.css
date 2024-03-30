@@ -6,27 +6,69 @@
     padding: 0;
 }
 
-body {
-    background-color: #777;
+:root {
+    --col-bg: #222;
+    --col-bgl: #555;
+    --col-bgi: #ddd;
+    --col-sel: #666;
+    --col-txt: #000;
+    --col-txtd: #222;
+    --col-input: #eee;
 }
 
-button {
+body {
+    background-color: var(--col-bg);
+}
+
+input[type=text], input[type=password] {
+    margin: 0 auto;
     display: block;
     position: relative;
-    float: left;
-    background-color: #333;
-    border: 1px #333 solid;
+    border: none;
     outline: none;
+    background-color: var(--col-input);
+    font-size: 1.2em;
+    padding: 10px;
+    width: 50%;
+    box-sizing: border-box;
+    margin-bottom: 5px;
+}
+
+button, input[type=submit] {
+    margin: 0 auto;
+    display: block;
+    position: relative;
+    border: none;
+    outline: none;
+    background-color: var(--col-bgl);
     color: #eee;
     padding: 10px;
     font-size: 1.2em;
-    font-weight: bold;
+    width: 50%;
     cursor: pointer;
     transition: .3s;
-    width: 25%;
 }
 
-button:hover {
+button:hover, input[type=submit]:hover {
+    background-color: var(--col-sel);
+}
+
+#logoutbutton {
+    padding-top: .2em;
+    font-size: 1.8em;
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 50px;
+    width: 30px;
+    color: var(--col-txt);
+    cursor: pointer;
+    opacity: .6;
+    transition: .3s;
+}
+
+#logoutbutton:hover {
+    opacity: 1;
 }
 
 #addbtn {
@@ -36,10 +78,29 @@ button:hover {
 #hdr {
     width: 100%;
     text-align: center;
-    padding: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
     font-size: 1.4em;
-    background-color: #eee;
-    color: #333;
+    background-color: var(--col-bgi);
+    color: var(--col-txtd);
+}
+
+#login, #newuser {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--col-bg);
+    z-index: 10;
+}
+
+#login {
+    display: block;
+}
+
+#newuser {
+    display: none;
 }
 
 #hwrap {
@@ -62,8 +123,32 @@ button:hover {
     width: 50%;
 }
 
+#backbtn, #itemval, #additemsubmit {
+    border: 1px var(--col-txtd) solid;
+    float: left;
+}
+
+#backbtn, #additemsubmit {
+    width: 20%;
+    border-left: none;
+    border-right: none;
+}
+
+#itemval {
+    width: 60%;
+    margin: 0;
+}
+
 #ui {
     width: 100%;
+}
+
+.giantgap {
+    height: 200px;
+}
+
+.smallgap {
+    height: 20px;
 }
 
 .item {
@@ -71,8 +156,8 @@ button:hover {
     display: block;
     padding: 10px;
     font-size: 1.2em;
-    background-color: #eee;
-    color: #333;
+    background-color: var(--col-bgi);
+    color: var(--col-txtd);
     cursor: pointer;
     border-bottom: 1px #333 solid;
 }
