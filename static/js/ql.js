@@ -81,8 +81,10 @@ function addlistitem(ID, val) {
     const pdiv = gid("ui");
     const idiv = mkobj("div", "item", val);
     const rmdiv = mkobj("div", "rm");
+    const imdiv = mkobj("div", "itemmenubutton", "edit");
 
     idiv.appendChild(rmdiv);
+    idiv.appendChild(imdiv);
     pdiv.appendChild(idiv);
 
     rmdiv.onclick = () => rmitem(ID);
@@ -112,7 +114,7 @@ function refresh(obj) {
 
     if(obj.Status == 0) {
         loginscr.style.display = "none";
-        gid("hdr").innerHTML = obj.Head.Value;
+        gid("hdrtxt").innerHTML = obj.Head.Value;
         poplist(obj);
 
     } else {
