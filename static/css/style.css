@@ -11,9 +11,11 @@
     --col-rm: #DA5232;
     --col-bgl: #555;
     --col-bgi: #ddd;
+    --col-bglist: #559;
     --col-sel: #666;
     --col-txt: #000;
     --col-txtd: #222;
+    --col-txtl: #eee;
     --col-input: #eee;
 }
 
@@ -42,7 +44,7 @@ button, input[type=submit] {
     border: none;
     outline: none;
     background-color: var(--col-bgl);
-    color: #eee;
+    color: var(--col-txtl);
     padding: 10px;
     font-size: 1.2em;
     width: 50%;
@@ -64,11 +66,11 @@ button:hover, input[type=submit]:hover {
     color: var(--col-txt);
     cursor: pointer;
     border-left: 1px #333 solid;
-    /* font-size: 1em; */
     color: var(--col-txtd);
     background-color: var(--col-rm);
     justify-content: center;
     align-items: center;
+    font-size: .7em;
 }
 
 #addbtn {
@@ -86,6 +88,7 @@ button:hover, input[type=submit]:hover {
 }
 
 #login, #newuser {
+    display: none;
     position: fixed;
     top: 0;
     left: 0;
@@ -154,12 +157,17 @@ button:hover, input[type=submit]:hover {
 .item {
     position: relative;
     display: block;
-    padding: 10px;
-    font-size: 1.2em;
     background-color: var(--col-bgi);
-    color: var(--col-txtd);
-    cursor: pointer;
     border-bottom: 1px #333 solid;
+}
+
+.itemval {
+    display: flex;
+    padding: 10px;
+    color: var(--col-txtd);
+    font-size: 1.2em;
+    height: 100%;
+    width: calc(80% - 20px);
 }
 
 .itemmenubutton {
@@ -175,6 +183,12 @@ button:hover, input[type=submit]:hover {
     color: var(--col-txtd);
     justify-content: center;
     align-items: center;
+    transition: .3s;
+}
+
+.itemmenubutton:hover {
+    background-color: var(--col-txtd);
+    color: var(--col-sel);
 }
 
 .rm {
@@ -187,6 +201,29 @@ button:hover, input[type=submit]:hover {
     background-color: var(--col-rm);
     cursor: pointer;
     border-left: 1px #333 solid;
+}
+
+.contextmenu {
+    position: fixed;
+    z-index: 20;
+    top: 20%;
+    left: 20%;
+    width: 60%;
+    border: 1px #333 solid;
+    background-color: var(--col-bg);
+}
+
+.menuheader {
+    padding: 10px;
+    width: 100%;
+    text-align: center;
+    font-size: 1.6em;
+    color: var(--col-txtl);
+}
+
+.menubutton {
+    width: calc(100% - 20px);
+    margin: 10px;
 }
 
 .clear {

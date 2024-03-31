@@ -231,11 +231,25 @@ func valskey(db *bolt.DB, call Apicall) (User, int) {
     return u, status
 }
 
+// Changes user cpos to call request
+func cspos(db *bolt.DB, call Apicall) (User, int) {
+
+    u := getuser(db, call.Uname)
+    status := 0
+
+    u.Cpos = call.ID; // TODO error control
+    wruser(db, u)
+
+    return u, status
+}
+
 // Handles user related requests
 func h_user(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
 
     call := getcall(r)
     enc := json.NewEncoder(w)
+
+    fmt.Printf("DEBUG User handler call: %+v\n\n", call)
 
     resp := Resp{}
     resp.Status = 0
@@ -252,6 +266,9 @@ func h_user(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
 
         case "valskey":
             resp.User, resp.Status = valskey(db, call)
+
+        case "cspos":
+            resp.User, resp.Status = cspos(db, call)
 
         default:
             resp.Status = 1
@@ -399,6 +416,26 @@ func closeitem(db *bolt.DB, call Apicall) (Item, int) {
     return p, status
 }
 
+// Toggles item type (item / list)
+func toggletype(db *bolt.DB, call Apicall) (Item, int) {
+
+    i, status := getitem(db, call.ID)
+    p, _ := getitem(db, call.Cpos)
+
+    if status == 0 {
+
+        if i.Type == "list" {
+            i.Type = "item"
+        } else if i.Type == "item" {
+            i.Type = "list"
+        }
+
+        writem(db, i)
+    }
+
+    return p, status
+}
+
 // Handles item related requests
 func h_item(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
 
@@ -421,6 +458,9 @@ func h_item(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
 
             case "close":
                 resp.Head, resp.Status = closeitem(db, call)
+
+            case "toggletype":
+                resp.Head, resp.Status = toggletype(db, call)
 
             default:
                 resp.Status = 1

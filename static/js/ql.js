@@ -64,8 +64,6 @@ function logoutuser() {
 // Processes removal of item from list
 async function rmitem(ID) {
 
-    console.log(ID);
-
     const uname = gls("qluname");
     const skey = gls("qlskey");
     const cpos = getcpos();
@@ -75,18 +73,72 @@ async function rmitem(ID) {
     refresh(await gofetch(url));
 }
 
-// Adds individual list item
-function addlistitem(ID, val) {
+// Requests changing type (list/item) per object ID
+async function toggletype(ID) {
+
+    const uname = gls("qluname");
+    const skey = gls("qlskey");
+    const cpos = getcpos();
+    const url = "/item?action=toggletype&uname=" + uname + "&skey=" + skey +
+                "&cpos=" + cpos + "&id=" + ID;
+
+    refresh(await gofetch(url));
+}
+
+// Opens up item context menu
+function immenu(ID, itype, val) {
 
     const pdiv = gid("ui");
-    const idiv = mkobj("div", "item", val);
+    const mdiv = mkobj("div", "contextmenu");
+    const ctbtn = mkobj("button", "menubutton");
+    const cmheader = mkobj("div", "menuheader", val);
+    const cbtn = mkobj("button", "menubutton", "close");
+
+    if(itype == "item") ctbtn.innerHTML = "make list";
+    else ctbtn.innerHTML = "make item";
+
+    mdiv.appendChild(cmheader);
+    mdiv.appendChild(ctbtn);
+    mdiv.appendChild(cbtn);
+    pdiv.appendChild(mdiv);
+
+    cbtn.onclick = () => mdiv.remove();
+    ctbtn.onclick = () => { mdiv.remove(); toggletype(ID); }
+}
+
+// Requests list contents and sets cpos
+async function enterlist(ID) {
+
+    const uname = gls("qluname");
+    const skey = gls("qlskey");
+    const cpos = getcpos();
+    const url = "/user?action=cspos&uname=" + uname + "&skey=" + skey +
+                "&cpos=" + cpos + "&id=" + ID;
+
+    refresh(await gofetch(url));
+}
+
+// Adds individual list item
+function addlistitem(ID, val, itype) {
+
+    const pdiv = gid("ui");
+    const idiv = mkobj("div", "item");
+    const ival = mkobj("div", "itemval", val);
     const rmdiv = mkobj("div", "rm");
     const imdiv = mkobj("div", "itemmenubutton", "edit");
 
+    idiv.appendChild(ival);
     idiv.appendChild(rmdiv);
     idiv.appendChild(imdiv);
     pdiv.appendChild(idiv);
 
+    if(itype == "list") {
+        ival.style.background = "var(--col-bglist)";
+        ival.onclick = () => enterlist(ID);
+        ival.style.cursor = "pointer";
+    }
+
+    imdiv.onclick = () => immenu(ID, itype, val);
     rmdiv.onclick = () => rmitem(ID);
 }
 
@@ -99,18 +151,20 @@ function poplist(obj) {
 
     for(let i = lilen - 1; i >= 0; i--) {
         let co = obj.Contents[i];
-        if(co.Active == true) addlistitem(co.ID, co.Value);
+        if(co.Active == true) addlistitem(co.ID, co.Value, co.Type);
     }
 }
 
 // Refreshes window
 function refresh(obj) {
 
-    console.log(obj);
-
     localStorage.qlcpos = obj.User.Cpos;
 
     const loginscr = gid("login");
+
+    if(obj.Head.Parent.length > 1) {
+        gid("backbtn").onclick = () => enterlist(obj.Head.Parent)
+    }
 
     if(obj.Status == 0) {
         loginscr.style.display = "none";
@@ -124,8 +178,6 @@ function refresh(obj) {
 
 // Processes login response
 function trylogin(obj) {
-
-    console.log(obj);
 
     gid("newuser").style.display = "none";
 
