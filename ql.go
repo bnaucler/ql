@@ -15,8 +15,8 @@ import (
 const PORT = 9955
 const DBNAME = "./data/ql.db"
 
-const SKLEN = 40            // Skey length
-const IDLEN = 40            // ID length
+const SKLEN = 30            // Skey length
+const IDLEN = 15            // ID length
 const SKNUM = 5             // Max number of concurrent skeys
 
 const HOMENAME = "home"     // Name for root/head list
@@ -77,7 +77,7 @@ func cherr(e error) error {
 // Create random string of length ln
 func randstr(ln int) (string){
 
-    const charset = "0123456789abcdefghijklmnopqrstuvwxyz"
+    const charset = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
     var cslen = len(charset)
 
     b := make([]byte, ln)
