@@ -4,9 +4,11 @@
 * Input sanitization
 * List sharing
 * Periodic cleanup of inactive items
+* Toggle viewing of inactive items
 * Master directory of all items in db
 * Error handling & logging
 * Error feedback to frontend
+* Only list number of active items in list
 
 ## Backburner / undecided / non-critical
 * Better ID generation & collision checking
@@ -20,5 +22,4 @@
 * Color themes
 * Indicator of list / item owner
 * CLI/TUI tool
-* Warning when deleting list with active items
 * Warning when making list with active items to an item

@@ -73,6 +73,35 @@ async function rmitem(ID) {
     refresh(await gofetch(url));
 }
 
+// Shows warning about removing non-empty list
+function rmwarning(ID, clen) {
+
+    const pdiv = gid("ui");
+    const mdiv = mkobj("div", "contextmenu");
+    const yesbtn = mkobj("button", "menubutton", "YES");
+    const nobtn = mkobj("button", "menubutton", "NO");
+    const cmheader = mkobj("div", "menuheader", "Remove non-empty list?");
+
+    mdiv.appendChild(cmheader);
+    mdiv.appendChild(yesbtn);
+    mdiv.appendChild(nobtn);
+    pdiv.appendChild(mdiv);
+
+    yesbtn.onclick = () => { mdiv.remove(); rmitem(ID); }
+    nobtn.onclick = () => mdiv.remove();
+}
+
+// Wrapper to check for empty list and show warning
+function rmitemwrapper(ID, clen) {
+
+    if(clen == 0) {
+        rmitem(ID);
+
+    } else {
+        rmwarning(ID, clen);
+    }
+}
+
 // Requests changing type (list/item) per object ID
 async function toggletype(ID) {
 
@@ -119,7 +148,7 @@ async function enterlist(ID) {
 }
 
 // Adds individual list item
-function addlistitem(ID, val, itype) {
+function addlistitem(ID, val, itype, clen) {
 
     const pdiv = gid("ui");
     const idiv = mkobj("div", "item");
@@ -127,19 +156,20 @@ function addlistitem(ID, val, itype) {
     const rmdiv = mkobj("div", "rm");
     const imdiv = mkobj("div", "itemmenubutton", "edit");
 
-    idiv.appendChild(ival);
-    idiv.appendChild(rmdiv);
-    idiv.appendChild(imdiv);
-    pdiv.appendChild(idiv);
-
     if(itype == "list") {
+        ival.innerHTML = val + " (" + clen + ")";
         ival.style.background = "var(--col-bglist)";
         ival.onclick = () => enterlist(ID);
         ival.style.cursor = "pointer";
     }
 
+    idiv.appendChild(ival);
+    idiv.appendChild(rmdiv);
+    idiv.appendChild(imdiv);
+    pdiv.appendChild(idiv);
+
     imdiv.onclick = () => immenu(ID, itype, val);
-    rmdiv.onclick = () => rmitem(ID);
+    rmdiv.onclick = () => rmitemwrapper(ID, clen);
 }
 
 // Populates list view
@@ -151,7 +181,9 @@ function poplist(obj) {
 
     for(let i = lilen - 1; i >= 0; i--) {
         let co = obj.Contents[i];
-        if(co.Active == true) addlistitem(co.ID, co.Value, co.Type);
+        let clen = 0;
+        if(co.Contents !== null) clen = co.Contents.length; // TODO
+        if(co.Active == true) addlistitem(co.ID, co.Value, co.Type, clen);
     }
 }
 
