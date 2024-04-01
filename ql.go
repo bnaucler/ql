@@ -53,6 +53,7 @@ type User struct {
     Lname string            // Last name
     Cpos string             // Current list
     Root string             // Root item ID
+    Inactive bool           // Showing inactive items
 }
 
 type Item struct {
@@ -179,6 +180,7 @@ func mkuser(db *bolt.DB, call Apicall) User {
 
     u.Root = i.ID
     u.Cpos = i.ID
+    u.Inactive = false
 
     u = addskey(db, u) // Also commits user to db
 
@@ -243,6 +245,24 @@ func cspos(db *bolt.DB, call Apicall) (User, int) {
     return u, status
 }
 
+// Toggles user inactive setting
+func toggleinactive(db *bolt.DB, call Apicall) (User, int) {
+
+    u := getuser(db, call.Uname)
+    status := 0
+
+    if(u.Inactive == false) {
+        u.Inactive = true
+
+    } else {
+        u.Inactive = false
+    }
+
+    wruser(db, u)
+
+    return u, status
+}
+
 // Handles user related requests
 func h_user(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
 
@@ -269,6 +289,9 @@ func h_user(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
 
         case "cspos":
             resp.User, resp.Status = cspos(db, call)
+
+        case "toggleinactive":
+            resp.User, resp.Status = toggleinactive(db, call)
 
         default:
             resp.Status = 1

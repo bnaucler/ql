@@ -187,13 +187,33 @@ function poplist(obj) {
     }
 }
 
+// Sets correct text to 'show inactive'-button
+function setinactivebtn(val) {
+
+    console.log(val);
+
+    const btn = gid("toggleinactivebtn");
+
+    if(val == true) {
+        btn.innerHTML = "all";
+
+    } else if(val == false) {
+        btn.innerHTML = "active";
+
+    } else {
+        btn.innerHTML = "active";
+    }
+
+    localStorage.qlinactive = val;
+}
+
 // Refreshes window
 function refresh(obj) {
 
     localStorage.qlcpos = obj.User.Cpos;
+    setinactivebtn(obj.User.Inactive);
 
     const loginscr = gid("login");
-
     if(obj.Head.Parent.length > 1) {
         gid("backbtn").onclick = () => enterlist(obj.Head.Parent)
     }
@@ -232,6 +252,18 @@ function getcpos() {
 
     if(cpos == undefined || cpos.Length < 1) logoutuser();
     else return cpos;
+}
+
+// Toggles showing inactive items
+async function toggleinactive() {
+
+    const uname = gls("qluname");
+    const skey = gls("qlskey");
+    const cpos = getcpos();
+    const url = "/user?action=toggleinactive&uname=" + uname + "&skey=" + skey +
+                "&cpos=" + cpos;
+
+    refresh(await gofetch(url));
 }
 
 // Adds item to list
