@@ -56,6 +56,19 @@ button:hover, input[type=submit]:hover {
     background-color: var(--col-sel);
 }
 
+#toggleinactivebtn {
+    display: flex;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 50%;
+    width: 10%;
+    border-right: 1px #333 solid;
+    justify-content: center;
+    align-items: center;
+    font-size: .7em;
+}
+
 #logoutbutton {
     display: flex;
     position: absolute;
@@ -63,11 +76,8 @@ button:hover, input[type=submit]:hover {
     right: 0;
     height: 50%;
     width: 10%;
-    color: var(--col-txt);
     cursor: pointer;
     border-left: 1px #333 solid;
-    color: var(--col-txtd);
-    background-color: var(--col-rm);
     justify-content: center;
     align-items: center;
     font-size: .7em;

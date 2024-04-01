@@ -137,16 +137,16 @@ func getcall(r *http.Request) Apicall {
     cherr(e)
 
     ret := Apicall{
-        ID:         r.FormValue("id"),
-        Action:     r.FormValue("action"),
-        Value:      r.FormValue("value"),
-        Type:       r.FormValue("type"),
-        Uname:      r.FormValue("uname"),
-        Fname:      r.FormValue("fname"),
-        Lname:      r.FormValue("lname"),
-        Pass:       r.FormValue("pass"),
-        Skey:       r.FormValue("skey"),
-        Cpos:       r.FormValue("cpos"),
+        ID:             r.FormValue("id"),
+        Action:         r.FormValue("action"),
+        Value:          r.FormValue("value"),
+        Type:           r.FormValue("type"),
+        Uname:          r.FormValue("uname"),
+        Fname:          r.FormValue("fname"),
+        Lname:          r.FormValue("lname"),
+        Pass:           r.FormValue("pass"),
+        Skey:           r.FormValue("skey"),
+        Cpos:           r.FormValue("cpos"),
     }
 
     return ret
