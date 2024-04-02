@@ -239,27 +239,42 @@ func wruser(db *bolt.DB, u User) {
     cherr(e)
 }
 
+// Returns true if user exists in database
+func userexists(db *bolt.DB, uid string) bool {
+
+    u := getuser(db, uid)
+
+    if len(u.Uname) > 0 { return true }
+
+    return false
+}
+
 // Adds new user to database
-func mkuser(db *bolt.DB, call Apicall) User {
+func mkuser(db *bolt.DB, call Apicall) (User, int) {
 
     u := User{}
+    status := 0
 
-    // TODO input sanitization
-    u.Uname = call.Uname
-    u.Fname = call.Fname
-    u.Lname = call.Lname
-    u.Pass, _ = bcrypt.GenerateFromPassword([]byte(call.Pass), bcrypt.DefaultCost)
+    if userexists(db, call.Uname) { status = 1 }
 
-    i := mkheaditem(db, u)
+    if status == 0 {
+        // TODO input sanitization
+        u.Uname = call.Uname
+        u.Fname = call.Fname
+        u.Lname = call.Lname
+        u.Pass, _ = bcrypt.GenerateFromPassword([]byte(call.Pass), bcrypt.DefaultCost)
 
-    u.Root = i.ID
-    u.Cpos = i.ID
-    u.Inactive = false
+        i := mkheaditem(db, u)
 
-    u = addskey(db, u) // Also commits user to db
-    usertomaster(db, u.Uname)
+        u.Root = i.ID
+        u.Cpos = i.ID
+        u.Inactive = false
 
-    return u
+        u = addskey(db, u) // Also commits user to db
+        usertomaster(db, u.Uname)
+    }
+
+    return u, status
 }
 
 // Adds new skey to slice, replacing the SKLEN:th oldest key
@@ -326,7 +341,7 @@ func toggleinactive(db *bolt.DB, call Apicall) (User, int) {
     u := getuser(db, call.Uname)
     status := 0
 
-    if(u.Inactive == false) {
+    if u.Inactive == false {
         u.Inactive = true
 
     } else {
@@ -354,7 +369,7 @@ func h_user(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
             resp.User = getuser(db, call.Uname)
 
         case "new":
-            resp.User = mkuser(db, call)
+            resp.User, resp.Status = mkuser(db, call)
 
         case "login":
             resp.User, resp.Status = loginuser(db, call)
@@ -450,7 +465,7 @@ func mkitemid(db *bolt.DB) string {
     id := randstr(IDLEN)
     _, status := getitem(db, id)
 
-    if(status == 0) { return mkitemid(db) }
+    if status == 0 { return mkitemid(db) }
     return id
 }
 
@@ -500,7 +515,7 @@ func checkactive(db *bolt.DB, iid string) bool {
 
     i, status := getitem(db, iid)
 
-    if(i.Active && status == 0) { return true }
+    if i.Active && status == 0 { return true }
 
     return false
 }
@@ -512,7 +527,7 @@ func stripinactive(db *bolt.DB, ci Item) Item {
 
     for _, i := range ci.Contents {
         litm, _ = getitem(db, i)
-        if(litm.Active) { nc = append(nc, i) }
+        if litm.Active { nc = append(nc, i) }
     }
 
     ci.Contents = nc
@@ -531,11 +546,11 @@ func getcontents(db *bolt.DB, head Item, inactive bool) ([]Item, int) {
         ci, status = getitem(db, iid)
 
         if status == 0 {
-            if(inactive) {
+            if inactive {
                 ret = append(ret, ci)
 
-            } else if(!inactive && checkactive(db, ci.ID)) {
-                if(ci.Type == "list") { ci = stripinactive(db, ci) }
+            } else if !inactive && checkactive(db, ci.ID) {
+                if ci.Type == "list" { ci = stripinactive(db, ci) }
                 ret = append(ret, ci)
             }
         }
@@ -551,7 +566,7 @@ func toggleactive(db *bolt.DB, call Apicall) (Item, int) {
     p, _ := getitem(db, call.Cpos)
 
     if status == 0 {
-        if(call.Action == "open") {
+        if call.Action == "open" {
             i.Active = true
         } else {
             i.Active = false
@@ -595,7 +610,7 @@ func h_item(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
     resp.User, resp.Status = valskey(db, call)
     resp.User.Skey = []string{}
 
-    if(resp.Status == 0) {
+    if resp.Status == 0 {
         switch call.Action {
             case "get":
                 resp.Head, resp.Status = getitem(db, call.ID)

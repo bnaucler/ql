@@ -5,7 +5,6 @@
 * List sharing
 * Error handling & logging
 * Error feedback to frontend
-* Check username availability
 
 ## Backburner / undecided / non-critical
 * Rearranging of items (click & drag)
