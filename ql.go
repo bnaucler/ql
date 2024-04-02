@@ -369,13 +369,23 @@ func mkheaditem(db *bolt.DB, u User) Item {
     return i
 }
 
+// Creates item ID and checks for collisions
+func mkitemid(db *bolt.DB) string {
+
+    id := randstr(IDLEN)
+    _, status := getitem(db, id)
+
+    if(status == 0) { return mkitemid(db) }
+    return id
+}
+
 // Creates new item
 func mkitem(db *bolt.DB, val string, parent string, tp string, u User) (Item, int) {
 
     i := Item{}
     p, status := getitem(db, parent)
 
-    i.ID = randstr(IDLEN)
+    i.ID = mkitemid(db)
     i.Value = val
     i.Parent = parent
     i.Owner = u.Uname

@@ -7,10 +7,8 @@
 * Master directory of all items in db
 * Error handling & logging
 * Error feedback to frontend
-* Only list number of active items in list
 
 ## Backburner / undecided / non-critical
-* Item ID collision checking
 * Rearranging of items (click & drag)
 * JSON object for parameters in localstorage
 * Launch flags to set port, db name etc
