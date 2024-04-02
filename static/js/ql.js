@@ -308,11 +308,6 @@ async function qlinit() {
     refresh(await gofetch(url));
 }
 
-// Init sequence after window refresh
-window.onbeforeunload = () => {
-    qlinit();
-};
-
 // Init sequence on load
 window.onload = () => {
     qlinit();
