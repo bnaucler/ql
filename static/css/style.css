@@ -9,9 +9,11 @@
 :root {
     --col-bg: #222;
     --col-rm: #DA5232;
+    --col-open: #9d9;
     --col-bgl: #555;
     --col-bgi: #ddd;
     --col-bglist: #ee9;
+    --col-bginact: #aaa;
     --col-sel: #666;
     --col-txt: #000;
     --col-txtd: #222;

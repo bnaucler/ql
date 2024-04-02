@@ -62,12 +62,12 @@ function logoutuser() {
 }
 
 // Processes removal of item from list
-async function rmitem(ID) {
+async function rmitem(ID, rem) {
 
     const uname = gls("qluname");
     const skey = gls("qlskey");
     const cpos = getcpos();
-    const url = "/item?action=close&uname=" + uname + "&skey=" + skey +
+    const url = "/item?action=" + rem + "&uname=" + uname + "&skey=" + skey +
                 "&cpos=" + cpos + "&id=" + ID;
 
     refresh(await gofetch(url));
@@ -95,7 +95,7 @@ function rmwarning(ID, clen) {
 function rmitemwrapper(ID, clen) {
 
     if(clen == 0) {
-        rmitem(ID);
+        rmitem(ID, "close");
 
     } else {
         rmwarning(ID, clen);
@@ -148,7 +148,7 @@ async function enterlist(ID) {
 }
 
 // Adds individual list item
-function addlistitem(ID, val, itype, clen) {
+function addlistitem(ID, val, itype, active, clen) {
 
     const pdiv = gid("ui");
     const idiv = mkobj("div", "item");
@@ -163,13 +163,21 @@ function addlistitem(ID, val, itype, clen) {
         ival.style.cursor = "pointer";
     }
 
+    if(active) {
+        rmdiv.onclick = () => rmitemwrapper(ID, clen);
+
+    } else {
+        ival.style.background = "var(--col-bginact)";
+        rmdiv.style.background = "var(--col-open)";
+        rmdiv.onclick = () => rmitem(ID, "open");
+    }
+
     idiv.appendChild(ival);
     idiv.appendChild(rmdiv);
     idiv.appendChild(imdiv);
     pdiv.appendChild(idiv);
 
     imdiv.onclick = () => immenu(ID, itype, val);
-    rmdiv.onclick = () => rmitemwrapper(ID, clen);
 }
 
 // Populates list view
@@ -177,20 +185,20 @@ function poplist(obj) {
 
     gid("ui").innerHTML = "";
 
+    console.log(obj);
+
     const lilen = obj.Contents.length;
 
     for(let i = lilen - 1; i >= 0; i--) {
         let co = obj.Contents[i];
         let clen = 0;
-        if(co.Contents !== null) clen = co.Contents.length; // TODO
-        if(co.Active == true) addlistitem(co.ID, co.Value, co.Type, clen);
+        if(co.Contents !== null) clen = co.Contents.length;
+        addlistitem(co.ID, co.Value, co.Type, co.Active, clen);
     }
 }
 
 // Sets correct text to 'show inactive'-button
 function setinactivebtn(val) {
-
-    console.log(val);
 
     const btn = gid("toggleinactivebtn");
 
@@ -214,6 +222,7 @@ function refresh(obj) {
     setinactivebtn(obj.User.Inactive);
 
     const loginscr = gid("login");
+
     if(obj.Head.Parent.length > 1) {
         gid("backbtn").onclick = () => enterlist(obj.Head.Parent)
     }

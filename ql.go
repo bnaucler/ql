@@ -306,7 +306,7 @@ func h_user(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
 
     } else {
         resp.Head, resp.Status = getitem(db, resp.User.Cpos)
-        resp.Contents, resp.Status = getcontents(db, resp.Head)
+        resp.Contents, resp.Status = getcontents(db, resp.Head, resp.User.Inactive)
     }
 
     resp.User.Pass = []byte("")
@@ -409,8 +409,18 @@ func mkitemfromcall(db *bolt.DB, call Apicall) (Item, int) {
     return i, status
 }
 
+// Returns true if item is active
+func checkactive(db *bolt.DB, iid string) bool {
+
+    i, status := getitem(db, iid)
+
+    if(i.Active && status == 0) { return true }
+
+    return false
+}
+
 // Retrieves data objects from database based on parent
-func getcontents(db *bolt.DB, head Item) ([]Item, int) {
+func getcontents(db *bolt.DB, head Item, inactive bool) ([]Item, int) {
 
     ret := []Item{}
     ci := Item{}
@@ -418,20 +428,32 @@ func getcontents(db *bolt.DB, head Item) ([]Item, int) {
 
     for _, iid := range head.Contents {
         ci, status = getitem(db, iid)
-        if status == 0 { ret = append(ret, ci) }
+
+        if status == 0 {
+            if(inactive) {
+                ret = append(ret, ci)
+
+            } else if(!inactive && checkactive(db, ci.ID)) {
+                ret = append(ret, ci)
+            }
+        }
     }
 
     return ret, status
 }
 
 // Sets requested items status to inactive
-func closeitem(db *bolt.DB, call Apicall) (Item, int) {
+func toggleactive(db *bolt.DB, call Apicall) (Item, int) {
 
     i, status := getitem(db, call.ID)
     p, _ := getitem(db, call.Cpos)
 
     if status == 0 {
-        i.Active = false
+        if(call.Action == "open") {
+            i.Active = true
+        } else {
+            i.Active = false
+        }
         i.ETime = time.Now()
         writem(db, i)
     }
@@ -479,8 +501,11 @@ func h_item(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
             case "new":
                 resp.Head, resp.Status = mkitemfromcall(db, call)
 
+            case "open":
+                resp.Head, resp.Status = toggleactive(db, call)
+
             case "close":
-                resp.Head, resp.Status = closeitem(db, call)
+                resp.Head, resp.Status = toggleactive(db, call)
 
             case "toggletype":
                 resp.Head, resp.Status = toggletype(db, call)
@@ -491,7 +516,7 @@ func h_item(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
     }
 
     if resp.Status == 0 {
-        resp.Contents, resp.Status = getcontents(db, resp.Head)
+        resp.Contents, resp.Status = getcontents(db, resp.Head, resp.User.Inactive)
 
     } else {
         resp.Head = Item{}
