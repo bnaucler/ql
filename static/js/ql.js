@@ -308,7 +308,7 @@ async function qlinit() {
     refresh(await gofetch(url));
 }
 
-// Init sequence on load
+// Init sequence on (re)load
 window.onload = () => {
     qlinit();
 };

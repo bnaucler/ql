@@ -419,6 +419,21 @@ func checkactive(db *bolt.DB, iid string) bool {
     return false
 }
 
+func stripinactive(db *bolt.DB, ci Item) Item {
+
+    litm := Item{}
+    nc := []string{}
+
+    for _, i := range ci.Contents {
+        litm, _ = getitem(db, i)
+        if(litm.Active) { nc = append(nc, i) }
+    }
+
+    ci.Contents = nc
+
+    return ci
+}
+
 // Retrieves data objects from database based on parent
 func getcontents(db *bolt.DB, head Item, inactive bool) ([]Item, int) {
 
@@ -434,6 +449,7 @@ func getcontents(db *bolt.DB, head Item, inactive bool) ([]Item, int) {
                 ret = append(ret, ci)
 
             } else if(!inactive && checkactive(db, ci.ID)) {
+                if(ci.Type == "list") { ci = stripinactive(db, ci) }
                 ret = append(ret, ci)
             }
         }
