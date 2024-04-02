@@ -25,6 +25,11 @@ var GLOB = []byte("glob")   // Global settings
 var IBUC = []byte("lbuc")   // Item bucket
 var UBUC = []byte("ubuc")   // User bucket
 
+type Index struct {
+    User []string           // All usernames in DB
+    Item []string           // All item IDs in DB
+}
+
 type Apicall struct {
     ID string               // Id of item to process
     Action string           // Requested action
@@ -117,6 +122,43 @@ func rdb(db *bolt.DB, k []byte, cbuc []byte) (v []byte, e error) {
     return
 }
 
+// Retrieves master index from database
+func getmasterindex(db *bolt.DB) Index {
+
+    i := Index{}
+    btindex, e := rdb(db, []byte(GLOB), GLOB)
+
+    if e == nil { e = json.Unmarshal(btindex, &i) }
+
+    return i
+}
+
+// Stores master index in database
+func wrmasterindex(db *bolt.DB, i Index) {
+
+    bti, e := json.Marshal(i)
+    cherr(e)
+
+    e = wrdb(db, []byte(GLOB), bti, GLOB)
+    cherr(e)
+}
+
+// Adds item ID to master index
+func itemtomaster(db *bolt.DB, iid string) {
+
+    i := getmasterindex(db)
+    i.Item = append(i.Item, iid)
+    wrmasterindex(db, i)
+}
+
+// Adds user to master index
+func usertomaster(db *bolt.DB, uid string) {
+
+    i := getmasterindex(db)
+    i.User = append(i.User, uid)
+    wrmasterindex(db, i)
+}
+
 // Retrieves user object from database
 func getuser(db *bolt.DB, uname string) User {
 
@@ -183,6 +225,7 @@ func mkuser(db *bolt.DB, call Apicall) User {
     u.Inactive = false
 
     u = addskey(db, u) // Also commits user to db
+    usertomaster(db, u.Uname)
 
     return u
 }
@@ -400,6 +443,7 @@ func mkitem(db *bolt.DB, val string, parent string, tp string, u User) (Item, in
     }
 
     if status == 0 {
+        itemtomaster(db, i.ID)
         writem(db, i)
         p = setitemchild(db, i)
     }
@@ -576,6 +620,7 @@ func qlinit(db *bolt.DB) {
 
     mkbucket(db, IBUC)
     mkbucket(db, UBUC)
+    mkbucket(db, GLOB)
 }
 
 func main() {

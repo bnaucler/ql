@@ -4,7 +4,6 @@
 * Input sanitization
 * List sharing
 * Periodic cleanup of inactive items
-* Master directory of all items in db
 * Error handling & logging
 * Error feedback to frontend
 
@@ -16,6 +15,7 @@
 * Menu for options & logout
 * Password strength conditions
 * Password reset
+* User account deletion
 * Color themes
 * Indicator of list / item owner
 * CLI/TUI tool
