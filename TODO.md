@@ -3,9 +3,9 @@
 ## Necessary
 * Input sanitization
 * List sharing
-* Periodic cleanup of inactive items
 * Error handling & logging
 * Error feedback to frontend
+* Check username availability
 
 ## Backburner / undecided / non-critical
 * Rearranging of items (click & drag)

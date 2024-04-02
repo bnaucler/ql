@@ -15,6 +15,9 @@ import (
 const PORT = 9955
 const DBNAME = "./data/ql.db"
 
+const CLEANCHECK = 1 * time.Hour    // Time interval to check for inactive items
+const KEEPTIME = 120 * time.Hour    // How long to keep item after closing
+
 const SKLEN = 30            // Skey length
 const IDLEN = 15            // ID length
 const SKNUM = 5             // Max number of concurrent skeys
@@ -122,6 +125,21 @@ func rdb(db *bolt.DB, k []byte, cbuc []byte) (v []byte, e error) {
     return
 }
 
+// Deletes item from database permanently
+func ddb(db *bolt.DB, k []byte, cbuc []byte) (e error) {
+
+    e = db.Update(func(tx *bolt.Tx) error {
+        b, e := tx.CreateBucketIfNotExists(cbuc)
+        if e != nil { return e }
+
+        e = b.Delete(k)
+        if e != nil { return e }
+
+        return nil
+    })
+    return
+}
+
 // Retrieves master index from database
 func getmasterindex(db *bolt.DB) Index {
 
@@ -156,6 +174,20 @@ func usertomaster(db *bolt.DB, uid string) {
 
     i := getmasterindex(db)
     i.User = append(i.User, uid)
+    wrmasterindex(db, i)
+}
+
+// Removes item ID from master index
+func rmitemfrommaster(db *bolt.DB, iid string) {
+
+    i := getmasterindex(db)
+    ni := []string{}
+
+    for _, id := range i.Item {
+        if id != iid { ni = append(ni, id) }
+    }
+
+    i.Item = ni
     wrmasterindex(db, i)
 }
 
@@ -606,6 +638,29 @@ func mkbucket(db *bolt.DB, cbuc []byte) error {
     return e
 }
 
+// Periodically removes old items
+func cleanup(db *bolt.DB) {
+
+    for range time.Tick(CLEANCHECK) {
+        olditems := []string{}
+        i := getmasterindex(db)
+
+        for _, i := range i.Item {
+            ci, _ := getitem(db, i)
+            if !ci.Active && time.Since(ci.ETime) > KEEPTIME {
+                olditems = append(olditems, ci.ID)
+            }
+        }
+
+        for _, oid := range olditems {
+            e := ddb(db, []byte(oid), IBUC)
+            if e == nil {
+                rmitemfrommaster(db, oid)
+            }
+        }
+    }
+}
+
 // Opens the database
 func opendb(dbname string) *bolt.DB {
 
@@ -628,6 +683,8 @@ func main() {
     db := opendb(DBNAME)
     defer db.Close()
     qlinit(db)
+
+    go cleanup(db)
 
     // Static content
     http.Handle("/", http.FileServer(http.Dir("./static")))
