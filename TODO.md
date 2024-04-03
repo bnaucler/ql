@@ -5,6 +5,8 @@
 * List sharing
 * Error handling & logging
 * Error feedback to frontend
+    - Username already taken
+    - Incorrect username / password
 
 ## Backburner / undecided / non-critical
 * Rearranging of items (click & drag)

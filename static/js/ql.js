@@ -87,7 +87,7 @@ function rmwarning(ID, clen) {
     mdiv.appendChild(nobtn);
     pdiv.appendChild(mdiv);
 
-    yesbtn.onclick = () => { mdiv.remove(); rmitem(ID); }
+    yesbtn.onclick = () => { mdiv.remove(); rmitem(ID, "close"); }
     nobtn.onclick = () => mdiv.remove();
 }
 
@@ -119,8 +119,9 @@ function immenu(ID, itype, val) {
 
     const pdiv = gid("ui");
     const mdiv = mkobj("div", "contextmenu");
-    const ctbtn = mkobj("button", "menubutton");
     const cmheader = mkobj("div", "menuheader", val);
+    const ctbtn = mkobj("button", "menubutton");
+    const sharebtn = mkobj("button", "menubutton", "share");
     const cbtn = mkobj("button", "menubutton", "close");
 
     if(itype == "item") ctbtn.innerHTML = "make list";
@@ -128,6 +129,7 @@ function immenu(ID, itype, val) {
 
     mdiv.appendChild(cmheader);
     mdiv.appendChild(ctbtn);
+    mdiv.appendChild(sharebtn);
     mdiv.appendChild(cbtn);
     pdiv.appendChild(mdiv);
 

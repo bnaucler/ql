@@ -239,6 +239,16 @@ func wruser(db *bolt.DB, u User) {
     cherr(e)
 }
 
+// Returns true if item exists in database
+func itemexists(db *bolt.DB, iid string) bool {
+
+    i, status := getitem(db, iid)
+
+    if len(i.ID) > 0 && status == 0 { return true }
+
+    return false
+}
+
 // Returns true if user exists in database
 func userexists(db *bolt.DB, uid string) bool {
 
@@ -395,6 +405,7 @@ func h_user(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
         resp.Head = Item{}
 
     } else {
+        if !itemexists(db, resp.User.Cpos) { resp.User.Cpos = resp.User.Root }
         resp.Head, resp.Status = getitem(db, resp.User.Cpos)
         resp.Contents, resp.Status = getcontents(db, resp.Head, resp.User.Inactive)
     }
@@ -653,6 +664,46 @@ func mkbucket(db *bolt.DB, cbuc []byte) error {
     return e
 }
 
+// Deletes key from slice
+func rmkeyfromstringslice(key string, slice []string) []string {
+
+    ret := []string{}
+
+    for _, v := range slice {
+        if v != key { ret = append(ret, v) }
+    }
+
+    return ret
+}
+
+// Removes cid from contents of parents with id pid
+func rmitemfromparent(db *bolt.DB, pid string, cid string) {
+
+    p, status := getitem(db, pid)
+
+    if status == 0 {
+        p.Contents = rmkeyfromstringslice(cid, p.Contents)
+        writem(db, p)
+    }
+}
+
+// Permanently removes item and all children
+func rmitem(db *bolt.DB, iid string) {
+
+    i, status := getitem(db, iid)
+
+    if status == 0 && len(i.Contents) > 0 {
+        for _, cid := range i.Contents { rmitem(db, cid) }
+        rmitemfromparent(db, i.Parent, i.ID)
+        e := ddb(db, []byte(iid), IBUC)
+        if e == nil { rmitemfrommaster(db, iid) }
+
+    } else if status == 0 {
+        e := ddb(db, []byte(iid), IBUC)
+        if e == nil { rmitemfrommaster(db, iid) }
+    }
+}
+
 // Periodically removes old items
 func cleanup(db *bolt.DB) {
 
@@ -668,10 +719,7 @@ func cleanup(db *bolt.DB) {
         }
 
         for _, oid := range olditems {
-            e := ddb(db, []byte(oid), IBUC)
-            if e == nil {
-                rmitemfrommaster(db, oid)
-            }
+            rmitem(db, oid)
         }
     }
 }
