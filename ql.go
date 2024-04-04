@@ -319,7 +319,7 @@ func addskey(db *bolt.DB, u User) User {
 // Attempts user login
 func loginuser(db *bolt.DB, call Apicall) (User, int, string) {
 
-    u := getuser(db, call.Uname)
+    u := getuser(db, strings.ToLower(call.Uname))
     status := 0
     err := "OK"
 

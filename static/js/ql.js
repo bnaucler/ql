@@ -72,6 +72,7 @@ function logoutuser() {
     localStorage.qluname = "";
     localStorage.qlskey = "";
     gid("login").style.display = "block";
+    gid("usermenu").style.display = "none";
     gid("ui").innerHTML = "";
 }
 
@@ -318,6 +319,13 @@ async function additem(elem) {
     gid("additemform").reset();
 
     refresh(await gofetch(url));
+}
+
+// Cancels making new user
+function cancelmkuser() {
+
+    gid("newuser").style.display = "none";
+    gid("login").style.display = "block";
 }
 
 // Opens user menu
