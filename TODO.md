@@ -3,7 +3,6 @@
 ## Necessary
 * List sharing
 * Error handling & logging
-* Remove ETime when restoring item
 
 ## Backburner / undecided / non-critical
 * Rearranging of items (click & drag)

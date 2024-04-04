@@ -597,10 +597,13 @@ func toggleactive(db *bolt.DB, call Apicall) (Item, int) {
     if status == 0 {
         if call.Action == "open" {
             i.Active = true
+            i.ETime = time.Time{}
+
         } else {
             i.Active = false
+            i.ETime = time.Now()
         }
-        i.ETime = time.Now()
+
         writem(db, i)
     }
 
