@@ -253,6 +253,7 @@ function trylogin(obj) {
 
     } else {
         gid("login").style.display = "block";
+        console.log(obj.Err);
     }
 }
 
@@ -280,7 +281,7 @@ async function toggleinactive() {
 // Adds item to list
 async function additem(elem) {
 
-    const ival = elem.elements["itemval"].value;
+    const ival = encodeURIComponent(elem.elements["itemval"].value);
     const uname = gls("qluname");
     const skey = gls("qlskey");
     const type = "item";

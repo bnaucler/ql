@@ -1,16 +1,14 @@
 # ql TODO list
 
 ## Necessary
-* Input sanitization
 * List sharing
 * Error handling & logging
-* Error feedback to frontend
-    - Username already taken
-    - Incorrect username / password
+* Error popups
 * Remove ETime when restoring item
 
 ## Backburner / undecided / non-critical
 * Rearranging of items (click & drag)
+* Check usernames to be alphanumeric
 * JSON object for parameters in localstorage
 * Adjust edit menu for closed items
     - Permanently delete

@@ -19,6 +19,8 @@ const DBNAME = "./data/ql.db"
 const CLEANCHECK = 1 * time.Hour    // Time interval to check for inactive items
 const KEEPTIME = 120 * time.Hour    // How long to keep item after closing
 
+const MINPASSLEN = 4        // Minimum password length
+
 const SKLEN = 30            // Skey length
 const IDLEN = 15            // ID length
 const SKNUM = 5             // Max number of concurrent skeys
@@ -49,6 +51,7 @@ type Apicall struct {
 
 type Resp struct {
     Status int              // Status code
+    Err string              // Error message
     Head Item               // Current head / list
     Contents []Item         // List contents
     User User               // Current user
@@ -261,35 +264,44 @@ func userexists(db *bolt.DB, uid string) bool {
 }
 
 // Adds new user to database
-func mkuser(db *bolt.DB, call Apicall) (User, int) {
+func mkuser(db *bolt.DB, call Apicall) (User, int, string) {
 
     u := User{}
     status := 0
+    err := "OK"
 
-    if userexists(db, call.Uname) { status = 1 }
+    if userexists(db, call.Uname) {
+        status = 1
+        err = "Username not available"
+    }
 
     if status == 0 {
-        // TODO input sanitization
         u.Uname = strings.ToLower(call.Uname)
         u.Fname = call.Fname
         u.Lname = call.Lname
-        u.Pass, _ = bcrypt.GenerateFromPassword([]byte(call.Pass), bcrypt.DefaultCost)
-
-        i := mkheaditem(db, u)
-
-        u.Root = i.ID
-        u.Cpos = i.ID
         u.Inactive = false
 
-        u = addskey(db, u) // Also commits user to db
-        usertomaster(db, u.Uname)
+        if len(call.Pass) < MINPASSLEN {
+            status = 1
+            err = fmt.Sprintf("Password needs to be at least %d characters long", MINPASSLEN)
+
+        } else {
+            u.Pass, _ = bcrypt.GenerateFromPassword([]byte(call.Pass), bcrypt.DefaultCost)
+            i := mkheaditem(db, u)
+
+            u.Root = i.ID
+            u.Cpos = i.ID
+
+            u = addskey(db, u) // Also commits user to db
+            usertomaster(db, u.Uname)
+        }
     }
 
     if status != 0 {
         u = User{}
     }
 
-    return u, status
+    return u, status, err
 }
 
 // Adds new skey to slice, replacing the SKLEN:th oldest key
@@ -305,15 +317,17 @@ func addskey(db *bolt.DB, u User) User {
 }
 
 // Attempts user login
-func loginuser(db *bolt.DB, call Apicall) (User, int) {
+func loginuser(db *bolt.DB, call Apicall) (User, int, string) {
 
     u := getuser(db, call.Uname)
     status := 0
+    err := "OK"
 
     e := bcrypt.CompareHashAndPassword(u.Pass, []byte(call.Pass))
 
     if e != nil {
         status = 1
+        err = "Incorrect username / password"
 
     } else {
         u = addskey(db, u)
@@ -322,7 +336,7 @@ func loginuser(db *bolt.DB, call Apicall) (User, int) {
 
     u.Skey = u.Skey[len(u.Skey) - 1:]
 
-    return u, status
+    return u, status, err
 }
 
 // Processes request for skey validation
@@ -384,10 +398,10 @@ func h_user(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
             resp.User = getuser(db, call.Uname)
 
         case "new":
-            resp.User, resp.Status = mkuser(db, call)
+            resp.User, resp.Status, resp.Err = mkuser(db, call)
 
         case "login":
-            resp.User, resp.Status = loginuser(db, call)
+            resp.User, resp.Status, resp.Err = loginuser(db, call)
 
         case "valskey":
             resp.User, resp.Status = valskey(db, call)
