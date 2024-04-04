@@ -231,6 +231,17 @@ function setinactivebtn(val) {
     localStorage.qlinactive = val;
 }
 
+// Updates user menu
+function uminit(u) {
+
+    const initials = u.Fname[0] + u.Lname[0];
+    const umbtn = gid("usermenubtn");
+
+    umbtn.innerHTML = initials.toUpperCase();
+
+    console.log(u);
+}
+
 // Refreshes window
 function refresh(obj) {
 
@@ -246,6 +257,7 @@ function refresh(obj) {
     if(obj.Status == 0) {
         loginscr.style.display = "none";
         gid("hdrtxt").innerHTML = obj.Head.Value;
+        uminit(obj.User);
         poplist(obj);
 
     } else {
@@ -306,6 +318,20 @@ async function additem(elem) {
     gid("additemform").reset();
 
     refresh(await gofetch(url));
+}
+
+// Opens user menu
+function openusermenu() {
+
+    gid("usermenu").style.display = "block";
+
+}
+
+// Closes user menu
+function closeusermenu() {
+
+    gid("usermenu").style.display = "none";
+
 }
 
 // Opens user registration window

@@ -39,10 +39,15 @@
         </form>
     </div>
 
+    <div id="usermenu" class="contextmenu">
+        <button id="logoutbutton" class="menubutton" onclick='logoutuser(); return false;'>log out</button>
+        <button id="closeusermenu" class="menubutton" onclick='closeusermenu(); return false;'>close</button>
+    </div>
+
     <div id="hwrap">
         <div id="hdr">
-            <button id="logoutbutton" onclick='logoutuser(); return false;'>log out</button>
-            <button id="toggleinactivebtn" onclick='toggleinactive(); return false;'></button>
+            <div id="toggleinactivebtn" onclick='toggleinactive(); return false;'></div>
+            <div id="usermenubtn" onclick='openusermenu(); return false;'></div>
             <span id="hdrtxt"></span>
         </div>
         <button id="backbtn">back</button>

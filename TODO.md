@@ -15,8 +15,6 @@
     (no share)
 * Launch flags to set port, db name etc
 * Sub-directory position in header
-* Menu for options & logout
-* Password strength conditions
 * Password reset
 * User account deletion
 * Color themes
