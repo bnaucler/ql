@@ -58,6 +58,14 @@ button:hover, input[type=submit]:hover {
     background-color: var(--col-sel);
 }
 
+#spopcontainer {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    z-index: 100;
+}
+
 #toggleinactivebtn {
     display: flex;
     position: absolute;
@@ -164,6 +172,20 @@ button:hover, input[type=submit]:hover {
 
 .smallgap {
     height: 20px;
+}
+
+.statuspop {
+    position: static;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 50px;
+    border-bottom: 1px #222 solid;
+    background-color: var(--col-bgi);
+    color: var(--col-txt);
+    opacity: .8;
+    transition: 1s;
 }
 
 .item {

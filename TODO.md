@@ -3,13 +3,13 @@
 ## Necessary
 * List sharing
 * Error handling & logging
-* Error popups
 * Remove ETime when restoring item
 
 ## Backburner / undecided / non-critical
 * Rearranging of items (click & drag)
 * Check usernames to be alphanumeric
 * JSON object for parameters in localstorage
+* Better looking error popups
 * Adjust edit menu for closed items
     - Permanently delete
     - Restore

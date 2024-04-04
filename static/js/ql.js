@@ -25,6 +25,20 @@ function mkobj(type, cl, txt) {
     return ret;
 }
 
+// Shows a temporary status message on the screen
+function statuspopup(msg) {
+
+    const mdiv = mkobj("div", "statuspop", msg);
+    const pdiv = gid("spopcontainer");
+
+    setTimeout(() => { mdiv.remove(); }, 4000);
+    setTimeout(() => { mdiv.classList.add("fade-out"); }, 3000);
+
+    mdiv.addEventListener("click", () => mdiv.remove());
+
+    pdiv.appendChild(mdiv);
+}
+
 // Attempts user login
 async function loginuser(form) {
 
@@ -253,7 +267,7 @@ function trylogin(obj) {
 
     } else {
         gid("login").style.display = "block";
-        console.log(obj.Err);
+        statuspopup(obj.Err);
     }
 }
 

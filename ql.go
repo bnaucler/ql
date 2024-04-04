@@ -331,10 +331,9 @@ func loginuser(db *bolt.DB, call Apicall) (User, int, string) {
 
     } else {
         u = addskey(db, u)
+        u.Skey = u.Skey[len(u.Skey) - 1:]
         u.Cpos = u.Root
     }
-
-    u.Skey = u.Skey[len(u.Skey) - 1:]
 
     return u, status, err
 }
