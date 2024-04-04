@@ -4,6 +4,7 @@ import (
     "fmt"
     "log"
     "time"
+    "strings"
     "net/http"
     "math/rand"
     "encoding/json"
@@ -269,7 +270,7 @@ func mkuser(db *bolt.DB, call Apicall) (User, int) {
 
     if status == 0 {
         // TODO input sanitization
-        u.Uname = call.Uname
+        u.Uname = strings.ToLower(call.Uname)
         u.Fname = call.Fname
         u.Lname = call.Lname
         u.Pass, _ = bcrypt.GenerateFromPassword([]byte(call.Pass), bcrypt.DefaultCost)
@@ -282,6 +283,10 @@ func mkuser(db *bolt.DB, call Apicall) (User, int) {
 
         u = addskey(db, u) // Also commits user to db
         usertomaster(db, u.Uname)
+    }
+
+    if status != 0 {
+        u = User{}
     }
 
     return u, status

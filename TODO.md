@@ -2,7 +2,6 @@
 
 ## Necessary
 * Input sanitization
-* Storing all usernames in lowercase format
 * List sharing
 * Error handling & logging
 * Error feedback to frontend
