@@ -4,6 +4,7 @@ import (
     "fmt"
     "log"
     "time"
+    "slices"
     "strings"
     "net/http"
     "math/rand"
@@ -53,6 +54,7 @@ type Resp struct {
     Status int              // Status code
     Err string              // Error message
     Head Item               // Current head / list
+    Hstr string             // Header title
     Contents []Item         // List contents
     User User               // Current user
 }
@@ -426,6 +428,7 @@ func h_user(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
         if !itemexists(db, resp.User.Cpos) { resp.User.Cpos = resp.User.Root }
         resp.Head, resp.Status = getitem(db, resp.User.Cpos)
         resp.Contents, resp.Status = getcontents(db, resp.Head, resp.User.Inactive)
+        resp.Hstr = getheader(db, resp.User.Cpos)
     }
 
     resp.User.Pass = []byte("")
@@ -564,6 +567,30 @@ func stripinactive(db *bolt.DB, ci Item) Item {
     return ci
 }
 
+// Returns header string based on Cpos
+func getheader(db *bolt.DB, cpos string) string {
+
+    ret := ""
+    vals := []string{}
+    i := Item{}
+    status := 0
+
+    for status == 0 {
+        i, status = getitem(db, cpos)
+        if status == 0 {
+            vals = append(vals, i.Value)
+            cpos = i.Parent
+        }
+    }
+
+    slices.Reverse(vals);
+    ret = strings.Join(vals, "/")
+
+    fmt.Printf("DEBUG ret: %+v\n\n", ret)
+
+    return ret
+}
+
 // Retrieves data objects from database based on parent
 func getcontents(db *bolt.DB, head Item, inactive bool) ([]Item, int) {
 
@@ -666,6 +693,7 @@ func h_item(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
 
     if resp.Status == 0 {
         resp.Contents, resp.Status = getcontents(db, resp.Head, resp.User.Inactive)
+        resp.Hstr = getheader(db, resp.User.Cpos)
 
     } else {
         resp.Head = Item{}

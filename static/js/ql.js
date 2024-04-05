@@ -42,8 +42,8 @@ function statuspopup(msg) {
 // Attempts user login
 async function loginuser(form) {
 
-    const uname = gid("unameinput").value;
-    const pass = gid("passinput").value;
+    const uname = encodeURIComponent(gid("unameinput").value);
+    const pass = encodeURIComponent(gid("passinput").value);
     const url = "/user?action=login&uname=" + uname + "&pass=" + pass;
 
     gid("loginform").reset();
@@ -54,10 +54,10 @@ async function loginuser(form) {
 // Attempts creation of new user
 async function mkuser(form) {
 
-    const uname = gid("newunameinput").value;
-    const pass = gid("newpassinput").value;
-    const fname = gid("fnameinput").value;
-    const lname = gid("lnameinput").value;
+    const uname = encodeURIComponent(gid("newunameinput").value);
+    const pass = encodeURIComponent(gid("newpassinput").value);
+    const fname = encodeURIComponent(gid("fnameinput").value);
+    const lname = encodeURIComponent(gid("lnameinput").value);
     const url = "/user?action=new&uname=" + uname + "&pass=" + pass +
                 "&fname=" + fname + "&lname=" + lname;
 
@@ -249,6 +249,8 @@ function refresh(obj) {
     localStorage.qlcpos = obj.User.Cpos;
     setinactivebtn(obj.User.Inactive);
 
+    console.log(obj.Hstr);
+
     const loginscr = gid("login");
 
     if(obj.Head.Parent.length > 1) {
@@ -257,7 +259,7 @@ function refresh(obj) {
 
     if(obj.Status == 0) {
         loginscr.style.display = "none";
-        gid("hdrtxt").innerHTML = obj.Head.Value;
+        gid("hdrtxt").innerHTML = obj.Hstr;
         uminit(obj.User);
         poplist(obj);
 

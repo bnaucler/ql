@@ -14,8 +14,8 @@
     - Restore
     (no share)
 * Launch flags to set port, db name etc
-* Sub-directory position in header
 * Password reset
+* Make subdirs in header clickable
 * User account deletion
 * Color themes
 * Indicator of list / item owner
