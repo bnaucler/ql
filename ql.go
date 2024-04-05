@@ -57,6 +57,7 @@ type Resp struct {
     Hstr string             // Header title
     Contents []Item         // List contents
     User User               // Current user
+    Ulist []User            // User list
 }
 
 type User struct {
@@ -356,6 +357,7 @@ func valskey(db *bolt.DB, call Apicall) (User, int) {
 // Changes user cpos to call request
 func cspos(db *bolt.DB, call Apicall) (User, int) {
 
+    // TODO skey
     u := getuser(db, call.Uname)
     status := 0
 
@@ -368,6 +370,7 @@ func cspos(db *bolt.DB, call Apicall) (User, int) {
 // Toggles user inactive setting
 func toggleinactive(db *bolt.DB, call Apicall) (User, int) {
 
+    // TODO skey
     u := getuser(db, call.Uname)
     status := 0
 
@@ -383,6 +386,35 @@ func toggleinactive(db *bolt.DB, call Apicall) (User, int) {
     return u, status
 }
 
+// Returns user list based on search request
+func getuserlist(db *bolt.DB, call Apicall) (User, int, []User, string) {
+
+    u, status := valskey(db, call)
+    mi := getmasterindex(db)
+    ulist := []User{}
+    tu := User{}
+    err := "OK"
+
+    if status == 0 {
+        for _, uid := range mi.User {
+            tu = getuser(db, uid)
+            if strings.Contains(tu.Uname, call.Value) ||
+               strings.Contains(tu.Fname, call.Value) ||
+               strings.Contains(tu.Lname, call.Value) {
+                   tu.Skey = []string{}
+                   tu.Pass = []byte{}
+                   tu.Cpos = ""
+                   tu.Root = ""
+                   ulist = append(ulist, tu)
+            }
+        }
+    } else {
+        err = "Key verification failed"
+    }
+
+    return u, status, ulist, err
+}
+
 // Handles user related requests
 func h_user(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
 
@@ -396,7 +428,7 @@ func h_user(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
 
     switch call.Action {
         case "get":
-            resp.User = getuser(db, call.Uname)
+            resp.User, resp.Status, resp.Ulist, resp.Err = getuserlist(db, call)
 
         case "new":
             resp.User, resp.Status, resp.Err = mkuser(db, call)
@@ -645,6 +677,7 @@ func toggletype(db *bolt.DB, call Apicall) (Item, int) {
 
         if i.Type == "list" {
             i.Type = "item"
+
         } else if i.Type == "item" {
             i.Type = "list"
         }

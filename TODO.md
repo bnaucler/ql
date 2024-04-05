@@ -3,6 +3,7 @@
 ## Necessary
 * List sharing
 * Error handling & logging
+* Skey protection of all relevant API actions
 
 ## Backburner / undecided / non-critical
 * Rearranging of items (click & drag)
