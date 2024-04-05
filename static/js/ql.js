@@ -77,7 +77,7 @@ function logoutuser() {
 }
 
 // Processes removal of item from list
-async function rmitem(ID, rem) {
+async function edititem(ID, rem) {
 
     const uname = gls("qluname");
     const skey = gls("qlskey");
@@ -88,21 +88,21 @@ async function rmitem(ID, rem) {
     refresh(await gofetch(url));
 }
 
-// Shows warning about removing non-empty list
-function rmwarning(ID, clen) {
+// Shows removal warning window
+function warning(ID, clen, wtxt, action) {
 
     const pdiv = gid("ui");
     const mdiv = mkobj("div", "contextmenu");
-    const yesbtn = mkobj("button", "menubutton", "YES");
-    const nobtn = mkobj("button", "menubutton", "NO");
-    const cmheader = mkobj("div", "menuheader", "Remove non-empty list?");
+    const yesbtn = mkobj("button", "menubutton", "Do it");
+    const nobtn = mkobj("button", "menubutton", "Cancel");
+    const cmheader = mkobj("div", "menuheader", wtxt);
 
     mdiv.appendChild(cmheader);
     mdiv.appendChild(yesbtn);
     mdiv.appendChild(nobtn);
     pdiv.appendChild(mdiv);
 
-    yesbtn.onclick = () => { mdiv.remove(); rmitem(ID, "close"); }
+    yesbtn.onclick = () => { mdiv.remove(); edititem(ID, action); }
     nobtn.onclick = () => mdiv.remove();
 }
 
@@ -110,10 +110,10 @@ function rmwarning(ID, clen) {
 function rmitemwrapper(ID, clen) {
 
     if(clen == 0) {
-        rmitem(ID, "close");
+        edititem(ID, "close");
 
     } else {
-        rmwarning(ID, clen);
+        warning(ID, clen, "Remove non-empty list?", "close");
     }
 }
 
@@ -129,8 +129,19 @@ async function toggletype(ID) {
     refresh(await gofetch(url));
 }
 
+// Wrapper to check for contents and generate warning when making to item
+function toggletypewrapper(ID, itype, clen) {
+
+    if(clen != 0 && itype == "list") {
+        warning(ID, clen, "Make list with contents to item?", "toggletype");
+
+    } else {
+        toggletype(ID);
+    }
+}
+
 // Opens up item context menu
-function immenu(ID, itype, val) {
+function immenu(ID, itype, clen, val) {
 
     const pdiv = gid("ui");
     const mdiv = mkobj("div", "contextmenu");
@@ -149,7 +160,7 @@ function immenu(ID, itype, val) {
     pdiv.appendChild(mdiv);
 
     cbtn.onclick = () => mdiv.remove();
-    ctbtn.onclick = () => { mdiv.remove(); toggletype(ID); }
+    ctbtn.onclick = () => { mdiv.remove(); toggletypewrapper(ID, itype, clen); }
 }
 
 // Requests list contents and sets cpos
@@ -186,7 +197,7 @@ function addlistitem(ID, val, itype, active, clen) {
     } else {
         ival.style.background = "var(--col-bginact)";
         rmdiv.style.background = "var(--col-open)";
-        rmdiv.onclick = () => rmitem(ID, "open");
+        rmdiv.onclick = () => edititem(ID, "open");
     }
 
     idiv.appendChild(ival);
@@ -194,7 +205,7 @@ function addlistitem(ID, val, itype, active, clen) {
     idiv.appendChild(imdiv);
     pdiv.appendChild(idiv);
 
-    imdiv.onclick = () => immenu(ID, itype, val);
+    imdiv.onclick = () => immenu(ID, itype, clen, val);
 }
 
 // Populates list view
@@ -248,8 +259,6 @@ function refresh(obj) {
 
     localStorage.qlcpos = obj.User.Cpos;
     setinactivebtn(obj.User.Inactive);
-
-    console.log(obj.Hstr);
 
     const loginscr = gid("login");
 

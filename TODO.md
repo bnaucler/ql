@@ -21,4 +21,3 @@
 * Indicator of list / item owner
 * CLI/TUI tool
 * Admin interface
-* Warning when making list with active items to an item

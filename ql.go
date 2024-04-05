@@ -586,8 +586,6 @@ func getheader(db *bolt.DB, cpos string) string {
     slices.Reverse(vals);
     ret = strings.Join(vals, "/")
 
-    fmt.Printf("DEBUG ret: %+v\n\n", ret)
-
     return ret
 }
 
