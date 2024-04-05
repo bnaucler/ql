@@ -140,6 +140,92 @@ function toggletypewrapper(ID, itype, clen) {
     }
 }
 
+// Requests toggle of item membership
+async function toggleitemmember(val, ID, ulist) {
+
+    const uname = gls("qluname");
+    const skey = gls("qlskey");
+    const cpos = getcpos();
+    const url = "/item?action=togglemember&uname=" + uname + "&skey=" + skey +
+                "&cpos=" + cpos + "&id=" + val + "&value=" + ID;
+
+    ulist.innerHTML = "";
+    popshareusers(await gofetch(url), ulist);
+}
+
+// Adds a non-member entry to share list
+function addshareuser(u, oid, ismember, ulist) {
+
+    const nstr = u.Fname + " " + u.Lname + " (@" + u.Uname + ")";
+    const undiv = mkobj("div", "slname", nstr);
+
+    if(ismember) {
+        undiv.style.color = "var(--col-open)"; // TODO
+
+    } else {
+        undiv.style.color = "var(--col-rm)"; // TODO
+    }
+
+    undiv.onclick = () => toggleitemmember(oid, u.Uname, ulist);
+
+    return undiv
+}
+
+// Populates user list for sharing items
+function popshareusers(obj, ulist) {
+
+    const gap = mkobj("div", "smallgap");
+    ulist.appendChild(gap);
+
+    if(obj.Umembers != undefined) {
+        for(const u of obj.Umembers)
+            ulist.appendChild(addshareuser(u, obj.Ref, true, ulist));
+    }
+
+    if(obj.Ulist != undefined) {
+        for(const u of obj.Ulist)
+            ulist.appendChild(addshareuser(u, obj.Ref, false, ulist));
+    }
+}
+
+// Requests items to populate share menu
+async function getshareusers(ID, usearch, ulist) {
+
+    const val = encodeURIComponent(usearch.value);
+    const uname = gls("qluname");
+    const skey = gls("qlskey");
+    const cpos = getcpos();
+    const url = "/user?action=get&uname=" + uname + "&skey=" + skey +
+                "&cpos=" + cpos + "&id=" + ID + "&val=" + val;
+
+    ulist.innerHTML = "";
+    popshareusers(await gofetch(url), ulist);
+}
+
+// Opens up the item share menu
+function sharemenu(ID, val) {
+
+    const pdiv = gid("ui");
+    const mdiv = mkobj("div", "contextmenu");
+    const cmheader = mkobj("div", "menuheader", val);
+    const usearch = mkobj("input", "");
+    const ulist = mkobj("div", "ulist");
+    const searchbtn = mkobj("button", "menubutton", "search");
+    const cbtn = mkobj("button", "menubutton", "close");
+
+    usearch.setAttribute("type", "text");
+
+    mdiv.appendChild(cmheader);
+    mdiv.appendChild(usearch);
+    mdiv.appendChild(ulist);
+    mdiv.appendChild(searchbtn);
+    mdiv.appendChild(cbtn);
+    pdiv.appendChild(mdiv);
+
+    cbtn.onclick = () => mdiv.remove();
+    searchbtn.onclick = () => { getshareusers(ID, usearch, ulist); }
+}
+
 // Opens up item context menu
 function immenu(ID, itype, clen, val) {
 
@@ -160,6 +246,7 @@ function immenu(ID, itype, clen, val) {
     pdiv.appendChild(mdiv);
 
     cbtn.onclick = () => mdiv.remove();
+    sharebtn.onclick = () => { mdiv.remove(); sharemenu(ID, val) }
     ctbtn.onclick = () => { mdiv.remove(); toggletypewrapper(ID, itype, clen); }
 }
 

@@ -57,7 +57,9 @@ type Resp struct {
     Hstr string             // Header title
     Contents []Item         // List contents
     User User               // Current user
-    Ulist []User            // User list
+    Ulist []User            // User list (or w/o access to object)
+    Umembers []User         // Users with access to object
+    Ref string              // String for general reference
 }
 
 type User struct {
@@ -386,16 +388,43 @@ func toggleinactive(db *bolt.DB, call Apicall) (User, int) {
     return u, status
 }
 
-// Returns user list based on search request
-func getuserlist(db *bolt.DB, call Apicall) (User, int, []User, string) {
+// Splits user list in members and non-members
+func splituserlist(db *bolt.DB, iid string, tmplist []User) ([]User, []User) {
 
-    u, status := valskey(db, call)
-    mi := getmasterindex(db)
     ulist := []User{}
-    tu := User{}
-    err := "OK"
+    umembers := []User{}
 
-    if status == 0 {
+    ci, gis := getitem(db, iid)
+
+    if gis == 0 {
+        for _, tu := range tmplist {
+            if tu.Uname == ci.Owner || existsinstringslice(tu.Uname, ci.Members) {
+                umembers = append(umembers, tu)
+
+            } else {
+                ulist = append(ulist, tu)
+            }
+        }
+    } else {
+        ulist = tmplist
+    }
+
+    return ulist, umembers
+}
+
+// Returns user list based on search request TODO refactor
+func getuserlist(db *bolt.DB, call Apicall) Resp {
+
+    resp := Resp{}
+    tmplist := []User{}
+
+    resp.User, resp.Status = valskey(db, call)
+    resp.Ref = call.ID
+
+    mi := getmasterindex(db)
+    tu := User{}
+
+    if resp.Status == 0 {
         for _, uid := range mi.User {
             tu = getuser(db, uid)
             if strings.Contains(tu.Uname, call.Value) ||
@@ -405,14 +434,17 @@ func getuserlist(db *bolt.DB, call Apicall) (User, int, []User, string) {
                    tu.Pass = []byte{}
                    tu.Cpos = ""
                    tu.Root = ""
-                   ulist = append(ulist, tu)
+                   tmplist = append(tmplist, tu)
             }
         }
+
+        resp.Ulist, resp.Umembers = splituserlist(db, call.ID, tmplist)
+
     } else {
-        err = "Key verification failed"
+        resp.Err = "Key verification failed"
     }
 
-    return u, status, ulist, err
+    return resp
 }
 
 // Handles user related requests
@@ -428,7 +460,7 @@ func h_user(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
 
     switch call.Action {
         case "get":
-            resp.User, resp.Status, resp.Ulist, resp.Err = getuserlist(db, call)
+            resp = getuserlist(db, call)
 
         case "new":
             resp.User, resp.Status, resp.Err = mkuser(db, call)
@@ -688,6 +720,48 @@ func toggletype(db *bolt.DB, call Apicall) (Item, int) {
     return p, status
 }
 
+// Toggles item membership
+func togglemember(db *bolt.DB, call Apicall) Resp {
+
+    resp := Resp{}
+    i, status := getitem(db, call.ID)
+    resp.Status = status
+    ux := userexists(db, call.Value)
+
+    if resp.Status == 0 && ux == true {
+        if call.Value == i.Owner {
+            resp.Status = 1
+            resp.Err = "Cannot remove item owner from member list"
+
+        } else if existsinstringslice(call.Value, i.Members) {
+            i.Members = rmkeyfromstringslice(call.Value, i.Members)
+            writem(db, i)
+
+        } else {
+            i.Members = append(i.Members, call.Value)
+            writem(db, i)
+        }
+
+        mi := getmasterindex(db)
+        tmplist := []User{}
+
+        for _, uid := range mi.User {
+            tu := getuser(db, uid)
+            tu.Pass = []byte("")
+            tu.Skey = []string{}
+            tmplist = append(tmplist, tu)
+        }
+
+        resp.Ulist, resp.Umembers = splituserlist(db, call.ID, tmplist)
+        resp.Ref = call.ID
+
+    } else {
+        resp.Err = "Could not open requested object"
+    }
+
+    return resp
+}
+
 // Handles item related requests
 func h_item(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
 
@@ -716,6 +790,9 @@ func h_item(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
 
             case "toggletype":
                 resp.Head, resp.Status = toggletype(db, call)
+
+            case "togglemember":
+                resp = togglemember(db, call)
 
             default:
                 resp.Status = 1
@@ -754,6 +831,16 @@ func rmkeyfromstringslice(key string, slice []string) []string {
     }
 
     return ret
+}
+
+// Returns true if string exists in slice
+func existsinstringslice(s string, sl []string) bool {
+
+    for _, cs := range sl {
+        if cs == s { return true }
+    }
+
+    return false
 }
 
 // Removes cid from contents of parents with id pid

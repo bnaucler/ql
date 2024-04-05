@@ -197,6 +197,17 @@ button:hover, input[type=submit]:hover {
     transition: 1s;
 }
 
+.ulist {
+}
+
+.slname {
+    display: block;
+    color: var(--col-txtl);
+    font-size: 1.2em;
+    padding-bottom: 5px;
+    margin-left: 10%;
+}
+
 .item {
     position: relative;
     display: block;
