@@ -2,11 +2,17 @@
 
 ## Necessary
 * List sharing
+    - Only sharable by owner
+    - Add membership to all sub-items
+    - Add to root list of new members
 * Error handling & logging
 * Skey protection of all relevant API actions
 * Always show current members in item member list
+* Lists on top of items
 
 ## Undecided / non-critical
+* Per-member parent for shared items (allows non-root placement)
+* Drop-down menu for sorting options
 * Rearranging of items (click & drag)
 * Check usernames to be alphanumeric
 * JSON object for parameters in localstorage
@@ -20,8 +26,13 @@
 * Make subdirs in header clickable
 * User account deletion
 * Indicator of list / item owner
+* List type indicated by font weigth instead of color
+* Remove the green color from the interface
+* Plus sign on grey background to restore
 
 ## Backburner
 * CLI/TUI tool
 * Admin interface
 * Color themes
+* Join invites
+* Friend- & banlist
