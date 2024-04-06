@@ -26,9 +26,6 @@
 * Make subdirs in header clickable
 * User account deletion
 * Indicator of list / item owner
-* List type indicated by font weigth instead of color
-* Remove the green color from the interface
-* Plus sign on grey background to restore
 
 ## Backburner
 * CLI/TUI tool

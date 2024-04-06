@@ -273,7 +273,7 @@ function addlistitem(ID, val, itype, active, clen) {
 
     if(itype == "list") {
         ival.innerHTML = val + " (" + clen + ")";
-        ival.style.background = "var(--col-bglist)";
+        ival.style.fontWeight = "700";
         ival.onclick = () => enterlist(ID);
         ival.style.cursor = "pointer";
     }
@@ -283,7 +283,8 @@ function addlistitem(ID, val, itype, active, clen) {
 
     } else {
         ival.style.background = "var(--col-bginact)";
-        rmdiv.style.background = "var(--col-open)";
+        rmdiv.style.background = "var(--col-bginact)";
+        rmdiv.innerHTML = "+";
         rmdiv.onclick = () => edititem(ID, "open");
     }
 
