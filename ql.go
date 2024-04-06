@@ -359,12 +359,23 @@ func valskey(db *bolt.DB, call Apicall) (User, int) {
 // Changes user cpos to call request
 func cspos(db *bolt.DB, call Apicall) (User, int) {
 
-    // TODO skey
-    u := getuser(db, call.Uname)
-    status := 0
+    u, status := valskey(db, call)
+    np := Item{}
 
-    u.Cpos = call.ID; // TODO error control
-    wruser(db, u)
+    if status == 0 {
+        np, status = getitem(db, call.ID)
+        if np.Owner == u.Uname || existsinstringslice(u.Uname, np.Members) {
+            u.Cpos = np.ID
+
+        } else {
+            u.Cpos = u.Root
+        }
+
+        wruser(db, u)
+
+    } else {
+        status = 1
+    }
 
     return u, status
 }
@@ -372,18 +383,13 @@ func cspos(db *bolt.DB, call Apicall) (User, int) {
 // Toggles user inactive setting
 func toggleinactive(db *bolt.DB, call Apicall) (User, int) {
 
-    // TODO skey
-    u := getuser(db, call.Uname)
-    status := 0
+    u, status := valskey(db, call)
 
-    if u.Inactive == false {
-        u.Inactive = true
 
-    } else {
-        u.Inactive = false
+    if status == 0 {
+        u.Inactive = !u.Inactive
+        wruser(db, u)
     }
-
-    wruser(db, u)
 
     return u, status
 }
@@ -720,6 +726,36 @@ func toggletype(db *bolt.DB, call Apicall) (Item, int) {
     return p, status
 }
 
+// Adds existing item to root level of user
+func addtoroot(db *bolt.DB, iid string, uid string) bool {
+
+    u := getuser(db, uid)
+    root, status := getitem(db, u.Root)
+
+    if status == 0 && !existsinstringslice(iid, root.Contents) {
+        root.Contents = append(root.Contents, iid)
+        writem(db, root)
+        return true
+    }
+
+    return false
+}
+
+// Unlinks shared item from member root
+func rmfromroot(db *bolt.DB, iid string, uid string) bool {
+
+    u := getuser(db, uid)
+    root, status := getitem(db, u.Root)
+
+    if status == 0 && existsinstringslice(iid, root.Contents) {
+        root.Contents = rmkeyfromstringslice(iid, root.Contents)
+        writem(db, root)
+        return true
+    }
+
+    return false
+}
+
 // Toggles item membership
 func togglemember(db *bolt.DB, call Apicall) Resp {
 
@@ -735,10 +771,12 @@ func togglemember(db *bolt.DB, call Apicall) Resp {
 
         } else if existsinstringslice(call.Value, i.Members) {
             i.Members = rmkeyfromstringslice(call.Value, i.Members)
+            rmfromroot(db, call.ID, call.Value)
             writem(db, i)
 
         } else {
             i.Members = append(i.Members, call.Value)
+            addtoroot(db, call.ID, call.Value)
             writem(db, i)
         }
 
@@ -800,6 +838,7 @@ func h_item(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
     }
 
     if resp.Status == 0 {
+        if !itemexists(db, resp.User.Cpos) { resp.User.Cpos = resp.User.Root }
         resp.Contents, resp.Status = getcontents(db, resp.Head, resp.User.Inactive)
         resp.Hstr = getheader(db, resp.User.Cpos)
 

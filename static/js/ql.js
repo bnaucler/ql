@@ -174,6 +174,10 @@ function addshareuser(u, oid, ismember, ulist) {
 // Populates user list for sharing items
 function popshareusers(obj, ulist) {
 
+    if(obj.Status != 0) {
+        statuspopup(obj.Err);
+    }
+
     const gap = mkobj("div", "smallgap");
     ulist.appendChild(gap);
 

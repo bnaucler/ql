@@ -4,7 +4,6 @@
 * List sharing
     - Only sharable by owner
     - Add membership to all sub-items
-    - Add to root list of new members
 * Error handling & logging
 * Skey protection of all relevant API actions
 * Always show current members in item member list
