@@ -232,12 +232,17 @@ function immenu(ID, itype, clen, val) {
     const sharebtn = mkobj("button", "menubutton", "share");
     const cbtn = mkobj("button", "menubutton", "close");
 
-    if(itype == "item") ctbtn.innerHTML = "make list";
-    else ctbtn.innerHTML = "make item";
-
     mdiv.appendChild(cmheader);
     mdiv.appendChild(ctbtn);
-    mdiv.appendChild(sharebtn);
+
+    if(itype == "item") {
+        ctbtn.innerHTML = "make list";
+
+    } else {
+        ctbtn.innerHTML = "make item";
+        mdiv.appendChild(sharebtn);
+    }
+
     mdiv.appendChild(cbtn);
     pdiv.appendChild(mdiv);
 
@@ -443,14 +448,12 @@ function cancelmkuser() {
 function openusermenu() {
 
     gid("usermenu").style.display = "block";
-
 }
 
 // Closes user menu
 function closeusermenu() {
 
     gid("usermenu").style.display = "none";
-
 }
 
 // Opens user registration window
@@ -460,7 +463,7 @@ function openmkuser() {
     gid("newuser").style.display = "block";
 }
 
-// Initialize frontend
+// Initialize / refresh frontend
 async function qlinit() {
 
     const uname = gls("qluname");
