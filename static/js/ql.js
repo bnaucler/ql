@@ -394,7 +394,8 @@ function refresh(obj) {
     else gid("backbtn").onclick = () => qlinit(); // Window refresh if at root
 
     if(obj.Status == 0) {
-        if(obj.Err != undefined) statuspopup(obj.Err);
+        if(obj.Err != undefined && obj.Err != "" && obj.Err != "OK")
+            statuspopup(obj.Err);
         loginscr.style.display = "none";
         gid("hdrtxt").innerHTML = obj.Hstr;
         uminit(obj.User);
