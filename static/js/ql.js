@@ -222,32 +222,54 @@ function sharemenu(ID, val) {
     searchbtn.onclick = () => { getshareusers(ID, usearch, ulist); }
 }
 
+// Permanently deletes item from database
+async function permdel(ID) {
+    const uname = gls("qluname");
+    const skey = gls("qlskey");
+    const cpos = getcpos();
+    const url = "/item?action=permdel&uname=" + uname + "&skey=" + skey +
+                "&cpos=" + cpos + "&id=" + ID;
+
+    refresh(await gofetch(url));
+}
+
 // Opens up item context menu
-function immenu(ID, itype, clen, val) {
+function immenu(ID, itype, clen, val, active) {
 
     const pdiv = gid("body");
     const mdiv = mkobj("div", "contextmenu");
     const cmheader = mkobj("div", "menuheader", val);
     const ctbtn = mkobj("button", "menubutton");
-    const sharebtn = mkobj("button", "menubutton", "share");
     const cbtn = mkobj("button", "menubutton", "close");
 
     mdiv.appendChild(cmheader);
-    mdiv.appendChild(ctbtn);
 
-    if(itype == "item") {
+    if(!active) {
+        const restorebtn = mkobj("button", "menubutton", "restore");
+        const pdelbtn = mkobj("button", "menubutton", "delete forever");
+        pdelbtn.style.background = "var(--col-rm)";
+        pdelbtn.style.color = "var(--col-txt)";
+        mdiv.appendChild(restorebtn);
+        mdiv.appendChild(pdelbtn);
+        restorebtn.onclick = () => { mdiv.remove(); edititem(ID, "open"); }
+        pdelbtn.onclick = () => { mdiv.remove(); permdel(ID); }
+
+    } else if(itype == "item") {
         ctbtn.innerHTML = "make list";
+        mdiv.appendChild(ctbtn);
 
     } else {
+        const sharebtn = mkobj("button", "menubutton", "share");
         ctbtn.innerHTML = "make item";
         mdiv.appendChild(sharebtn);
+        mdiv.appendChild(ctbtn);
+        sharebtn.onclick = () => { mdiv.remove(); sharemenu(ID, val); }
     }
 
     mdiv.appendChild(cbtn);
     pdiv.appendChild(mdiv);
 
     cbtn.onclick = () => mdiv.remove();
-    sharebtn.onclick = () => { mdiv.remove(); sharemenu(ID, val) }
     ctbtn.onclick = () => { mdiv.remove(); toggletypewrapper(ID, itype, clen); }
 }
 
@@ -294,7 +316,7 @@ function addlistitem(ID, val, itype, active, clen) {
     idiv.appendChild(imdiv);
     pdiv.appendChild(idiv);
 
-    imdiv.onclick = () => immenu(ID, itype, clen, val);
+    imdiv.onclick = () => immenu(ID, itype, clen, val, active);
 }
 
 // Wrapper for processing lists or items separately
@@ -372,6 +394,7 @@ function refresh(obj) {
     else gid("backbtn").onclick = () => qlinit(); // Window refresh if at root
 
     if(obj.Status == 0) {
+        if(obj.Err != undefined) statuspopup(obj.Err);
         loginscr.style.display = "none";
         gid("hdrtxt").innerHTML = obj.Hstr;
         uminit(obj.User);

@@ -484,6 +484,7 @@ func h_user(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
 
         default:
             resp.Status = 1
+            resp.Err = "Illegal request"
     }
 
     if call.Action != "login" && call.Action != "new" {
@@ -801,6 +802,26 @@ func togglemember(db *bolt.DB, call Apicall) Resp {
     return resp
 }
 
+// Permanently deletes item from database
+func permdel(db *bolt.DB, call Apicall) (Item, int, string) {
+
+    head, status := getitem(db, call.Cpos)
+    err := ""
+
+    if status == 0 {
+        i, status := getitem(db, call.ID)
+        if status == 0 && i.Owner == call.Uname {
+            rmitem(db, call.ID)
+
+        } else {
+            status = 1
+            err = "Cannot remove item you don't own"
+        }
+    }
+
+    return head, status, err
+}
+
 // Handles item related requests
 func h_item(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
 
@@ -827,6 +848,9 @@ func h_item(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
             case "close":
                 resp.Head, resp.Status = toggleactive(db, call)
 
+            case "permdel":
+                resp.Head, resp.Status, resp.Err = permdel(db, call)
+
             case "toggletype":
                 resp.Head, resp.Status = toggletype(db, call)
 
@@ -835,6 +859,7 @@ func h_item(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
 
             default:
                 resp.Status = 1
+                resp.Err = "Illegal request"
         }
     }
 

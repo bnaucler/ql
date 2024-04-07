@@ -1,13 +1,12 @@
 # ql TODO list
 
 ## Necessary
-* List sharing
-    - Only sharable by owner
-    - Add membership to all sub-items
+* Lists only sharable by owner
 * Error handling & logging
 * Always show current members in item member list
 
 ## Undecided / non-critical
+* Add membership to all sub-items when sharing
 * Per-member parent for shared items (allows non-root placement)
 * Drop-down menu for sorting options
 * Auto-refresh by timer
@@ -15,10 +14,6 @@
 * Check usernames to be alphanumeric
 * JSON object for parameters in localstorage
 * Better looking error popups
-* Adjust edit menu for closed items
-    - Permanently delete
-    - Restore
-    (no share)
 * Launch flags to set port, db name etc
 * User edit (change name, password etc)
 * Make subdirs in header clickable
