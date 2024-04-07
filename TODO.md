@@ -8,10 +8,12 @@
 * Skey protection of all relevant API actions
 * Always show current members in item member list
 * Window refresh after removing share members
+* Back button to refresh window when at root
 
 ## Undecided / non-critical
 * Per-member parent for shared items (allows non-root placement)
 * Drop-down menu for sorting options
+* Auto-refresh by timer
 * Rearranging of items (click & drag)
 * Check usernames to be alphanumeric
 * JSON object for parameters in localstorage

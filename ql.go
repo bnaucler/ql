@@ -765,6 +765,8 @@ func togglemember(db *bolt.DB, call Apicall) Resp {
     ux := userexists(db, call.Value)
 
     if resp.Status == 0 && ux == true {
+        resp.User, status = valskey(db, call)
+
         if call.Value == i.Owner {
             resp.Status = 1
             resp.Err = "Cannot remove item owner from member list"
@@ -790,6 +792,7 @@ func togglemember(db *bolt.DB, call Apicall) Resp {
             tmplist = append(tmplist, tu)
         }
 
+        resp.Head, status = getitem(db, call.Cpos)
         resp.Ulist, resp.Umembers = splituserlist(db, call.ID, tmplist)
         resp.Ref = call.ID
 

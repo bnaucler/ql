@@ -109,12 +109,8 @@ function warning(ID, clen, wtxt, action) {
 // Wrapper to check for empty list and show warning
 function rmitemwrapper(ID, clen) {
 
-    if(clen == 0) {
-        edititem(ID, "close");
-
-    } else {
-        warning(ID, clen, "Remove non-empty list?", "close");
-    }
+    if(clen == 0) edititem(ID, "close");
+    else warning(ID, clen, "Remove non-empty list?", "close");
 }
 
 // Requests changing type (list/item) per object ID
@@ -132,12 +128,9 @@ async function toggletype(ID) {
 // Wrapper to check for contents and generate warning when making to item
 function toggletypewrapper(ID, itype, clen) {
 
-    if(clen != 0 && itype == "list") {
-        warning(ID, clen, "Make list with contents to item?", "toggletype");
-
-    } else {
-        toggletype(ID);
-    }
+    if(clen != 0 && itype == "list")
+        warning(ID, clen, "List has contents. Proceed?", "toggletype");
+    else toggletype(ID);
 }
 
 // Requests toggle of item membership
@@ -174,7 +167,8 @@ function addshareuser(u, oid, ismember, ulist) {
 // Populates user list for sharing items
 function popshareusers(obj, ulist) {
 
-    if(obj.Status != 0)  statuspopup(obj.Err);
+    if(obj.Status != 0) statuspopup(obj.Err);
+    else poplist(obj);
 
     const gap = mkobj("div", "smallgap");
     ulist.appendChild(gap);
@@ -207,7 +201,7 @@ async function getshareusers(ID, usearch, ulist) {
 // Opens up the item share menu
 function sharemenu(ID, val) {
 
-    const pdiv = gid("ui");
+    const pdiv = gid("body");
     const mdiv = mkobj("div", "contextmenu");
     const cmheader = mkobj("div", "menuheader", val);
     const usearch = mkobj("input", "");
@@ -231,7 +225,7 @@ function sharemenu(ID, val) {
 // Opens up item context menu
 function immenu(ID, itype, clen, val) {
 
-    const pdiv = gid("ui");
+    const pdiv = gid("body");
     const mdiv = mkobj("div", "contextmenu");
     const cmheader = mkobj("div", "menuheader", val);
     const ctbtn = mkobj("button", "menubutton");
