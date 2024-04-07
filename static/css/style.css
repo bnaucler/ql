@@ -151,6 +151,10 @@ button:hover, input[type=submit]:hover {
     width: 50%;
 }
 
+#usearchinput {
+    width: calc(100% - 20px);
+}
+
 #backbtn, #itemval, #additemsubmit {
     border: 1px var(--col-txtd) solid;
     float: left;
@@ -202,10 +206,13 @@ button:hover, input[type=submit]:hover {
 
 .slname {
     display: block;
+    float: left;
     color: var(--col-txtl);
+    padding: 5px;
+    margin: 10px;
     font-size: 1.2em;
-    padding-bottom: 5px;
-    margin-left: 10%;
+    border: 1px var(--col-border) solid;
+    cursor: pointer;
 }
 
 .item {

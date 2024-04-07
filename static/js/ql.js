@@ -170,9 +170,6 @@ function popshareusers(obj, ulist) {
     if(obj.Status != 0) statuspopup(obj.Err);
     else poplist(obj);
 
-    const gap = mkobj("div", "smallgap");
-    ulist.appendChild(gap);
-
     if(obj.Umembers != undefined) {
         for(const u of obj.Umembers)
             ulist.appendChild(addshareuser(u, obj.Ref, true, ulist));
@@ -210,6 +207,8 @@ function sharemenu(ID, val) {
     const cbtn = mkobj("button", "menubutton", "close");
 
     usearch.setAttribute("type", "text");
+    usearch.placeholder = "user search";
+    usearch.id = "usearchinput";
 
     mdiv.appendChild(cmheader);
     mdiv.appendChild(usearch);

@@ -273,7 +273,7 @@ func mkuser(db *bolt.DB, call Apicall) (User, int, string) {
 
     u := User{}
     status := 0
-    err := "OK"
+    err := ""
 
     if userexists(db, call.Uname) {
         status = 1
@@ -326,7 +326,7 @@ func loginuser(db *bolt.DB, call Apicall) (User, int, string) {
 
     u := getuser(db, strings.ToLower(call.Uname))
     status := 0
-    err := "OK"
+    err := ""
 
     e := bcrypt.CompareHashAndPassword(u.Pass, []byte(call.Pass))
 
@@ -814,7 +814,6 @@ func permdel(db *bolt.DB, call Apicall) (Item, int, string) {
             rmitem(db, call.ID)
 
         } else {
-            status = 1
             err = "Cannot remove item you don't own"
         }
     }
