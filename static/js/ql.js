@@ -174,9 +174,7 @@ function addshareuser(u, oid, ismember, ulist) {
 // Populates user list for sharing items
 function popshareusers(obj, ulist) {
 
-    if(obj.Status != 0) {
-        statuspopup(obj.Err);
-    }
+    if(obj.Status != 0)  statuspopup(obj.Err);
 
     const gap = mkobj("div", "smallgap");
     ulist.appendChild(gap);
@@ -300,6 +298,19 @@ function addlistitem(ID, val, itype, active, clen) {
     imdiv.onclick = () => immenu(ID, itype, clen, val);
 }
 
+// Wrapper for processing lists or items separately
+function addlistitemwrapper(obj) {
+
+    const lilen = obj.length;
+
+    for(let i = lilen - 1; i >= 0; i--) {
+        let co = obj[i];
+        let clen = 0;
+        if(co.Contents !== null) clen = co.Contents.length;
+        addlistitem(co.ID, co.Value, co.Type, co.Active, clen);
+    }
+}
+
 // Populates list view
 function poplist(obj) {
 
@@ -307,14 +318,17 @@ function poplist(obj) {
 
     console.log(obj);
 
-    const lilen = obj.Contents.length;
+    let lists = [];
+    let items = [];
 
-    for(let i = lilen - 1; i >= 0; i--) {
-        let co = obj.Contents[i];
-        let clen = 0;
-        if(co.Contents !== null) clen = co.Contents.length;
-        addlistitem(co.ID, co.Value, co.Type, co.Active, clen);
+    for(const li of obj.Contents) {
+        if(li.Type == "list") lists.push(li);
+        else items.push(li);
     }
+
+    addlistitemwrapper(lists);
+    addlistitemwrapper(items);
+
 }
 
 // Sets correct text to 'show inactive'-button

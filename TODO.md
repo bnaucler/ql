@@ -7,7 +7,7 @@
 * Error handling & logging
 * Skey protection of all relevant API actions
 * Always show current members in item member list
-* Lists on top of items
+* Window refresh after removing share members
 
 ## Undecided / non-critical
 * Per-member parent for shared items (allows non-root placement)
