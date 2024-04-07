@@ -5,7 +5,6 @@
     - Only sharable by owner
     - Add membership to all sub-items
 * Error handling & logging
-* Skey protection of all relevant API actions
 * Always show current members in item member list
 * Window refresh after removing share members
 * Back button to refresh window when at root

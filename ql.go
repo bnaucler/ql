@@ -385,7 +385,6 @@ func toggleinactive(db *bolt.DB, call Apicall) (User, int) {
 
     u, status := valskey(db, call)
 
-
     if status == 0 {
         u.Inactive = !u.Inactive
         wruser(db, u)
@@ -603,11 +602,10 @@ func mkitem(db *bolt.DB, val string, parent string, tp string, u User) (Item, in
 // Apicall wrapper for mkitem()
 func mkitemfromcall(db *bolt.DB, call Apicall) (Item, int) {
 
-    u := getuser(db, call.Uname)
+    i := Item{}
+    u, status := valskey(db, call)
 
-    if len(u.Uname) < 1 { return Item{}, 1 } // TODO clean up
-
-    i, status := mkitem(db, call.Value, call.Cpos, call.Type, u)
+    if status == 0 { i, status = mkitem(db, call.Value, call.Cpos, call.Type, u) }
 
     return i, status
 }
