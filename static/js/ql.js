@@ -362,9 +362,9 @@ function refresh(obj) {
 
     const loginscr = gid("login");
 
-    if(obj.Head.Parent.length > 1) {
+    if(obj.Head.Parent.length > 1)
         gid("backbtn").onclick = () => enterlist(obj.Head.Parent)
-    }
+    else gid("backbtn").onclick = () => qlinit(); // Window refresh if at root
 
     if(obj.Status == 0) {
         loginscr.style.display = "none";

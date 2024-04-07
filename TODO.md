@@ -6,8 +6,6 @@
     - Add membership to all sub-items
 * Error handling & logging
 * Always show current members in item member list
-* Window refresh after removing share members
-* Back button to refresh window when at root
 
 ## Undecided / non-critical
 * Per-member parent for shared items (allows non-root placement)
