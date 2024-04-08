@@ -775,10 +775,13 @@ func togglemember(db *bolt.DB, call Apicall) Resp {
             rmfromroot(db, call.ID, call.Value)
             writem(db, i)
 
-        } else {
+        } else if i.Owner == call.Uname {
             i.Members = append(i.Members, call.Value)
             addtoroot(db, call.ID, call.Value)
             writem(db, i)
+
+        } else {
+            resp.Err = "Only list owner can share"
         }
 
         mi := getmasterindex(db)
