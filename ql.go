@@ -443,7 +443,11 @@ func getuserlist(db *bolt.DB, call Apicall) Resp {
             }
         }
 
-        resp.Ulist, resp.Umembers = splituserlist(db, call.ID, tmplist)
+        if len(tmplist) < 1 {
+            resp.Err = "No users found"
+        } else {
+            resp.Ulist, resp.Umembers = splituserlist(db, call.ID, tmplist)
+        }
 
     } else {
         resp.Err = "Key verification failed"

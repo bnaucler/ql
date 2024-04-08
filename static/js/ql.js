@@ -190,7 +190,7 @@ async function getshareusers(ID, usearch, ulist) {
     const skey = gls("qlskey");
     const cpos = getcpos();
     const url = "/user?action=get&uname=" + uname + "&skey=" + skey +
-                "&cpos=" + cpos + "&id=" + ID + "&val=" + val;
+                "&cpos=" + cpos + "&id=" + ID + "&value=" + val;
 
     ulist.innerHTML = "";
     popshareusers(await gofetch(url), ulist);
