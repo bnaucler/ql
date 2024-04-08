@@ -123,10 +123,6 @@ button:hover, input[type=submit]:hover {
     z-index: 10;
 }
 
-#login {
-    display: block;
-}
-
 #newuser {
     display: none;
 }
@@ -195,8 +191,8 @@ button:hover, input[type=submit]:hover {
     width: 100%;
     height: 50px;
     border-bottom: 1px #222 solid;
-    background-color: var(--col-bgi);
-    color: var(--col-txt);
+    background-color: var(--col-bg);
+    color: var(--col-txtl);
     opacity: .8;
     transition: 1s;
 }
