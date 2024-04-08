@@ -167,7 +167,8 @@ function addshareuser(u, oid, ismember, ulist) {
 // Populates user list for sharing items
 function popshareusers(obj, ulist) {
 
-    if(obj.Status != 0) statuspopup(obj.Err);
+    if(obj.Status != 0 || obj.Err == undefined || obj.Err != "")
+        statuspopup(obj.Err);
     else poplist(obj);
 
     if(obj.Umembers != undefined) {
@@ -204,7 +205,7 @@ function sharemenu(ID, val) {
     const usearch = mkobj("input", "");
     const ulist = mkobj("div", "ulist");
     const searchbtn = mkobj("button", "menubutton", "search");
-    const cbtn = mkobj("button", "menubutton", "close");
+    const cbtn = mkobj("div", "closebutton", "X");
 
     usearch.setAttribute("type", "text");
     usearch.placeholder = "user search";
@@ -239,7 +240,7 @@ function immenu(ID, itype, clen, val, active) {
     const mdiv = mkobj("div", "contextmenu");
     const cmheader = mkobj("div", "menuheader", val);
     const ctbtn = mkobj("button", "menubutton");
-    const cbtn = mkobj("button", "menubutton", "close");
+    const cbtn = mkobj("div", "closebutton", "X");
 
     mdiv.appendChild(cmheader);
 

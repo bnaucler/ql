@@ -209,7 +209,8 @@ button:hover, input[type=submit]:hover {
     float: left;
     color: var(--col-txtl);
     padding: 5px;
-    margin: 10px;
+    margin-left: 10px;
+    margin-bottom: 10px;
     font-size: 1.2em;
     border: 1px var(--col-border) solid;
     cursor: pointer;
@@ -288,6 +289,21 @@ button:hover, input[type=submit]:hover {
 .menubutton {
     width: calc(100% - 20px);
     margin: 10px;
+}
+
+.closebutton {
+    position: absolute;
+    display: flex;
+    right: 0;
+    top: 0;
+    font-size: 1.5em;
+    font-weight: 700;
+    width: 1.5em;
+    height: 1.5em;
+    color: var(--col-txtl);
+    cursor: pointer;
+    justify-content: center;
+    align-items: center;
 }
 
 .clear {

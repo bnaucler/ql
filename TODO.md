@@ -1,9 +1,10 @@
 # ql TODO list
 
 ## Necessary
-* Lists only sharable by owner
 * Error handling & logging
 * Always show current members in item member list
+* 'Leave'-button for removing access to self when not owner
+* Better looking share menu
 
 ## Undecided / non-critical
 * Add membership to all sub-items when sharing
