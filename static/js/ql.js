@@ -375,8 +375,10 @@ function uminit(u) {
 
     const initials = u.Fname[0] + u.Lname[0];
     const umbtn = gid("usermenubtn");
+    const umhdr = gid("userheader");
 
     umbtn.innerHTML = initials.toUpperCase();
+    umhdr.innerHTML = u.Fname + " " + u.Lname;
 
     console.log(u);
 }
