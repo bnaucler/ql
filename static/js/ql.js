@@ -2,6 +2,8 @@
 const gid = document.getElementById.bind(document);
 const gls = localStorage.getItem.bind(localStorage);
 
+let qlautoref;
+
 // HTTP request wrapper
 async function gofetch(url) {
 
@@ -463,11 +465,51 @@ async function additem(elem) {
     refresh(await gofetch(url));
 }
 
+// Sets appropriate text for timer toggle button
+function settimerbuttontext() {
+
+    const timerbtn = gid("toggletimerbtn");
+
+    if(qlautoref == undefined) timerbtn.innerHTML = "autorefresh off";
+    else timerbtn.innerHTML = "autorefresh on";
+}
+
+// Toggles auto-refresh (10 sec interval)
+function toggletimer() {
+
+    console.log(qlautoref);
+
+    if(qlautoref == undefined) {
+        qlautoref = setInterval(() => {
+            qlinit();
+        }, 10000);
+
+    } else {
+        clearInterval(qlautoref);
+        qlautoref = undefined;
+    }
+
+    settimerbuttontext();
+}
+
 // Cancels making new user
 function cancelmkuser() {
 
     gid("newuser").style.display = "none";
     gid("login").style.display = "block";
+}
+
+// Opens menu for view options
+function openviewmenu() {
+
+    settimerbuttontext();
+
+    gid("viewmenu").style.display = "block";
+}
+
+// Closes menu for view options
+function closeviewmenu() {
+    gid("viewmenu").style.display = "none";
 }
 
 // Opens user menu

@@ -8,9 +8,9 @@
 
 ## Undecided / non-critical
 * Add membership to all sub-items when sharing
+* Consistant way to open/close menus
 * Per-member parent for shared items (allows non-root placement)
 * Drop-down menu for sorting options
-* Auto-refresh by timer
 * Rearranging of items (click & drag)
 * Check usernames to be alphanumeric
 * JSON object for parameters in localstorage

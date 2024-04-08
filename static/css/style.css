@@ -66,7 +66,7 @@ button:hover, input[type=submit]:hover {
     z-index: 100;
 }
 
-#toggleinactivebtn {
+#viewmenubtn {
     display: flex;
     position: absolute;
     top: 0;
@@ -171,7 +171,7 @@ button:hover, input[type=submit]:hover {
     width: 100%;
 }
 
-#usermenu {
+#usermenu, #viewmenu {
     display: none;
 }
 

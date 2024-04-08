@@ -47,9 +47,16 @@
         <div id="closeusermenu" class="closebutton" onclick='closeusermenu(); return false;'>X</div>
     </div>
 
+    <div id="viewmenu" class="contextmenu">
+        <div id="viewheader" class="menuheader">View options</div>
+        <button id="toggleinactivebtn" class="menubutton" onclick='toggleinactive(); return false;'></button>
+        <button id="toggletimerbtn" class="menubutton" onclick='toggletimer(); return false;'></button>
+        <div id="closeviewmenu" class="closebutton" onclick='closeviewmenu(); return false;'>X</div>
+    </div>
+
     <div id="hwrap">
         <div id="hdr">
-            <div id="toggleinactivebtn" onclick='toggleinactive(); return false;'></div>
+            <div id="viewmenubtn" onclick='openviewmenu(); return false;'>M</div>
             <div id="usermenubtn" onclick='openusermenu(); return false;'></div>
             <span id="hdrtxt"></span>
         </div>
