@@ -3,6 +3,7 @@ package main
 import (
     "fmt"
     "log"
+    "net"
     "time"
     "slices"
     "strings"
@@ -149,6 +150,16 @@ func ddb(db *bolt.DB, k []byte, cbuc []byte) (e error) {
     return
 }
 
+// Returns origin IP address from HTTP request
+func getreqip(r *http.Request) net.IP {
+
+    ip := r.Header.Get("x-real-ip")
+    if ip == "" { ip = r.Header.Get("x-forwarded-for") }
+    if ip == "" { ip = r.RemoteAddr }
+
+    return net.ParseIP(ip)
+}
+
 // Retrieves master index from database
 func getmasterindex(db *bolt.DB) Index {
 
@@ -239,8 +250,6 @@ func getcall(r *http.Request) Apicall {
 // Stores user object in database
 func wruser(db *bolt.DB, u User) {
 
-    fmt.Printf("DEBUG User to write: %+v\n\n", u)
-
     btu, e := json.Marshal(u)
     cherr(e)
 
@@ -269,7 +278,7 @@ func userexists(db *bolt.DB, uid string) bool {
 }
 
 // Adds new user to database
-func mkuser(db *bolt.DB, call Apicall) (User, int, string) {
+func mkuser(db *bolt.DB, call Apicall, r *http.Request) (User, int, string) {
 
     u := User{}
     status := 0
@@ -299,6 +308,8 @@ func mkuser(db *bolt.DB, call Apicall) (User, int, string) {
 
             u = addskey(db, u) // Also commits user to db
             usertomaster(db, u.Uname)
+
+            log.Printf("New user %s created (source %+v)\n", u.Uname, getreqip(r))
         }
     }
 
@@ -322,7 +333,7 @@ func addskey(db *bolt.DB, u User) User {
 }
 
 // Attempts user login
-func loginuser(db *bolt.DB, call Apicall) (User, int, string) {
+func loginuser(db *bolt.DB, call Apicall, r *http.Request) (User, int, string) {
 
     u := getuser(db, strings.ToLower(call.Uname))
     status := 0
@@ -333,7 +344,8 @@ func loginuser(db *bolt.DB, call Apicall) (User, int, string) {
     if e != nil {
         status = 1
         err = "Incorrect username / password"
-        fmt.Printf("Failed login for user %s\n\n", u.Uname)
+        log.Printf("Failed login for user %s (source %+v)\n",
+            strings.ToLower(call.Uname), getreqip(r))
 
     } else {
         u = addskey(db, u)
@@ -352,6 +364,10 @@ func valskey(db *bolt.DB, call Apicall) (User, int) {
 
     for _, v := range u.Skey {
         if v == call.Skey { status = 0 }
+    }
+
+    if status != 0 {
+        log.Printf("Session key verification error for user %s\n", call.Uname)
     }
 
     return u, status
@@ -463,8 +479,6 @@ func h_user(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
     call := getcall(r)
     enc := json.NewEncoder(w)
 
-    fmt.Printf("DEBUG User handler call: %+v\n\n", call)
-
     resp := Resp{}
     resp.Status = 0
 
@@ -473,10 +487,10 @@ func h_user(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
             resp = getuserlist(db, call)
 
         case "new":
-            resp.User, resp.Status, resp.Err = mkuser(db, call)
+            resp.User, resp.Status, resp.Err = mkuser(db, call, r)
 
         case "login":
-            resp.User, resp.Status, resp.Err = loginuser(db, call)
+            resp.User, resp.Status, resp.Err = loginuser(db, call, r)
 
         case "valskey":
             resp.User, resp.Status = valskey(db, call)
@@ -530,8 +544,6 @@ func getitem(db *bolt.DB, callid string) (Item, int) {
 
 // Stores item object in database
 func writem(db *bolt.DB, i Item) {
-
-    fmt.Printf("DEBUG Item to write: %+v\n\n", i)
 
     bti, e := json.Marshal(i)
     cherr(e)
@@ -606,7 +618,7 @@ func mkitem(db *bolt.DB, val string, parent string, tp string, u User) (Item, in
 }
 
 // Apicall wrapper for mkitem()
-func mkitemfromcall(db *bolt.DB, call Apicall) (Item, int) {
+func mkitemfromcall(db *bolt.DB, call Apicall, r *http.Request) (Item, int) {
 
     i := Item{}
     u, status := valskey(db, call)
@@ -836,8 +848,6 @@ func h_item(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
     call := getcall(r)
     enc := json.NewEncoder(w)
 
-    fmt.Printf("DEBUG Item handler call: %+v\n\n", call)
-
     resp := Resp{}
     resp.User, resp.Status = valskey(db, call)
     resp.User.Skey = []string{}
@@ -848,7 +858,7 @@ func h_item(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
                 resp.Head, resp.Status = getitem(db, call.ID)
 
             case "new":
-                resp.Head, resp.Status = mkitemfromcall(db, call)
+                resp.Head, resp.Status = mkitemfromcall(db, call, r)
 
             case "open":
                 resp.Head, resp.Status = toggleactive(db, call)
@@ -959,9 +969,9 @@ func cleanup(db *bolt.DB) {
             }
         }
 
-        for _, oid := range olditems {
-            rmitem(db, oid)
-        }
+        oilen := len(olditems)
+        for _, oid := range olditems { rmitem(db, oid) }
+        log.Printf("Periodical cleanup removed %d items\n", oilen)
     }
 }
 

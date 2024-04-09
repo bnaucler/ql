@@ -1,7 +1,6 @@
 # ql TODO list
 
 ## Necessary
-* Error handling & logging
 * Always show current members in item member list
 * 'Leave'-button for removing access to self when not owner
 * Better looking share menu
@@ -11,7 +10,6 @@
 * Consistant way to open/close menus
 * Per-member parent for shared items (allows non-root placement)
 * Drop-down menu for sorting options
-* Rearranging of items (click & drag)
 * Check usernames to be alphanumeric
 * JSON object for parameters in localstorage
 * Better looking error popups
