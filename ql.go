@@ -333,6 +333,7 @@ func loginuser(db *bolt.DB, call Apicall) (User, int, string) {
     if e != nil {
         status = 1
         err = "Incorrect username / password"
+        fmt.Printf("Failed login for user %s\n\n", u.Uname)
 
     } else {
         u = addskey(db, u)
@@ -810,9 +811,9 @@ func togglemember(db *bolt.DB, call Apicall) Resp {
 }
 
 // Permanently deletes item from database
-func permdel(db *bolt.DB, call Apicall) (Item, int, string) {
+func permdel(db *bolt.DB, call Apicall) (Item, string) {
 
-    head, status := getitem(db, call.Cpos)
+    _, status := getitem(db, call.Cpos)
     err := ""
 
     if status == 0 {
@@ -825,7 +826,8 @@ func permdel(db *bolt.DB, call Apicall) (Item, int, string) {
         }
     }
 
-    return head, status, err
+    head, _ := getitem(db, call.Cpos)
+    return head, err
 }
 
 // Handles item related requests
@@ -855,7 +857,7 @@ func h_item(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
                 resp.Head, resp.Status = toggleactive(db, call)
 
             case "permdel":
-                resp.Head, resp.Status, resp.Err = permdel(db, call)
+                resp.Head, resp.Err = permdel(db, call)
 
             case "toggletype":
                 resp.Head, resp.Status = toggletype(db, call)
@@ -937,6 +939,7 @@ func rmitem(db *bolt.DB, iid string) {
         if e == nil { rmitemfrommaster(db, iid) }
 
     } else if status == 0 {
+        rmitemfromparent(db, i.Parent, i.ID)
         e := ddb(db, []byte(iid), IBUC)
         if e == nil { rmitemfrommaster(db, iid) }
     }

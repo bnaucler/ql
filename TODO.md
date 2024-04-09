@@ -7,7 +7,7 @@
 * Better looking share menu
 
 ## Undecided / non-critical
-* Add membership to all sub-items when sharing
+* Make autorefresh db object
 * Consistant way to open/close menus
 * Per-member parent for shared items (allows non-root placement)
 * Drop-down menu for sorting options

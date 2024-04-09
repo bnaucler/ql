@@ -226,6 +226,7 @@ function sharemenu(ID, val) {
 
 // Permanently deletes item from database
 async function permdel(ID) {
+
     const uname = gls("qluname");
     const skey = gls("qlskey");
     const cpos = getcpos();
@@ -339,8 +340,6 @@ function poplist(obj) {
 
     gid("ui").innerHTML = "";
 
-    console.log(obj);
-
     let lists = [];
     let items = [];
 
@@ -381,8 +380,6 @@ function uminit(u) {
 
     umbtn.innerHTML = initials.toUpperCase();
     umhdr.innerHTML = u.Fname + " " + u.Lname;
-
-    console.log(u);
 }
 
 // Refreshes window
@@ -476,8 +473,6 @@ function settimerbuttontext() {
 
 // Toggles auto-refresh (10 sec interval)
 function toggletimer() {
-
-    console.log(qlautoref);
 
     if(qlautoref == undefined) {
         qlautoref = setInterval(() => {
