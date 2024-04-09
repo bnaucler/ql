@@ -43,20 +43,34 @@
 
     <div id="usermenu" class="contextmenu">
         <div id="userheader" class="menuheader"></div>
+        <div class="smallgap"></div>
+        <div class="switchlabel">Sorting order</div>
+        <select id="sortorder" name="sortorder" onchange="sortlist(this)">
+            <option value="chrona">Latest first</div>
+            <option value="chrond">Oldest first</div>
+            <option value="alphaa">Alphabetical</div>
+        </select>
+        <div class="clear"></div>
+        <div class="microgap"></div>
+        <div class="switchlabel">Show inactive items</div>
+        <div id="toggleinactivesw" class="toggleswitch" onclick='toggleinactive(); return false;'>
+            <div id="toggleinactiveval"></div>
+        </div>
+        <div class="clear"></div>
+        <div class="microgap"></div>
+        <div class="switchlabel">Auto-refresh</div>
+        <div id="toggletimersw" class="toggleswitch" onclick='toggletimer(); return false;'>
+            <div id="toggletimerval"></div>
+        </div>
+        <div id="closeviewmenu" class="closebutton" onclick='closeviewmenu(); return false;'>X</div>
+        <div class="clear"></div>
+        <div class="smallgap"></div>
         <button id="logoutbutton" class="menubutton" onclick='logoutuser(); return false;'>log out</button>
         <div id="closeusermenu" class="closebutton" onclick='closeusermenu(); return false;'>X</div>
     </div>
 
-    <div id="viewmenu" class="contextmenu">
-        <div id="viewheader" class="menuheader">View options</div>
-        <button id="toggleinactivebtn" class="menubutton" onclick='toggleinactive(); return false;'></button>
-        <button id="toggletimerbtn" class="menubutton" onclick='toggletimer(); return false;'></button>
-        <div id="closeviewmenu" class="closebutton" onclick='closeviewmenu(); return false;'>X</div>
-    </div>
-
     <div id="hwrap">
         <div id="hdr">
-            <div id="viewmenubtn" onclick='openviewmenu(); return false;'>V</div>
             <div id="usermenubtn" onclick='openusermenu(); return false;'></div>
             <span id="hdrtxt"></span>
         </div>

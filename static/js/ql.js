@@ -154,12 +154,7 @@ function addshareuser(u, oid, ismember, ulist) {
     const nstr = u.Fname + " " + u.Lname + " (@" + u.Uname + ")";
     const undiv = mkobj("div", "slname", nstr);
 
-    if(ismember) {
-        undiv.style.color = "var(--col-open)"; // TODO
-
-    } else {
-        undiv.style.color = "var(--col-rm)"; // TODO
-    }
+    if(!ismember) undiv.style.color = "var(--col-rm)";
 
     undiv.onclick = () => toggleitemmember(oid, u.Uname, ulist);
 
@@ -323,15 +318,35 @@ function addlistitem(ID, val, itype, active, clen) {
 }
 
 // Wrapper for processing lists or items separately
-function addlistitemwrapper(obj) {
+function addlistitemwrapper(co) {
+
+    let clen = 0;
+    if(co.Contents != null && co.Contents != undefined)
+        clen = co.Contents.length;
+    addlistitem(co.ID, co.Value, co.Type, co.Active, clen);
+}
+
+// Sorts items alphabetically
+function alphasort(arr) {
+
+    return arr.sort((a, b) => a.Value.localeCompare(b.Value));
+}
+
+// Loops through list according to selected sorting method
+function picksortmethod(obj) {
 
     const lilen = obj.length;
+    const method = getsortmethod();
 
-    for(let i = lilen - 1; i >= 0; i--) {
-        let co = obj[i];
-        let clen = 0;
-        if(co.Contents !== null) clen = co.Contents.length;
-        addlistitem(co.ID, co.Value, co.Type, co.Active, clen);
+    if(method == "chrona") {
+        for(let i = lilen - 1; i >= 0; i--) addlistitemwrapper(obj[i])
+
+    } else if(method == "chrond") {
+        for(const co of obj) addlistitemwrapper(co);
+
+    } else {
+        obj = alphasort(obj);
+        for(const co of obj) addlistitemwrapper(co);
     }
 }
 
@@ -348,24 +363,43 @@ function poplist(obj) {
         else items.push(li);
     }
 
-    addlistitemwrapper(lists);
-    addlistitemwrapper(items);
+    picksortmethod(lists);
+    picksortmethod(items);
 
 }
 
-// Sets correct text to 'show inactive'-button
+// Retrieves sorting method from localstorage or sets if nonexistant
+function getsortmethod() {
+
+    let method = gls("qlsort");
+
+    if(method == null || method == undefined) {
+        method = "chrona";
+        localStorage.qlsort = method;
+    }
+
+    gid("sortorder").value = method;
+
+    return method;
+}
+
+// Reads sorting order settings and calls update
+function sortlist(obj) {
+
+    localStorage.qlsort = obj.value;
+    qlinit();
+}
+
+// Flips 'show inactive' switch to correct position
 function setinactivebtn(val) {
 
-    const btn = gid("toggleinactivebtn");
+    const sw = gid("toggleinactiveval");
 
     if(val == true) {
-        btn.innerHTML = "all";
-
-    } else if(val == false) {
-        btn.innerHTML = "active";
+        sw.style.left = "20px";
 
     } else {
-        btn.innerHTML = "active";
+        sw.style.left = "0";
     }
 
     localStorage.qlinactive = val;
@@ -465,10 +499,10 @@ async function additem(elem) {
 // Sets appropriate text for timer toggle button
 function settimerbuttontext() {
 
-    const timerbtn = gid("toggletimerbtn");
+    const timersw = gid("toggletimerval");
 
-    if(qlautoref == undefined) timerbtn.innerHTML = "autorefresh off";
-    else timerbtn.innerHTML = "autorefresh on";
+    if(qlautoref == undefined) timersw.style.left = "0";
+    else timersw.style.left = "20px";
 }
 
 // Toggles auto-refresh (10 sec interval)
@@ -494,22 +528,10 @@ function cancelmkuser() {
     gid("login").style.display = "block";
 }
 
-// Opens menu for view options
-function openviewmenu() {
-
-    settimerbuttontext();
-
-    gid("viewmenu").style.display = "block";
-}
-
-// Closes menu for view options
-function closeviewmenu() {
-    gid("viewmenu").style.display = "none";
-}
-
 // Opens user menu
 function openusermenu() {
 
+    getsortmethod();
     gid("usermenu").style.display = "block";
 }
 

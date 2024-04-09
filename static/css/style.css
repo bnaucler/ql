@@ -64,19 +64,6 @@ button:hover, input[type=submit]:hover {
     z-index: 100;
 }
 
-#viewmenubtn {
-    display: flex;
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 50%;
-    width: 20%;
-    justify-content: center;
-    align-items: center;
-    font-size: .7em;
-    cursor: pointer;
-}
-
 #usermenubtn {
     position: absolute;
     display: flex;
@@ -160,6 +147,13 @@ button:hover, input[type=submit]:hover {
     border-right: none;
 }
 
+#sortorder {
+    float: right;
+    margin-right: 20px;
+    background-color: var(--col-input);
+    border: none;
+}
+
 #itemval {
     width: 60%;
     margin: 0;
@@ -181,6 +175,10 @@ button:hover, input[type=submit]:hover {
     height: 20px;
 }
 
+.microgap {
+    height: 5px;
+}
+
 .statuspop {
     position: static;
     display: flex;
@@ -196,6 +194,25 @@ button:hover, input[type=submit]:hover {
 }
 
 .ulist {
+    /* TODO */
+}
+
+.toggleswitch {
+    margin-right: 20px;
+    float: right;
+    display: block;
+    width: 40px;
+    height: 20px;
+    background-color: var(--col-bgl);
+    border: 1px #222 solid;
+    cursor: pointer;
+}
+
+#toggleinactiveval, #toggletimerval {
+    position: relative;
+    width: 20px;
+    height: 20px;
+    background-color: var(--col-bgi);
 }
 
 .slname {
@@ -262,6 +279,12 @@ button:hover, input[type=submit]:hover {
     align-items: center;
 }
 
+.switchlabel {
+    margin-left: 20px;
+    float: left;
+    color: var(--col-txtl);
+}
+
 .contextmenu {
     position: fixed;
     z-index: 20;
@@ -291,7 +314,7 @@ button:hover, input[type=submit]:hover {
     right: 0;
     top: 0;
     font-size: 1.5em;
-    font-weight: 700;
+    font-weight: 200;
     width: 1.5em;
     height: 1.5em;
     color: var(--col-txtl);

@@ -971,7 +971,10 @@ func cleanup(db *bolt.DB) {
 
         oilen := len(olditems)
         for _, oid := range olditems { rmitem(db, oid) }
-        log.Printf("Periodical cleanup removed %d items\n", oilen)
+
+        if oilen > 0 {
+            log.Printf("Periodical cleanup removed %d items\n", oilen)
+        }
     }
 }
 
