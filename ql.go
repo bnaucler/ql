@@ -211,6 +211,20 @@ func rmitemfrommaster(db *bolt.DB, iid string) {
     wrmasterindex(db, i)
 }
 
+// Removes user from master index
+func rmuserfrommaster(db *bolt.DB, uid string) {
+
+    i := getmasterindex(db)
+    nu := []string{}
+
+    for _, id := range i.User {
+        if id != uid { nu = append(nu, id) }
+    }
+
+    i.User = nu
+    wrmasterindex(db, i)
+}
+
 // Retrieves user object from database
 func getuser(db *bolt.DB, uname string) User {
 
@@ -363,8 +377,6 @@ func edituser(db *bolt.DB, call Apicall, r *http.Request) (User, int, string) {
     err := ""
 
     if status == 0 {
-        fmt.Printf("DEBUG edit call: %+v\n\n", call)
-
         if len(call.Fname) < 1 || len(call.Lname) < 1 {
             err = "Name fields cannot be left blank"
 
@@ -508,13 +520,13 @@ func rmuser(db *bolt.DB, call Apicall) (User, int, string) {
     err := ""
 
     if status == 0 {
-        fmt.Printf("DEBUG rmuser call: %+v\n\n", call)
-
         rmitem(db, u.Root)
+        rmuserfrommaster(db, u.Uname)
         e := ddb(db, []byte(u.Uname), UBUC)
 
         if e == nil {
             err = "User sucessfully removed"
+            log.Printf("User %s removed from database", call.Uname)
             status = 1
         }
 
@@ -1002,11 +1014,13 @@ func rmitem(db *bolt.DB, iid string) {
 
     if status == 0 && len(i.Contents) > 0 {
         for _, cid := range i.Contents { rmitem(db, cid) }
+        for _, mid := range i.Members { rmfromroot(db, i.ID, mid) }
         rmitemfromparent(db, i.Parent, i.ID)
         e := ddb(db, []byte(iid), IBUC)
         if e == nil { rmitemfrommaster(db, iid) }
 
     } else if status == 0 {
+        for _, mid := range i.Members { rmfromroot(db, i.ID, mid) }
         rmitemfromparent(db, i.Parent, i.ID)
         e := ddb(db, []byte(iid), IBUC)
         if e == nil { rmitemfrommaster(db, iid) }

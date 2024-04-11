@@ -17,6 +17,7 @@
 * Password change
 * Make subdirs in header clickable
 * Indicator of list / item owner
+* Password required for user account deletion
 
 ## Backburner
 * CLI/TUI tool
