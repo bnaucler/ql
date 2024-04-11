@@ -132,6 +132,21 @@ button:hover, input[type=submit]:hover {
     width: 50%;
 }
 
+#chfname, #chlname {
+    width: calc(100% - 20px);
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+#submituseredit {
+    width: calc(100% - 20px);
+}
+
+#deluserbtn {
+    background-color: var(--col-rm);
+    color: var(--col-txtd);
+}
+
 #usearchinput {
     width: calc(100% - 20px);
 }
@@ -150,7 +165,9 @@ button:hover, input[type=submit]:hover {
 #sortorder {
     float: right;
     margin-right: 20px;
-    background-color: var(--col-input);
+    background-color: var(--col-bg);
+    font-size: 0.9em;
+    color: var(--col-txtl);
     border: none;
 }
 
@@ -163,7 +180,7 @@ button:hover, input[type=submit]:hover {
     width: 100%;
 }
 
-#usermenu, #viewmenu {
+#usermenu, #useredit, #viewmenu {
     display: none;
 }
 
@@ -176,7 +193,7 @@ button:hover, input[type=submit]:hover {
 }
 
 .microgap {
-    height: 5px;
+    height: 10px;
 }
 
 .statuspop {

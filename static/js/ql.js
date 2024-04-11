@@ -68,6 +68,20 @@ async function mkuser(form) {
     trylogin(await gofetch(url));
 }
 
+// Requests change of user details
+async function chuser(form) {
+
+    const uname = gls("qluname");
+    const skey = gls("qlskey");
+    const cpos = getcpos();
+    const fname = encodeURIComponent(gid("chfname").value);
+    const lname = encodeURIComponent(gid("chlname").value);
+    const url = "/user?action=edit&uname=" + uname + "&skey=" + skey +
+                "&fname=" + fname + "&lname=" + lname;
+
+    refresh(await gofetch(url));
+}
+
 // Removes stored user data and displays login screen
 function logoutuser() {
 
@@ -416,6 +430,13 @@ function uminit(u) {
     umhdr.innerHTML = u.Fname + " " + u.Lname;
 }
 
+// Updates values for name changing textboxes
+function setchnamevals(u) {
+
+    gid("chfname").value = u.Fname;
+    gid("chlname").value = u.Lname;
+}
+
 // Refreshes window
 function refresh(obj) {
 
@@ -432,9 +453,11 @@ function refresh(obj) {
         if(obj.Err != undefined && obj.Err != "" && obj.Err != "OK")
             statuspopup(obj.Err);
         loginscr.style.display = "none";
+        useredit.style.display = "none";
         gid("hdrtxt").innerHTML = obj.Hstr;
         uminit(obj.User);
         poplist(obj);
+        setchnamevals(obj.User);
 
     } else {
         loginscr.style.display = "block";
@@ -526,6 +549,18 @@ function cancelmkuser() {
 
     gid("newuser").style.display = "none";
     gid("login").style.display = "block";
+}
+
+// Opens user details edit
+function openuseredit() {
+    gid("usermenu").style.display = "none";
+    gid("useredit").style.display = "block";
+}
+
+// Closes user details edit
+function closeuseredit() {
+
+    gid("useredit").style.display = "none";
 }
 
 // Opens user menu

@@ -31,9 +31,9 @@
             </input><br>
             <input id="newpassinput" type="password" name="pass" Placeholder="Password">
             </input><br>
-            <input id="fnameinput" type="text" name="pass" Placeholder="First name">
+            <input id="fnameinput" type="text" name="fname" Placeholder="First name">
             </input><br>
-            <input id="lnameinput" type="text" name="pass" Placeholder="Last name">
+            <input id="lnameinput" type="text" name="lname" Placeholder="Last name">
             </input><br>
             <input type="submit" value="Create account">
             <div class="smallgap"></div>
@@ -44,7 +44,7 @@
     <div id="usermenu" class="contextmenu">
         <div id="userheader" class="menuheader"></div>
         <div class="smallgap"></div>
-        <div class="switchlabel">Sorting order</div>
+        <div class="switchlabel">Sorting</div>
         <select id="sortorder" name="sortorder" onchange="sortlist(this)">
             <option value="chrona">Latest first</div>
             <option value="chrond">Oldest first</div>
@@ -52,7 +52,7 @@
         </select>
         <div class="clear"></div>
         <div class="microgap"></div>
-        <div class="switchlabel">Show inactive items</div>
+        <div class="switchlabel">Show inactive</div>
         <div id="toggleinactivesw" class="toggleswitch" onclick='toggleinactive(); return false;'>
             <div id="toggleinactiveval"></div>
         </div>
@@ -65,8 +65,20 @@
         <div id="closeviewmenu" class="closebutton" onclick='closeviewmenu(); return false;'>X</div>
         <div class="clear"></div>
         <div class="smallgap"></div>
+        <button id="usereditbtn" class="menubutton" onclick='openuseredit(); return false;'>edit user</button>
         <button id="logoutbutton" class="menubutton" onclick='logoutuser(); return false;'>log out</button>
         <div id="closeusermenu" class="closebutton" onclick='closeusermenu(); return false;'>X</div>
+    </div>
+
+    <div id="useredit" class="contextmenu">
+        <div id="userheader" class="menuheader">edit user</div>
+        <form id="chuserform" onsubmit="chuser(this); return false;" method="post">
+            <input id="chfname" type="text" name="fname" Placeholder="First name"></input>
+            <input id="chlname" type="text" name="lname" Placeholder="Last name"></input>
+            <input id="submituseredit" type="submit" value="update details">
+        </form>
+        <button id="deluserbtn" class="menubutton" onclick='rmuser(); return false;'>delete forever</button>
+        <div id="closeuseredit" class="closebutton" onclick='closeuseredit(); return false;'>X</div>
     </div>
 
     <div id="hwrap">

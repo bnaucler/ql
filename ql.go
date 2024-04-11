@@ -356,6 +356,34 @@ func loginuser(db *bolt.DB, call Apicall, r *http.Request) (User, int, string) {
     return u, status, err
 }
 
+// Processes edit of user details
+func edituser(db *bolt.DB, call Apicall, r *http.Request) (User, int, string) {
+
+    u, status := valskey(db, call)
+    err := ""
+
+    if status == 0 {
+        fmt.Printf("DEBUG edit call: %+v\n\n", call)
+
+        if len(call.Fname) < 1 || len(call.Lname) < 1 {
+            err = "Name fields cannot be left blank"
+
+        } else {
+            u.Fname = call.Fname
+            u.Lname = call.Lname
+            wruser(db, u)
+            log.Printf("User %s set new name to %s %s\n", u.Uname, u.Fname, u.Lname)
+            err = fmt.Sprintf("Name changed to %s %s", u.Fname, u.Lname)
+        }
+
+    } else {
+        status = 1
+        err = "User verification failed"
+    }
+
+    return u, status, err
+}
+
 // Processes request for skey validation
 func valskey(db *bolt.DB, call Apicall) (User, int) {
 
@@ -488,6 +516,9 @@ func h_user(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
 
         case "new":
             resp.User, resp.Status, resp.Err = mkuser(db, call, r)
+
+        case "edit":
+            resp.User, resp.Status, resp.Err = edituser(db, call, r)
 
         case "login":
             resp.User, resp.Status, resp.Err = loginuser(db, call, r)
