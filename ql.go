@@ -303,6 +303,10 @@ func mkuser(db *bolt.DB, call Apicall, r *http.Request) (User, int, string) {
     if userexists(db, uname) {
         status = 1
         err = "Username not available"
+
+    } else if len(call.Uname) < 1 || len(call.Fname) < 1 || len(call.Lname) < 1 {
+        status = 1
+        err = "No input fields can be left empty"
     }
 
     if status == 0 {

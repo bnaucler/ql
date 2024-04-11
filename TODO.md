@@ -4,7 +4,6 @@
 * Always show current members in item member list
 * 'Leave'-button for removing access to self when not owner
 * Better looking share menu
-* Fname & Lname required at registration
 
 ## Undecided / non-critical
 * Make autorefresh db object
@@ -23,6 +22,7 @@
 ## Backburner
 * CLI/TUI tool
 * Admin interface
+* Statistics
 * Color themes
 * Join invites
 * Friend- & banlist
