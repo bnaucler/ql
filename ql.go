@@ -1018,12 +1018,9 @@ func rmitem(db *bolt.DB, iid string) {
 
     if status == 0 && len(i.Contents) > 0 {
         for _, cid := range i.Contents { rmitem(db, cid) }
-        for _, mid := range i.Members { rmfromroot(db, i.ID, mid) }
-        rmitemfromparent(db, i.Parent, i.ID)
-        e := ddb(db, []byte(iid), IBUC)
-        if e == nil { rmitemfrommaster(db, iid) }
+    }
 
-    } else if status == 0 {
+    if status == 0 {
         for _, mid := range i.Members { rmfromroot(db, i.ID, mid) }
         rmitemfromparent(db, i.Parent, i.ID)
         e := ddb(db, []byte(iid), IBUC)
