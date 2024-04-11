@@ -1,7 +1,6 @@
 # ql TODO list
 
 ## Necessary
-* 'Leave'-button for removing access to self when not owner
 * Better looking share menu
 
 ## Undecided / non-critical

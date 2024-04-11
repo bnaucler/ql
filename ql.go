@@ -519,14 +519,12 @@ func rmduplicateusers(sl []User) []User {
 
     for _, u := range sl {
         isin := false
+
         for _, ur := range ret {
-            if ur.Uname == u.Uname {
-                isin = true
-            }
+            if ur.Uname == u.Uname { isin = true }
         }
-        if !isin {
-            ret = append(ret, u)
-        }
+
+        if !isin { ret = append(ret, u) }
     }
 
     return ret

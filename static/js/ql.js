@@ -262,8 +262,20 @@ async function permdel(ID) {
     refresh(await gofetch(url));
 }
 
-// Opens up item context menu
-function immenu(ID, itype, clen, val, active) {
+// Requests leaving a shared list
+async function leavelist(ID, val) {
+
+    const uname = gls("qluname");
+    const skey = gls("qlskey");
+    const cpos = getcpos();
+    const url = "/item?action=togglemember&uname=" + uname + "&skey=" + skey +
+                "&cpos=" + cpos + "&id=" + ID + "&value=" + uname;
+
+    refresh(await gofetch(url));
+}
+
+// Opens up item context menu TODO refactor
+function immenu(ID, itype, clen, val, active, owner) {
 
     const pdiv = gid("body");
     const mdiv = mkobj("div", "contextmenu");
@@ -287,12 +299,19 @@ function immenu(ID, itype, clen, val, active) {
         ctbtn.innerHTML = "make list";
         mdiv.appendChild(ctbtn);
 
-    } else {
+    } else if(owner == gls("qluname")) {
         const sharebtn = mkobj("button", "menubutton", "share");
         ctbtn.innerHTML = "make item";
         mdiv.appendChild(sharebtn);
         mdiv.appendChild(ctbtn);
         sharebtn.onclick = () => { mdiv.remove(); sharemenu(ID, val); }
+
+    } else {
+        const leavebtn = mkobj("button", "menubutton", "leave shared list");
+        leavebtn.style.background = "var(--col-rm)";
+        leavebtn.style.color = "var(--col-txtd)";
+        mdiv.appendChild(leavebtn);
+        leavebtn.onclick = () => { mdiv.remove(); leavelist(ID); }
     }
 
     mdiv.appendChild(cbtn);
@@ -315,7 +334,7 @@ async function enterlist(ID) {
 }
 
 // Adds individual list item
-function addlistitem(ID, val, itype, active, clen) {
+function addlistitem(ID, val, itype, active, clen, owner) {
 
     const pdiv = gid("ui");
     const idiv = mkobj("div", "item");
@@ -345,7 +364,7 @@ function addlistitem(ID, val, itype, active, clen) {
     idiv.appendChild(imdiv);
     pdiv.appendChild(idiv);
 
-    imdiv.onclick = () => immenu(ID, itype, clen, val, active);
+    imdiv.onclick = () => immenu(ID, itype, clen, val, active, owner);
 }
 
 // Wrapper for processing lists or items separately
@@ -354,7 +373,7 @@ function addlistitemwrapper(co) {
     let clen = 0;
     if(co.Contents != null && co.Contents != undefined)
         clen = co.Contents.length;
-    addlistitem(co.ID, co.Value, co.Type, co.Active, clen);
+    addlistitem(co.ID, co.Value, co.Type, co.Active, clen, co.Owner);
 }
 
 // Sorts items alphabetically
