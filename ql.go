@@ -501,6 +501,30 @@ func getuserlist(db *bolt.DB, call Apicall) Resp {
     return resp
 }
 
+// Processes removal of user account
+func rmuser(db *bolt.DB, call Apicall) (User, int, string) {
+
+    u, status := valskey(db, call)
+    err := ""
+
+    if status == 0 {
+        fmt.Printf("DEBUG rmuser call: %+v\n\n", call)
+
+        rmitem(db, u.Root)
+        e := ddb(db, []byte(u.Uname), UBUC)
+
+        if e == nil {
+            err = "User sucessfully removed"
+            status = 1
+        }
+
+    } else {
+        err = "Key verification failed"
+    }
+
+    return u, status, err
+}
+
 // Handles user related requests
 func h_user(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
 
@@ -531,6 +555,9 @@ func h_user(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
 
         case "toggleinactive":
             resp.User, resp.Status = toggleinactive(db, call)
+
+        case "rm":
+            resp.User, resp.Status, resp.Err = rmuser(db, call)
 
         default:
             resp.Status = 1

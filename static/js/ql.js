@@ -68,6 +68,23 @@ async function mkuser(form) {
     trylogin(await gofetch(url));
 }
 
+// Shows warning when attempting to delete user account
+function rmuserwarning() {
+
+    gid("useredit").style.display = "none";
+    warning("", "", "Delete user account forever?", "deluser", rmuser)
+}
+
+// Requests removal of user account
+async function rmuser(ID, action) {
+
+    const uname = gls("qluname");
+    const skey = gls("qlskey");
+    const url = "/user?action=rm&uname=" + uname + "&skey=" + skey;
+
+    refresh(await gofetch(url));
+}
+
 // Requests change of user details
 async function chuser(form) {
 
@@ -105,7 +122,7 @@ async function edititem(ID, rem) {
 }
 
 // Shows removal warning window
-function warning(ID, clen, wtxt, action) {
+function warning(ID, clen, wtxt, action, efunc) {
 
     const pdiv = gid("ui");
     const mdiv = mkobj("div", "contextmenu");
@@ -118,7 +135,7 @@ function warning(ID, clen, wtxt, action) {
     mdiv.appendChild(nobtn);
     pdiv.appendChild(mdiv);
 
-    yesbtn.onclick = () => { mdiv.remove(); edititem(ID, action); }
+    yesbtn.onclick = () => { mdiv.remove(); efunc(ID, action); }
     nobtn.onclick = () => mdiv.remove();
 }
 
@@ -126,7 +143,7 @@ function warning(ID, clen, wtxt, action) {
 function rmitemwrapper(ID, clen) {
 
     if(clen == 0) edititem(ID, "close");
-    else warning(ID, clen, "Remove non-empty list?", "close");
+    else warning(ID, clen, "Remove non-empty list?", "close", edititem);
 }
 
 // Requests changing type (list/item) per object ID
@@ -145,7 +162,7 @@ async function toggletype(ID) {
 function toggletypewrapper(ID, itype, clen) {
 
     if(clen != 0 && itype == "list")
-        warning(ID, clen, "List has contents. Proceed?", "toggletype");
+        warning(ID, clen, "List has contents. Proceed?", "toggletype", edititem);
     else toggletype(ID);
 }
 

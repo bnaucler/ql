@@ -16,7 +16,6 @@
 * Launch flags to set port, db name etc
 * Password change
 * Make subdirs in header clickable
-* User account deletion
 * Indicator of list / item owner
 
 ## Backburner
