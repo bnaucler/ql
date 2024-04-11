@@ -458,7 +458,7 @@ func toggleinactive(db *bolt.DB, call Apicall) (User, int) {
     return u, status
 }
 
-// Splits user list in members and non-members
+// Splits user slice in members and non-members
 func splituserlist(db *bolt.DB, iid string, tmplist []User) ([]User, []User) {
 
     ulist := []User{}
@@ -482,40 +482,100 @@ func splituserlist(db *bolt.DB, iid string, tmplist []User) ([]User, []User) {
     return ulist, umembers
 }
 
+// Loops through slice of users, returns true if uid is included
+func uidinuserlist(uid string, list []User) bool {
+
+    for _, u := range list {
+        if u.Uname == uid { return true }
+    }
+
+    return false
+}
+
+// Returns a slice of users based on API request
+func getuserspersearch(db *bolt.DB, call Apicall) []User {
+
+    mi := getmasterindex(db)
+    list := []User{}
+
+    for _, uid := range mi.User {
+        tu := getuser(db, uid)
+        if strings.Contains(tu.Uname, call.Value) ||
+           strings.Contains(tu.Fname, call.Value) ||
+           strings.Contains(tu.Lname, call.Value) {
+            if !uidinuserlist(tu.Uname, list) {
+                list = append(list, tu)
+            }
+        }
+    }
+
+    return list
+}
+
+// Removes duplicate users from slice
+func rmduplicateusers(sl []User) []User {
+
+    ret := []User{}
+
+    for _, u := range sl {
+        isin := false
+        for _, ur := range ret {
+            if ur.Uname == u.Uname {
+                isin = true
+            }
+        }
+        if !isin {
+            ret = append(ret, u)
+        }
+    }
+
+    return ret
+}
+
 // Returns user list based on search request TODO refactor
 func getuserlist(db *bolt.DB, call Apicall) Resp {
 
     resp := Resp{}
     tmplist := []User{}
+    tu := User{}
+    i := Item{}
 
     resp.User, resp.Status = valskey(db, call)
-    resp.Ref = call.ID
+    if resp.Status != 0 {
+        resp.Err = "Key verification failed"
+    }
 
-    mi := getmasterindex(db)
-    tu := User{}
+    i, resp.Status = getitem(db, call.ID)
+    if resp.Status != 0 {
+        resp.Err = "Could not open requested item"
+    }
 
     if resp.Status == 0 {
-        for _, uid := range mi.User {
-            tu = getuser(db, uid)
-            if strings.Contains(tu.Uname, call.Value) ||
-               strings.Contains(tu.Fname, call.Value) ||
-               strings.Contains(tu.Lname, call.Value) {
-                   tu.Skey = []string{}
-                   tu.Pass = []byte{}
-                   tu.Cpos = ""
-                   tu.Root = ""
-                   tmplist = append(tmplist, tu)
-            }
+        // Append owner
+        tmplist = append(tmplist, getuser(db, i.Owner))
+
+        // Append users based on item members
+        for _, imuid := range i.Members {
+            tu = getuser(db, imuid)
+            tmplist = append(tmplist, tu)
         }
 
-        if len(tmplist) < 1 {
-            resp.Err = "No users found"
-        } else {
-            resp.Ulist, resp.Umembers = splituserlist(db, call.ID, tmplist)
+        // Append users based on search request
+        tmplist = append(tmplist, getuserspersearch(db, call)...)
+
+        // Remove duplicates
+        tmplist = rmduplicateusers(tmplist)
+
+        // Remove sensitive / unnecessary data from list
+        for _, tu = range tmplist {
+            tu.Skey = []string{}
+            tu.Pass = []byte{}
+            tu.Cpos = ""
+            tu.Root = ""
         }
 
-    } else {
-        resp.Err = "Key verification failed"
+        resp.Ulist, resp.Umembers = splituserlist(db, call.ID, tmplist)
+        resp.Ref = call.ID
     }
 
     return resp
