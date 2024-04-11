@@ -298,13 +298,15 @@ func mkuser(db *bolt.DB, call Apicall, r *http.Request) (User, int, string) {
     status := 0
     err := ""
 
-    if userexists(db, call.Uname) {
+    uname := strings.ToLower(strings.TrimSpace(call.Uname))
+
+    if userexists(db, uname) {
         status = 1
         err = "Username not available"
     }
 
     if status == 0 {
-        u.Uname = strings.ToLower(call.Uname)
+        u.Uname = uname
         u.Fname = call.Fname
         u.Lname = call.Lname
         u.Inactive = false
@@ -349,7 +351,9 @@ func addskey(db *bolt.DB, u User) User {
 // Attempts user login
 func loginuser(db *bolt.DB, call Apicall, r *http.Request) (User, int, string) {
 
-    u := getuser(db, strings.ToLower(call.Uname))
+    uname := strings.ToLower(strings.TrimSpace(call.Uname))
+
+    u := getuser(db, strings.ToLower(uname))
     status := 0
     err := ""
 
