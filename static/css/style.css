@@ -196,6 +196,15 @@ button:hover, input[type=submit]:hover {
     height: 10px;
 }
 
+.logo {
+    display: flex;
+    font-size: 4em;
+    color: var(--col-txtl);
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
 .statuspop {
     position: static;
     display: flex;
