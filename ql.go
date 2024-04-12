@@ -653,7 +653,7 @@ func h_user(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
         if !itemexists(db, resp.User.Cpos) { resp.User.Cpos = resp.User.Root }
         resp.Head, resp.Status = getitem(db, resp.User.Cpos)
         resp.Contents, resp.Status = getcontents(db, resp.Head, resp.User.Inactive)
-        resp.Hstr = getheader(db, resp.User.Cpos)
+        resp.Hstr = getheader(db, resp.User.Uname, resp.User.Cpos)
     }
 
     resp.User.Pass = []byte("")
@@ -827,24 +827,45 @@ func stripinactive(db *bolt.DB, ci Item) Item {
     return ci
 }
 
-// Returns header string based on Cpos
-func getheader(db *bolt.DB, cpos string) string {
+// Returns true if uid is owner or member of item
+func ismember(db *bolt.DB, iid string, uid string) bool {
 
-    ret := ""
+    i, status := getitem(db, iid)
+
+    if status == 0 {
+        if i.Owner == uid { return true }
+        for _, iuid := range i.Members {
+            if iuid == uid { return true }
+        }
+    }
+
+    return false
+}
+
+// Returns header string based on Cpos
+func getheader(db *bolt.DB, uid string, cpos string) string {
+
     vals := []string{}
     i := Item{}
     status := 0
 
     for status == 0 {
         i, status = getitem(db, cpos)
-        if status == 0 {
+
+        if status == 0 && ismember(db, cpos, uid) {
             vals = append(vals, i.Value)
             cpos = i.Parent
+
+        } else if status == 0 {
+            u := getuser(db, uid)
+            i, status = getitem(db, u.Root)
+            if status == 0 { vals = append(vals, i.Value) }
+            status = 1
         }
     }
 
     slices.Reverse(vals);
-    ret = strings.Join(vals, "/")
+    ret := strings.Join(vals, "/")
 
     return ret
 }
@@ -1058,7 +1079,7 @@ func h_item(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
     if resp.Status == 0 {
         if !itemexists(db, resp.User.Cpos) { resp.User.Cpos = resp.User.Root }
         resp.Contents, resp.Status = getcontents(db, resp.Head, resp.User.Inactive)
-        resp.Hstr = getheader(db, resp.User.Cpos)
+        resp.Hstr = getheader(db, resp.User.Uname, resp.User.Cpos)
 
     } else {
         resp.Head = Item{}
