@@ -208,6 +208,8 @@ function popshareusers(obj, ulist) {
         for(const u of obj.Ulist)
             ulist.appendChild(addshareuser(u, obj.Ref, false, ulist));
     }
+
+    refresh(obj);
 }
 
 // Requests items to populate share menu
@@ -393,7 +395,6 @@ function addlistitem(ID, val, itype, active, clen, owner, link) {
         ival.style.cursor = "pointer";
 
     } else if(link.length > 0) {
-        console.log(link);
         ival.onclick = () => window.open(link, '_blank').focus();
         ival.style.cursor = "pointer";
         ival.style.textDecoration = "underline";

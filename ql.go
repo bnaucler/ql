@@ -652,7 +652,8 @@ func h_user(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
     } else {
         if !itemexists(db, resp.User.Cpos) { resp.User.Cpos = resp.User.Root }
         resp.Head, resp.Status = getitem(db, resp.User.Cpos)
-        resp.Contents, resp.Status = getcontents(db, resp.Head, resp.User.Inactive)
+        resp.Contents, resp.Status = getcontents(db, resp.Head,
+                                     resp.User.Uname, resp.User.Inactive)
         resp.Hstr = getheader(db, resp.User.Uname, resp.User.Cpos)
     }
 
@@ -870,7 +871,7 @@ func getheader(db *bolt.DB, uid string, cpos string) string {
 }
 
 // Retrieves data objects from database based on parent
-func getcontents(db *bolt.DB, head Item, inactive bool) ([]Item, int) {
+func getcontents(db *bolt.DB, head Item, uid string, inactive bool) ([]Item, int) {
 
     ret := []Item{}
     ci := Item{}
@@ -879,7 +880,7 @@ func getcontents(db *bolt.DB, head Item, inactive bool) ([]Item, int) {
     for _, iid := range head.Contents {
         ci, status = getitem(db, iid)
 
-        if status == 0 {
+        if status == 0 && ismember(db, iid, uid){
             if inactive {
                 ret = append(ret, ci)
 
@@ -936,11 +937,21 @@ func toggletype(db *bolt.DB, call Apicall) (Item, int) {
     return p, status
 }
 
-// Adds existing item to root level of user
+// Adds existing item to root level of user (or parent if member)
 func addtoroot(db *bolt.DB, iid string, uid string) bool {
 
-    u := getuser(db, uid)
-    root, status := getitem(db, u.Root)
+    root := Item{}
+    status := 0
+
+    i, status := getitem(db, iid)
+
+    if ismember(db, i.Parent, uid) {
+        root, status = getitem(db, i.Parent)
+
+    } else {
+        u := getuser(db, uid)
+        root, status = getitem(db, u.Root)
+    }
 
     if status == 0 && !existsinstringslice(iid, root.Contents) {
         root.Contents = append(root.Contents, iid)
@@ -1138,7 +1149,8 @@ func h_item(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
 
     if resp.Status == 0 {
         if !itemexists(db, resp.User.Cpos) { resp.User.Cpos = resp.User.Root }
-        resp.Contents, resp.Status = getcontents(db, resp.Head, resp.User.Inactive)
+        resp.Contents, resp.Status = getcontents(db,
+                                     resp.Head,resp.User.Uname, resp.User.Inactive)
         resp.Hstr = getheader(db, resp.User.Uname, resp.User.Cpos)
 
     } else {
