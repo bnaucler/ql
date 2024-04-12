@@ -9,7 +9,7 @@
 :root {
     --col-bg: #222;
     --col-rm: #DA5232;
-    --col-border: #333;
+    --col-border: #555;
     --col-bgl: #555;
     --col-bgi: #ddd;
     --col-bginact: #bbb;
@@ -278,16 +278,22 @@ button:hover, input[type=submit]:hover {
     height: 100%;
     border-left: 1px var(--col-border) solid;
     cursor: pointer;
-    font-size: 1em;
-    color: var(--col-txtd);
     justify-content: center;
     align-items: center;
     transition: .3s;
 }
 
 .itemmenubutton:hover {
-    background-color: var(--col-txtd);
-    color: var(--col-sel);
+    background-color: var(--col-sel);
+}
+
+.dot {
+    display: flex;
+    margin: 1px;
+    height: 6px;
+    width: 6px;
+    border-radius: 50%;
+    background-color: var(--col-border);
 }
 
 .rm {
@@ -323,7 +329,7 @@ button:hover, input[type=submit]:hover {
 
 .menuheader {
     padding: 10px;
-    width: 100%;
+    width: calc(100% - 20px);
     text-align: center;
     font-size: 1.6em;
     color: var(--col-txtl);
@@ -341,9 +347,9 @@ button:hover, input[type=submit]:hover {
     top: 0;
     font-size: 1.5em;
     font-weight: 200;
-    width: 1.5em;
+    width: 1.2em;
     height: 1.5em;
-    color: var(--col-txtl);
+    color: var(--col-border);
     cursor: pointer;
     justify-content: center;
     align-items: center;

@@ -333,6 +333,21 @@ async function enterlist(ID) {
     refresh(await gofetch(url));
 }
 
+// Creates and returns an edit icon
+function mkediticon() {
+
+    const imdiv = mkobj("div", "itemmenubutton");
+    const dot1 = mkobj("div", "dot");
+    const dot2 = mkobj("div", "dot");
+    const dot3 = mkobj("div", "dot");
+
+    imdiv.appendChild(dot1);
+    imdiv.appendChild(dot2);
+    imdiv.appendChild(dot3);
+
+    return imdiv
+}
+
 // Adds individual list item
 function addlistitem(ID, val, itype, active, clen, owner) {
 
@@ -340,7 +355,7 @@ function addlistitem(ID, val, itype, active, clen, owner) {
     const idiv = mkobj("div", "item");
     const ival = mkobj("div", "itemval", val);
     const rmdiv = mkobj("div", "rm");
-    const imdiv = mkobj("div", "itemmenubutton", "edit");
+    const imdiv = mkediticon();
 
     if(itype == "list") {
         ival.innerHTML = val + " (" + clen + ")";
