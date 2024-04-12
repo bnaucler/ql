@@ -2,7 +2,6 @@
 
 ## Necessary
 * Better looking share menu
-* Membership propagation
 * Proper headers for shared items
 * Make subdirs in header clickable
 

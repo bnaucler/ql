@@ -724,44 +724,82 @@ func mkitemid(db *bolt.DB) string {
     return id
 }
 
+// Returns true if iid is a root level item
+func isroot(db *bolt.DB, iid string) bool {
+
+    i, status := getitem(db, iid)
+    if status == 0 && i.Parent == "" && i.Value == HOMENAME {
+        return true
+    }
+
+    return false
+}
+
+// Assigns membership based on parent
+func propmembers(db *bolt.DB, i Item) []string {
+
+    p, status := getitem(db, i.Parent)
+    ret := []string{}
+
+    if status == 0 {
+        if p.Owner != i.Owner { ret = append(ret, p.Owner) }
+        for _, uid := range p.Members {
+            if uid != i.Owner { ret = append(ret, uid) }
+        }
+    }
+
+    return ret
+}
+
 // Creates new item
-func mkitem(db *bolt.DB, val string, parent string, tp string, u User) (Item, int) {
+func mkitem(db *bolt.DB, val string, parent string, tp string, u User) (Item, int, string) {
 
     i := Item{}
     p, status := getitem(db, parent)
-
-    i.ID = mkitemid(db)
-    i.Value = val
-    i.Parent = parent
-    i.Owner = u.Uname
-    i.CTime = time.Now()
-    i.Active = true
-
-    if tp == "item" || tp == "list" {
-        i.Type = tp
-
-    } else {
-        status = 1
-    }
+    err := ""
 
     if status == 0 {
-        itemtomaster(db, i.ID)
-        writem(db, i)
-        p = setitemchild(db, i)
+        i.ID = mkitemid(db)
+        i.Value = val
+        i.Parent = parent
+        i.Owner = u.Uname
+        i.CTime = time.Now()
+        i.Active = true
+
+        if !isroot(db, i.Parent) {
+            i.Members = propmembers(db, i)
+        }
+
+        if tp == "item" || tp == "list" {
+            i.Type = tp
+
+        } else {
+            status = 1
+        }
+
+        if status == 0 {
+            fmt.Printf("DEBUG Writing item: %+v\n", i)
+            itemtomaster(db, i.ID)
+            writem(db, i)
+            p = setitemchild(db, i)
+        }
+    } else {
+        err = "Could not open parent item"
     }
 
-    return p, status
+    return p, status, err
 }
 
 // Apicall wrapper for mkitem()
-func mkitemfromcall(db *bolt.DB, call Apicall, r *http.Request) (Item, int) {
+func mkitemfromcall(db *bolt.DB, call Apicall, r *http.Request) (Item, int, string) {
 
     i := Item{}
     u, status := valskey(db, call)
+    err := ""
 
-    if status == 0 { i, status = mkitem(db, call.Value, call.Cpos, call.Type, u) }
+    if status == 0 { i, status, err = mkitem(db, call.Value, call.Cpos, call.Type, u) }
 
-    return i, status
+    return i, status, err
 }
 
 // Returns true if item is active
@@ -994,7 +1032,7 @@ func h_item(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
                 resp.Head, resp.Status = getitem(db, call.ID)
 
             case "new":
-                resp.Head, resp.Status = mkitemfromcall(db, call, r)
+                resp.Head, resp.Status, resp.Err = mkitemfromcall(db, call, r)
 
             case "open":
                 resp.Head, resp.Status = toggleactive(db, call)
