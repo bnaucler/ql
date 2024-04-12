@@ -6,7 +6,6 @@
 
 ## Undecided / non-critical
 * Make autorefresh db object
-* Not allow empty items to be added
 * Process URLs without http(s) prefix
 * Consistant way to open/close menus
 * Per-member parent for shared items (allows non-root placement)

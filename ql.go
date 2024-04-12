@@ -761,7 +761,14 @@ func mkitem(db *bolt.DB, val string, parent string, tp string, u User) (Item, in
 
     if status == 0 {
         i.ID = mkitemid(db)
-        i.Value = val
+
+        if len(val) > 0 {
+            i.Value = val
+
+        } else {
+            err = "Cannot add items without name"
+        }
+
         i.Parent = parent
         i.Owner = u.Uname
         i.CTime = time.Now()
@@ -778,7 +785,7 @@ func mkitem(db *bolt.DB, val string, parent string, tp string, u User) (Item, in
             status = 1
         }
 
-        if status == 0 {
+        if status == 0 && err == "" {
             itemtomaster(db, i.ID)
             writem(db, i)
             p = setitemchild(db, i)
