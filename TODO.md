@@ -6,7 +6,7 @@
 
 ## Undecided / non-critical
 * Make autorefresh db object
-* Items as hyperlinks
+* Process URLs without http(s) prefix
 * Consistant way to open/close menus
 * Per-member parent for shared items (allows non-root placement)
 * Check usernames to be alphanumeric
@@ -24,3 +24,4 @@
 * Color themes
 * Join invites
 * Friend- & banlist
+* Public lists (ext link)

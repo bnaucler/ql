@@ -274,8 +274,20 @@ async function leavelist(ID, val) {
     refresh(await gofetch(url));
 }
 
+// Requests update of item Href
+async function sethref(ID, val) {
+
+    const uname = gls("qluname");
+    const skey = gls("qlskey");
+    const cpos = getcpos();
+    const url = "/item?action=href&uname=" + uname + "&skey=" + skey +
+                "&cpos=" + cpos + "&id=" + ID + "&value=" + val;
+
+    refresh(await gofetch(url));
+}
+
 // Opens up item context menu TODO refactor
-function immenu(ID, itype, clen, val, active, owner) {
+function immenu(ID, itype, clen, val, active, owner, link) {
 
     const pdiv = gid("body");
     const mdiv = mkobj("div", "contextmenu");
@@ -296,8 +308,25 @@ function immenu(ID, itype, clen, val, active, owner) {
         pdelbtn.onclick = () => { mdiv.remove(); permdel(ID); }
 
     } else if(itype == "item") {
+        const href = mkobj("input", "");
+        const hrefbtn = mkobj("button", "menubutton", "update link");
+
+        href.setAttribute("type", "text");
+        href.placeholder = "link address";
+        href.id = "hrefinput";
+        if(link.length > 0) href.value = link;
+
         ctbtn.innerHTML = "make list";
+
+        mdiv.appendChild(href);
+        mdiv.appendChild(hrefbtn);
         mdiv.appendChild(ctbtn);
+
+        hrefbtn.onclick = () => {
+            const hrefv = encodeURIComponent(gid("hrefinput").value);
+            sethref(ID, hrefv);
+            mdiv.remove();
+        }
 
     } else if(owner == gls("qluname")) {
         const sharebtn = mkobj("button", "menubutton", "share");
@@ -349,7 +378,7 @@ function mkediticon() {
 }
 
 // Adds individual list item
-function addlistitem(ID, val, itype, active, clen, owner) {
+function addlistitem(ID, val, itype, active, clen, owner, link) {
 
     const pdiv = gid("ui");
     const idiv = mkobj("div", "item");
@@ -362,6 +391,12 @@ function addlistitem(ID, val, itype, active, clen, owner) {
         ival.style.fontWeight = "700";
         ival.onclick = () => enterlist(ID);
         ival.style.cursor = "pointer";
+
+    } else if(link.length > 0) {
+        console.log(link);
+        ival.onclick = () => window.open(link, '_blank').focus();
+        ival.style.cursor = "pointer";
+        ival.style.textDecoration = "underline";
     }
 
     if(active) {
@@ -379,7 +414,7 @@ function addlistitem(ID, val, itype, active, clen, owner) {
     idiv.appendChild(imdiv);
     pdiv.appendChild(idiv);
 
-    imdiv.onclick = () => immenu(ID, itype, clen, val, active, owner);
+    imdiv.onclick = () => immenu(ID, itype, clen, val, active, owner, link);
 }
 
 // Wrapper for processing lists or items separately
@@ -388,7 +423,7 @@ function addlistitemwrapper(co) {
     let clen = 0;
     if(co.Contents != null && co.Contents != undefined)
         clen = co.Contents.length;
-    addlistitem(co.ID, co.Value, co.Type, co.Active, clen, co.Owner);
+    addlistitem(co.ID, co.Value, co.Type, co.Active, clen, co.Owner, co.Href);
 }
 
 // Sorts items alphabetically

@@ -147,7 +147,7 @@ button:hover, input[type=submit]:hover {
     color: var(--col-txtd);
 }
 
-#usearchinput {
+#usearchinput, #hrefinput {
     width: calc(100% - 20px);
 }
 

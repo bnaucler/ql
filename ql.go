@@ -7,6 +7,7 @@ import (
     "time"
     "slices"
     "strings"
+    "net/url"
     "net/http"
     "math/rand"
     "encoding/json"
@@ -83,6 +84,7 @@ type Item struct {
     Type string             // Item or list
     Active bool             // Item visible
     Value string            // Item name
+    Href string             // Item link
     CTime time.Time         // Time of creation
     ETime time.Time         // End time (item closed)
 }
@@ -97,7 +99,7 @@ func cherr(e error) error {
 func randstr(ln int) (string){
 
     const charset = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    var cslen = len(charset)
+    cslen := len(charset)
 
     b := make([]byte, ln)
     for i := range b { b[i] = charset[rand.Intn(cslen)] }
@@ -307,6 +309,10 @@ func mkuser(db *bolt.DB, call Apicall, r *http.Request) (User, int, string) {
     } else if len(call.Uname) < 1 || len(call.Fname) < 1 || len(call.Lname) < 1 {
         status = 1
         err = "No input fields can be left empty"
+
+    } else if len(call.Pass) < MINPASSLEN {
+        status = 1
+        err = fmt.Sprintf("Password needs to be at least %d characters long", MINPASSLEN)
     }
 
     if status == 0 {
@@ -315,22 +321,16 @@ func mkuser(db *bolt.DB, call Apicall, r *http.Request) (User, int, string) {
         u.Lname = call.Lname
         u.Inactive = false
 
-        if len(call.Pass) < MINPASSLEN {
-            status = 1
-            err = fmt.Sprintf("Password needs to be at least %d characters long", MINPASSLEN)
+        u.Pass, _ = bcrypt.GenerateFromPassword([]byte(call.Pass), bcrypt.DefaultCost)
+        i := mkheaditem(db, u)
 
-        } else {
-            u.Pass, _ = bcrypt.GenerateFromPassword([]byte(call.Pass), bcrypt.DefaultCost)
-            i := mkheaditem(db, u)
+        u.Root = i.ID
+        u.Cpos = i.ID
 
-            u.Root = i.ID
-            u.Cpos = i.ID
+        u = addskey(db, u) // Also commits user to db
+        usertomaster(db, u.Uname)
 
-            u = addskey(db, u) // Also commits user to db
-            usertomaster(db, u.Uname)
-
-            log.Printf("New user %s created (source %+v)\n", u.Uname, getreqip(r))
-        }
+        log.Printf("New user %s created (source %+v)\n", u.Uname, getreqip(r))
     }
 
     if status != 0 {
@@ -778,7 +778,6 @@ func mkitem(db *bolt.DB, val string, parent string, tp string, u User) (Item, in
         }
 
         if status == 0 {
-            fmt.Printf("DEBUG Writing item: %+v\n", i)
             itemtomaster(db, i.ID)
             writem(db, i)
             p = setitemchild(db, i)
@@ -1037,6 +1036,30 @@ func permdel(db *bolt.DB, call Apicall) (Item, string) {
     return head, err
 }
 
+// Requests edit of item href value
+func sethref(db *bolt.DB, call Apicall) (Item, int, string) {
+
+    i := Item{}
+    p, status := getitem(db, call.Cpos)
+    err := ""
+
+    if status == 0 {
+        i, status = getitem(db, call.ID)
+        if status == 0 {
+            _, e := url.ParseRequestURI(call.Value)
+            if e == nil {
+                i.Href = call.Value
+                writem(db, i)
+
+            } else {
+                err = "Please enter a valid URL"
+            }
+        }
+    }
+
+    return p, status, err
+}
+
 // Handles item related requests
 func h_item(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
 
@@ -1069,6 +1092,9 @@ func h_item(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
 
             case "togglemember":
                 resp = togglemember(db, call)
+
+            case "href":
+                resp.Head, resp.Status, resp.Err = sethref(db, call)
 
             default:
                 resp.Status = 1
