@@ -966,6 +966,42 @@ func rmfromroot(db *bolt.DB, iid string, uid string) bool {
     return false
 }
 
+// Adds member to item and all sub-items
+func addmember(db *bolt.DB, iid string, uid string) {
+
+    i, status := getitem(db, iid)
+
+    if status == 0 {
+        if !existsinstringslice(uid, i.Members) {
+            i.Members = append(i.Members, uid)
+        }
+
+        if len(i.Contents) > 0 {
+            for _, cid := range i.Contents {
+                addmember(db, cid, uid)
+            }
+        }
+        writem(db, i)
+    }
+}
+
+// Removes membership for uid from iid and all sub-items
+func rmmember(db *bolt.DB, iid string, uid string) {
+
+    i, status := getitem(db, iid)
+
+    if status == 0 {
+        i.Members = rmkeyfromstringslice(uid, i.Members)
+
+        if len(i.Contents) > 0 {
+            for _, cid := range i.Contents {
+                rmmember(db, cid, uid)
+            }
+        }
+        writem(db, i)
+    }
+}
+
 // Toggles item membership
 func togglemember(db *bolt.DB, call Apicall) Resp {
 
@@ -982,14 +1018,12 @@ func togglemember(db *bolt.DB, call Apicall) Resp {
             resp.Err = "Cannot remove item owner from member list"
 
         } else if existsinstringslice(call.Value, i.Members) {
-            i.Members = rmkeyfromstringslice(call.Value, i.Members)
+            rmmember(db, call.ID, call.Value)
             rmfromroot(db, call.ID, call.Value)
-            writem(db, i)
 
         } else if i.Owner == call.Uname {
-            i.Members = append(i.Members, call.Value)
+            addmember(db, call.ID, call.Value)
             addtoroot(db, call.ID, call.Value)
-            writem(db, i)
 
         } else {
             resp.Err = "Only list owner can share"
