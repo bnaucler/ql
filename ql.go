@@ -24,9 +24,9 @@ const KEEPTIME = 120 * time.Hour    // How long to keep item after closing
 
 const MINPASSLEN = 4        // Minimum password length
 
-const SKLEN = 30            // Skey length
+const SKLEN = 30            // Session key length
 const IDLEN = 15            // ID length
-const SKNUM = 5             // Max number of concurrent skeys
+const SKNUM = 5             // Max number of concurrent session keys
 
 const HOMENAME = "home"     // Name for root/head list
 
@@ -56,7 +56,8 @@ type Resp struct {
     Status int              // Status code
     Err string              // Error message
     Head Item               // Current head / list
-    Hstr string             // Header title
+    Hids []string           // Header link IDs
+    Hvals []string          // Header link values
     Contents []Item         // List contents
     User User               // Current user
     Ulist []User            // User list (or w/o access to object)
@@ -604,7 +605,7 @@ func rmuser(db *bolt.DB, call Apicall) (User, int, string) {
 }
 
 // Processes password change request
-func chpass(db *bolt.DB, call Apicall, w *http.Request) (User, int, string) {
+func chpass(db *bolt.DB, call Apicall, r *http.Request) (User, int, string) {
 
     u, status := valskey(db, call)
     err := ""
@@ -614,18 +615,19 @@ func chpass(db *bolt.DB, call Apicall, w *http.Request) (User, int, string) {
     if status == 0 && e == nil {
 
         if len(call.Value) < MINPASSLEN {
-            err = fmt.Sprintf("Password needs to be at least %d characters long", MINPASSLEN)
+            err = fmt.Sprintf("Password needs to be at least %d characters long",
+                              MINPASSLEN)
 
         } else {
             err = "Password successfully updated"
-            u.Pass, _ = bcrypt.GenerateFromPassword([]byte(call.Value), bcrypt.DefaultCost)
+            u.Pass, _ = bcrypt.GenerateFromPassword([]byte(call.Value),
+                        bcrypt.DefaultCost)
             wruser(db, u)
         }
 
-        fmt.Printf("DEBUG passwd change req: %+v\n", call)
-
     } else {
-        log.Printf("Password change request for %s failed")
+        log.Printf("Password change request for %s failed (source %+v)",
+                   call.Uname, getreqip(r))
         err = "User verification failed"
     }
 
@@ -686,7 +688,7 @@ func h_user(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
         resp.Head, resp.Status = getitem(db, resp.User.Cpos)
         resp.Contents, resp.Status = getcontents(db, resp.Head,
                                      resp.User.Uname, resp.User.Inactive)
-        resp.Hstr = getheader(db, resp.User.Uname, resp.User.Cpos)
+        resp.Hids, resp.Hvals = getheader(db, resp.User.Uname, resp.User.Cpos)
     }
 
     resp.User.Pass = []byte("")
@@ -882,8 +884,9 @@ func ismember(db *bolt.DB, iid string, uid string) bool {
 }
 
 // Returns header string based on Cpos
-func getheader(db *bolt.DB, uid string, cpos string) string {
+func getheader(db *bolt.DB, uid string, cpos string) ([]string, []string) {
 
+    ids := []string{}
     vals := []string{}
     i := Item{}
     status := 0
@@ -892,21 +895,25 @@ func getheader(db *bolt.DB, uid string, cpos string) string {
         i, status = getitem(db, cpos)
 
         if status == 0 && ismember(db, cpos, uid) {
+            ids = append(ids, i.ID)
             vals = append(vals, i.Value)
             cpos = i.Parent
 
         } else if status == 0 {
             u := getuser(db, uid)
             i, status = getitem(db, u.Root)
-            if status == 0 { vals = append(vals, i.Value) }
+            if status == 0 {
+                ids = append(ids, i.ID)
+                vals = append(vals, i.Value)
+            }
             status = 1
         }
     }
 
+    slices.Reverse(ids);
     slices.Reverse(vals);
-    ret := strings.Join(vals, "/")
 
-    return ret
+    return ids, vals
 }
 
 // Retrieves data objects from database based on parent
@@ -1190,7 +1197,7 @@ func h_item(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
         if !itemexists(db, resp.User.Cpos) { resp.User.Cpos = resp.User.Root }
         resp.Contents, resp.Status = getcontents(db,
                                      resp.Head,resp.User.Uname, resp.User.Inactive)
-        resp.Hstr = getheader(db, resp.User.Uname, resp.User.Cpos)
+        resp.Hids, resp.Hvals = getheader(db, resp.User.Uname, resp.User.Cpos)
 
     } else {
         resp.Head = Item{}

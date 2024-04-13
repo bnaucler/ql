@@ -56,6 +56,10 @@ button:hover, input[type=submit]:hover {
     background-color: var(--col-sel);
 }
 
+p {
+    display: inline-block;
+}
+
 #spopcontainer {
     position: fixed;
     left: 0;
@@ -182,6 +186,10 @@ button:hover, input[type=submit]:hover {
 
 #usermenu, #useredit, #viewmenu {
     display: none;
+}
+
+.pointer {
+    cursor: pointer;
 }
 
 .giantgap {

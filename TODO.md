@@ -2,7 +2,6 @@
 
 ## Necessary
 * Better looking share menu
-* Make subdirs in header clickable
 
 ## Undecided / non-critical
 * Make autorefresh db object

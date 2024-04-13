@@ -288,6 +288,66 @@ async function sethref(ID, val) {
     refresh(await gofetch(url));
 }
 
+// Adds menu option for inactive item
+function immenuinactive(ID, mdiv) {
+
+    const restorebtn = mkobj("button", "menubutton", "restore");
+    const pdelbtn = mkobj("button", "menubutton", "delete forever");
+
+    pdelbtn.style.background = "var(--col-rm)";
+    pdelbtn.style.color = "var(--col-txt)";
+    mdiv.appendChild(restorebtn);
+    mdiv.appendChild(pdelbtn);
+    restorebtn.onclick = () => { mdiv.remove(); edititem(ID, "open"); }
+    pdelbtn.onclick = () => { mdiv.remove(); permdel(ID); }
+}
+
+// Adds menu option for active item
+function immenuactive(ID, mdiv, link, ctbtn) {
+
+    const href = mkobj("input", "");
+    const hrefbtn = mkobj("button", "menubutton", "update link");
+
+    href.setAttribute("type", "text");
+    href.placeholder = "link address";
+    href.id = "hrefinput";
+    if(link.length > 0) href.value = link;
+
+    ctbtn.innerHTML = "make list";
+
+    mdiv.appendChild(href);
+    mdiv.appendChild(hrefbtn);
+    mdiv.appendChild(ctbtn);
+
+    hrefbtn.onclick = () => {
+        const hrefv = encodeURIComponent(gid("hrefinput").value);
+        sethref(ID, hrefv);
+        mdiv.remove();
+    }
+}
+
+// Adds menu option for list when owner
+function immenuowner(ID, val, mdiv, ctbtn) {
+
+    const sharebtn = mkobj("button", "menubutton", "share");
+
+    ctbtn.innerHTML = "make item";
+    mdiv.appendChild(sharebtn);
+    mdiv.appendChild(ctbtn);
+    sharebtn.onclick = () => { mdiv.remove(); sharemenu(ID, val); }
+}
+
+// Adds menu option for list when member
+function immenumember() {
+
+    const leavebtn = mkobj("button", "menubutton", "leave shared list");
+
+    leavebtn.style.background = "var(--col-rm)";
+    leavebtn.style.color = "var(--col-txtd)";
+    mdiv.appendChild(leavebtn);
+    leavebtn.onclick = () => { mdiv.remove(); leavelist(ID); }
+}
+
 // Opens up item context menu TODO refactor
 function immenu(ID, itype, clen, val, active, owner, link) {
 
@@ -300,49 +360,16 @@ function immenu(ID, itype, clen, val, active, owner, link) {
     mdiv.appendChild(cmheader);
 
     if(!active) {
-        const restorebtn = mkobj("button", "menubutton", "restore");
-        const pdelbtn = mkobj("button", "menubutton", "delete forever");
-        pdelbtn.style.background = "var(--col-rm)";
-        pdelbtn.style.color = "var(--col-txt)";
-        mdiv.appendChild(restorebtn);
-        mdiv.appendChild(pdelbtn);
-        restorebtn.onclick = () => { mdiv.remove(); edititem(ID, "open"); }
-        pdelbtn.onclick = () => { mdiv.remove(); permdel(ID); }
+        immenuinactive(ID, mdiv);
 
     } else if(itype == "item") {
-        const href = mkobj("input", "");
-        const hrefbtn = mkobj("button", "menubutton", "update link");
-
-        href.setAttribute("type", "text");
-        href.placeholder = "link address";
-        href.id = "hrefinput";
-        if(link.length > 0) href.value = link;
-
-        ctbtn.innerHTML = "make list";
-
-        mdiv.appendChild(href);
-        mdiv.appendChild(hrefbtn);
-        mdiv.appendChild(ctbtn);
-
-        hrefbtn.onclick = () => {
-            const hrefv = encodeURIComponent(gid("hrefinput").value);
-            sethref(ID, hrefv);
-            mdiv.remove();
-        }
+        immenuactive(ID, mdiv, link, ctbtn);
 
     } else if(owner == gls("qluname")) {
-        const sharebtn = mkobj("button", "menubutton", "share");
-        ctbtn.innerHTML = "make item";
-        mdiv.appendChild(sharebtn);
-        mdiv.appendChild(ctbtn);
-        sharebtn.onclick = () => { mdiv.remove(); sharemenu(ID, val); }
+        immenuowner(ID, val, mdiv, ctbtn);
 
     } else {
-        const leavebtn = mkobj("button", "menubutton", "leave shared list");
-        leavebtn.style.background = "var(--col-rm)";
-        leavebtn.style.color = "var(--col-txtd)";
-        mdiv.appendChild(leavebtn);
-        leavebtn.onclick = () => { mdiv.remove(); leavelist(ID); }
+        immenumember(ID, mdiv);
     }
 
     mdiv.appendChild(cbtn);
@@ -524,6 +551,31 @@ function setchnamevals(u) {
     gid("chlname").value = u.Lname;
 }
 
+// Adds individual header item and sets link
+function mkhstritem(id, val, pdiv) {
+
+    const p = mkobj("p", "pointer", val);
+    pdiv.appendChild(p);
+    p.onclick = () => enterlist(id);
+}
+
+// Creates header string with clickable links
+function mkhstr(ids, vals) {
+
+    const pdiv = gid("hdrtxt");
+    const ilen = ids.length;
+
+    pdiv.innerHTML = "";
+
+    for(let i = 0; i < ilen; i++) {
+        mkhstritem(ids[i], vals[i], pdiv)
+        if(i != ilen - 1) {
+            const divider = mkobj("p", "", "/");
+            pdiv.appendChild(divider);
+        }
+    }
+}
+
 // Refreshes window
 function refresh(obj) {
 
@@ -541,7 +593,7 @@ function refresh(obj) {
             statuspopup(obj.Err);
         loginscr.style.display = "none";
         useredit.style.display = "none";
-        gid("hdrtxt").innerHTML = obj.Hstr;
+        mkhstr(obj.Hids, obj.Hvals);
         uminit(obj.User);
         poplist(obj);
         setchnamevals(obj.User);
