@@ -6,6 +6,7 @@ import (
     "net"
     "time"
     "slices"
+    "regexp"
     "strings"
     "net/url"
     "net/http"
@@ -294,6 +295,12 @@ func userexists(db *bolt.DB, uid string) bool {
     return false
 }
 
+// Returns true if string is alphanumeric
+func isalphanum(s string) bool {
+
+    return regexp.MustCompile(`^[a-zA-Z0-9]*$`).MatchString(s)
+}
+
 // Adds new user to database
 func mkuser(db *bolt.DB, call Apicall, r *http.Request) (User, int, string) {
 
@@ -314,6 +321,10 @@ func mkuser(db *bolt.DB, call Apicall, r *http.Request) (User, int, string) {
     } else if len(call.Pass) < MINPASSLEN {
         status = 1
         err = fmt.Sprintf("Password needs to be at least %d characters long", MINPASSLEN)
+
+    } else if !isalphanum(call.Uname) {
+        status = 1
+        err = "Only a-z, A-Z and 0-9 allowed in usernames"
     }
 
     if status == 0 {

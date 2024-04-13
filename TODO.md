@@ -8,7 +8,6 @@
 * Process URLs without http(s) prefix
 * Consistant way to open/close menus
 * Per-member parent for shared items (allows non-root placement)
-* Check usernames to be alphanumeric
 * Better looking error popups
 * Launch flags to set port, db name etc
 * Indicator of shared list owner
