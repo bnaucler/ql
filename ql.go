@@ -603,6 +603,35 @@ func rmuser(db *bolt.DB, call Apicall) (User, int, string) {
     return u, status, err
 }
 
+// Processes password change request
+func chpass(db *bolt.DB, call Apicall, w *http.Request) (User, int, string) {
+
+    u, status := valskey(db, call)
+    err := ""
+
+    e := bcrypt.CompareHashAndPassword(u.Pass, []byte(call.Pass))
+
+    if status == 0 && e == nil {
+
+        if len(call.Value) < MINPASSLEN {
+            err = fmt.Sprintf("Password needs to be at least %d characters long", MINPASSLEN)
+
+        } else {
+            err = "Password successfully updated"
+            u.Pass, _ = bcrypt.GenerateFromPassword([]byte(call.Value), bcrypt.DefaultCost)
+            wruser(db, u)
+        }
+
+        fmt.Printf("DEBUG passwd change req: %+v\n", call)
+
+    } else {
+        log.Printf("Password change request for %s failed")
+        err = "User verification failed"
+    }
+
+    return u, status, err
+}
+
 // Handles user related requests
 func h_user(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
 
@@ -624,6 +653,9 @@ func h_user(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
 
         case "login":
             resp.User, resp.Status, resp.Err = loginuser(db, call, r)
+
+        case "chpass":
+            resp.User, resp.Status, resp.Err = chpass(db, call, r)
 
         case "valskey":
             resp.User, resp.Status = valskey(db, call)

@@ -10,11 +10,9 @@
 * Consistant way to open/close menus
 * Per-member parent for shared items (allows non-root placement)
 * Check usernames to be alphanumeric
-* JSON object for parameters in localstorage
 * Better looking error popups
 * Launch flags to set port, db name etc
-* Password change
-* Indicator of list / item owner
+* Indicator of shared list owner
 * Password required for user account deletion
 
 ## Backburner

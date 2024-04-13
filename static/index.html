@@ -81,6 +81,12 @@
             <input id="chlname" type="text" name="lname" Placeholder="Last name"></input>
             <input id="submituseredit" type="submit" value="update details">
         </form>
+        <div class="smallgap"></div>
+        <form id="chpassform" onsubmit="chpass(this); return false;" method="post">
+            <input id="chpasscur" type="password" name="oldpass" Placeholder="Current password"></input>
+            <input id="chpassnew" type="password" name="newpass" Placeholder="New password"></input>
+            <input id="submitchpass" type="submit" value="change password">
+        </form>
         <button id="deluserbtn" class="menubutton" onclick='rmuserwarning(); return false;'>delete forever</button>
         <div id="closeuseredit" class="closebutton" onclick='closeuseredit(); return false;'>X</div>
     </div>

@@ -132,13 +132,13 @@ button:hover, input[type=submit]:hover {
     width: 50%;
 }
 
-#chfname, #chlname {
+#chfname, #chlname, #chpasscur, #chpassnew {
     width: calc(100% - 20px);
     margin-left: 10px;
     margin-right: 10px;
 }
 
-#submituseredit {
+#submituseredit, #submitchpass {
     width: calc(100% - 20px);
 }
 

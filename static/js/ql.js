@@ -590,6 +590,22 @@ async function toggleinactive() {
     refresh(await gofetch(url));
 }
 
+// Requests password change
+async function chpass(elem) {
+
+    const uname = gls("qluname");
+    const skey = gls("qlskey");
+    const cpos = getcpos();
+    const curpass = encodeURIComponent(elem.elements["chpasscur"].value);
+    const newpass = encodeURIComponent(elem.elements["chpassnew"].value);
+    const url = "/user?action=chpass&uname=" + uname + "&skey=" + skey +
+                "&pass=" + curpass + "&cpos=" + cpos + "&value=" + newpass;
+
+    gid("chpassform").reset();
+
+    refresh(await gofetch(url));
+}
+
 // Adds item to list
 async function additem(elem) {
 
