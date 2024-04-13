@@ -307,6 +307,8 @@ function immenuactive(ID, mdiv, link, ctbtn) {
 
     const href = mkobj("input", "");
     const hrefbtn = mkobj("button", "menubutton", "update link");
+    const showhrefbtn = mkobj("button", "menubutton", "create link");
+    const remhrefbtn = mkobj("button", "menubutton", "remove link");
 
     href.setAttribute("type", "text");
     href.placeholder = "link address";
@@ -315,15 +317,41 @@ function immenuactive(ID, mdiv, link, ctbtn) {
 
     ctbtn.innerHTML = "make list";
 
-    mdiv.appendChild(href);
-    mdiv.appendChild(hrefbtn);
-    mdiv.appendChild(ctbtn);
-
     hrefbtn.onclick = () => {
         const hrefv = encodeURIComponent(gid("hrefinput").value);
         sethref(ID, hrefv);
         mdiv.remove();
     }
+
+    showhrefbtn.onclick = () => {
+        showhrefbtn.style.display = "none";
+        hrefbtn.style.display = "block";
+        href.style.display = "block";
+    }
+
+    remhrefbtn.onclick = () => {
+        sethref(ID, "");
+        mdiv.remove();
+    }
+
+    if(link == "") {
+        showhrefbtn.style.display = "block";
+        href.style.display = "none";
+        hrefbtn.style.display = "none";
+        remhrefbtn.style.display = "none";
+
+    } else {
+        showhrefbtn.style.display = "none";
+        hrefbtn.style.display = "block";
+        href.style.display = "block";
+        remhrefbtn.style.display = "block";
+    }
+
+    mdiv.appendChild(href);
+    mdiv.appendChild(hrefbtn);
+    mdiv.appendChild(remhrefbtn);
+    mdiv.appendChild(showhrefbtn);
+    mdiv.appendChild(ctbtn);
 }
 
 // Adds menu option for list when owner
@@ -700,6 +728,7 @@ function cancelmkuser() {
 
 // Opens user details edit
 function openuseredit() {
+
     gid("usermenu").style.display = "none";
     gid("useredit").style.display = "block";
 }

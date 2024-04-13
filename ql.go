@@ -1138,7 +1138,7 @@ func sethref(db *bolt.DB, call Apicall) (Item, int, string) {
         i, status = getitem(db, call.ID)
         if status == 0 {
             _, e := url.ParseRequestURI(call.Value)
-            if e == nil {
+            if e == nil || call.Value == "" {
                 i.Href = call.Value
                 writem(db, i)
 
