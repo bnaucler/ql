@@ -348,7 +348,7 @@ function immenumember(ID, mdiv) {
     leavebtn.onclick = () => { mdiv.remove(); leavelist(ID); }
 }
 
-// Opens up item context menu TODO refactor
+// Opens up item context menu
 function immenu(ID, itype, clen, val, active, owner, link) {
 
     const pdiv = gid("body");
