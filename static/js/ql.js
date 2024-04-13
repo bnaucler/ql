@@ -338,7 +338,7 @@ function immenuowner(ID, val, mdiv, ctbtn) {
 }
 
 // Adds menu option for list when member
-function immenumember() {
+function immenumember(ID, mdiv) {
 
     const leavebtn = mkobj("button", "menubutton", "leave shared list");
 
@@ -359,18 +359,10 @@ function immenu(ID, itype, clen, val, active, owner, link) {
 
     mdiv.appendChild(cmheader);
 
-    if(!active) {
-        immenuinactive(ID, mdiv);
-
-    } else if(itype == "item") {
-        immenuactive(ID, mdiv, link, ctbtn);
-
-    } else if(owner == gls("qluname")) {
-        immenuowner(ID, val, mdiv, ctbtn);
-
-    } else {
-        immenumember(ID, mdiv);
-    }
+    if(!active) immenuinactive(ID, mdiv);
+    else if(itype == "item") immenuactive(ID, mdiv, link, ctbtn);
+    else if(owner == gls("qluname")) immenuowner(ID, val, mdiv, ctbtn);
+    else immenumember(ID, mdiv);
 
     mdiv.appendChild(cbtn);
     pdiv.appendChild(mdiv);
