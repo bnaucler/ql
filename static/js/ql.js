@@ -109,14 +109,14 @@ function logoutuser() {
     gid("ui").innerHTML = "";
 }
 
-// Processes removal of item from list
-async function edititem(ID, rem) {
+// Processes item change request
+async function edititem(ID, action, val) {
 
     const uname = gls("qluname");
     const skey = gls("qlskey");
     const cpos = getcpos();
-    const url = "/item?action=" + rem + "&uname=" + uname + "&skey=" + skey +
-                "&cpos=" + cpos + "&id=" + ID;
+    const url = "/item?action=" + action + "&uname=" + uname + "&skey=" + skey +
+                "&cpos=" + cpos + "&id=" + ID + "&value=" + val;
 
     refresh(await gofetch(url));
 }
@@ -302,8 +302,41 @@ function immenuinactive(ID, mdiv) {
     pdelbtn.onclick = () => { mdiv.remove(); permdel(ID); }
 }
 
+// Adds menu option for changing item value
+function immenuchval(ID, val, mdiv) {
+
+    const valinput = mkobj("input", "");
+    const valbtn = mkobj("button", "menubutton", "change value");
+    const showvalbtn = mkobj("button", "menubutton", "edit value");
+
+    valinput.setAttribute("type", "text");
+    valinput.placeholder = "new value";
+    valinput.id = "valinput";
+    valinput.value = val;
+
+    valinput.style.display = "none";
+    valbtn.style.display = "none";
+    showvalbtn.style.display = "block";
+
+    valbtn.onclick = () => {
+        const nval = encodeURIComponent(gid("valinput").value);
+        edititem(ID, "chval", nval)
+        mdiv.remove();
+    }
+
+    showvalbtn.onclick = () => {
+        valinput.style.display = "block";
+        valbtn.style.display = "block";
+        showvalbtn.style.display = "none";
+    }
+
+    mdiv.appendChild(valinput);
+    mdiv.appendChild(valbtn);
+    mdiv.appendChild(showvalbtn);
+}
+
 // Adds menu option for active item
-function immenuactive(ID, mdiv, link, ctbtn) {
+function immenuactive(ID, val, mdiv, link, ctbtn) {
 
     const href = mkobj("input", "");
     const hrefbtn = mkobj("button", "menubutton", "update link");
@@ -347,6 +380,7 @@ function immenuactive(ID, mdiv, link, ctbtn) {
         remhrefbtn.style.display = "block";
     }
 
+    immenuchval(ID, val, mdiv);
     mdiv.appendChild(href);
     mdiv.appendChild(hrefbtn);
     mdiv.appendChild(remhrefbtn);
@@ -360,8 +394,11 @@ function immenuowner(ID, val, mdiv, ctbtn) {
     const sharebtn = mkobj("button", "menubutton", "share");
 
     ctbtn.innerHTML = "make item";
+
+    immenuchval(ID, val, mdiv);
     mdiv.appendChild(sharebtn);
     mdiv.appendChild(ctbtn);
+
     sharebtn.onclick = () => { mdiv.remove(); sharemenu(ID, val); }
 }
 
@@ -388,7 +425,7 @@ function immenu(ID, itype, clen, val, active, owner, link) {
     mdiv.appendChild(cmheader);
 
     if(!active) immenuinactive(ID, mdiv);
-    else if(itype == "item") immenuactive(ID, mdiv, link, ctbtn);
+    else if(itype == "item") immenuactive(ID, val, mdiv, link, ctbtn);
     else if(owner == gls("qluname")) immenuowner(ID, val, mdiv, ctbtn);
     else immenumember(ID, mdiv);
 

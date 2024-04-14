@@ -151,7 +151,7 @@ p {
     color: var(--col-txtd);
 }
 
-#usearchinput, #hrefinput {
+#usearchinput, #hrefinput, #valinput {
     width: calc(100% - 20px);
 }
 

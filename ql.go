@@ -98,7 +98,7 @@ func cherr(e error) error {
 }
 
 // Create random string of length ln
-func randstr(ln int) (string){
+func randstr(ln int) (string) {
 
     const charset = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
     cslen := len(charset)
@@ -1163,6 +1163,25 @@ func sethref(db *bolt.DB, call Apicall) (Item, int, string) {
     return p, status, err
 }
 
+// Processes item value change
+func chval(db *bolt.DB, call Apicall, r *http.Request) (Item, int, string) {
+
+    i, status := getitem(db, call.ID)
+    err := ""
+
+    if status == 0 && len(call.Value) > 0 {
+        i.Value = call.Value
+        writem(db, i)
+
+    } else {
+        err = "Could not process item value change"
+    }
+
+    pos, _ := getitem(db, call.Cpos)
+
+    return pos, status, err
+}
+
 // Handles item related requests
 func h_item(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
 
@@ -1189,6 +1208,9 @@ func h_item(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
 
             case "permdel":
                 resp.Head, resp.Err = permdel(db, call)
+
+            case "chval":
+                resp.Head, resp.Status, resp.Err = chval(db, call, r)
 
             case "toggletype":
                 resp.Head, resp.Status = toggletype(db, call)
@@ -1306,10 +1328,7 @@ func cleanup(db *bolt.DB) {
 func opendb(dbname string) *bolt.DB {
 
     db, e := bolt.Open(dbname, 0640, &bolt.Options{Timeout: 1 * time.Second})
-
-    if e != nil {
-        log.Fatal("Could not open obtain database lock: exiting")
-    }
+    if e != nil { log.Fatal("Could not open obtain database lock: exiting") }
 
     return db
 }

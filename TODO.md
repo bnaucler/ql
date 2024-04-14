@@ -5,6 +5,7 @@
 
 ## Undecided / non-critical
 * Make autorefresh db object
+* Adjust autorefresh timer to avoid concurrent updates
 * Replace cherr()
 * Click anywhere to close menus
 * Make close-X into regular 'cancel'-button
