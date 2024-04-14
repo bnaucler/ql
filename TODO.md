@@ -2,7 +2,6 @@
 
 ## Necessary
 * Better looking share menu
-* Panic when not able to obtain db lock
 
 ## Undecided / non-critical
 * Make autorefresh db object

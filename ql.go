@@ -1305,8 +1305,11 @@ func cleanup(db *bolt.DB) {
 // Opens the database
 func opendb(dbname string) *bolt.DB {
 
-    db, e := bolt.Open(dbname, 0640, nil)
-    cherr(e)
+    db, e := bolt.Open(dbname, 0640, &bolt.Options{Timeout: 1 * time.Second})
+
+    if e != nil {
+        log.Fatal("Could not open obtain database lock: exiting")
+    }
 
     return db
 }
