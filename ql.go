@@ -426,7 +426,7 @@ func valskey(db *bolt.DB, call Apicall) (User, int) {
         if v == call.Skey { status = 0 }
     }
 
-    if status != 0 {
+    if status != 0 && call.Uname != "" {
         log.Printf("Session key verification error for user %s\n", call.Uname)
     }
 
@@ -1143,6 +1143,7 @@ func sethref(db *bolt.DB, call Apicall) (Item, int, string) {
 
     i := Item{}
     p, status := getitem(db, call.Cpos)
+    call.Value = strings.TrimSpace(call.Value)
     err := ""
 
     if status == 0 {

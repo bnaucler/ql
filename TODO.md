@@ -2,9 +2,13 @@
 
 ## Necessary
 * Better looking share menu
+* Panic when not able to obtain db lock
 
 ## Undecided / non-critical
 * Make autorefresh db object
+* Replace cherr()
+* Click anywhere to close menus
+* Make close-X into regular 'cancel'-button
 * Process URLs without http(s) prefix
 * Consistant way to open/close menus
 * Per-member parent for shared items (allows non-root placement)
