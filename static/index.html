@@ -12,26 +12,30 @@
 </head>
 <body id="body">
     <div id="spopcontainer"></div>
+    <div id="closeall" onclick='showmenu("none"); return false'></div>
     <div id="login">
         <div class="giantgap"></div>
         <div class="logo">quicklist</div>
         <div class="smallgap"></div>
-        <form id="loginform" onsubmit="loginuser(this); return false;" method="post">
+        <form id="loginform" onsubmit="loginuser(); return false;" method="post">
             <input id="unameinput" type="text" name="uname" Placeholder="Username">
             </input><br>
             <input id="passinput" type="password" name="pass" Placeholder="Password">
             </input><br>
-            <input type="submit" value="Log in">
+            <input type="submit" value="log in">
             <div class="smallgap"></div>
-            <button onclick="openmkuser(); return false;">Create account</button>
+            <button onclick='showmenu("mkuser"); return false;'>create account</button>
         </form>
     </div>
 
-    <div id="newuser">
+    <div id="immenu" class="contextmenu"></div>
+    <div id="sharemenu" class="contextmenu"></div>
+
+    <div id="mkuser">
         <div class="giantgap"></div>
         <div class="logo">quicklist</div>
         <div class="smallgap"></div>
-        <form id="newuserform" onsubmit="mkuser(this); return false;" method="post">
+        <form id="newuserform" onsubmit="mkuser(); return false;" method="post">
             <input id="newunameinput" type="text" name="uname" Placeholder="Username">
             </input><br>
             <input id="newpassinput" type="password" name="pass" Placeholder="Password">
@@ -42,7 +46,7 @@
             </input><br>
             <input type="submit" value="Create account">
             <div class="smallgap"></div>
-            <button onclick="cancelmkuser(); return false;">Cancel</button>
+            <button onclick='showmenu("login"); return false;'>cancel</button>
         </form>
     </div>
 
@@ -50,7 +54,7 @@
         <div id="userheader" class="menuheader"></div>
         <div class="smallgap"></div>
         <div class="switchlabel">sorting</div>
-        <select id="sortorder" name="sortorder" onchange="sortlist(this)">
+        <select id="sortorder" name="sortorder" onchange="sortlist()">
             <option value="chrona">latest first</div>
             <option value="chrond">oldest first</div>
             <option value="alphaa">alphabetical</div>
@@ -69,36 +73,36 @@
         </div>
         <div class="clear"></div>
         <div class="smallgap"></div>
-        <button id="usereditbtn" class="menubutton" onclick='openuseredit(); return false;'>edit user</button>
+        <button id="usereditbtn" class="menubutton" onclick='showmenu("useredit"); return false;'>edit user</button>
         <button id="logoutbutton" class="menubutton" onclick='logoutuser(); return false;'>log out</button>
-        <button id="closeusermenu" class="closebutton" onclick='closeusermenu(); return false;'>cancel</button>
+        <button id="closeusermenu" class="closebutton" onclick='showmenu("none"); return false;'>cancel</button>
     </div>
 
     <div id="useredit" class="contextmenu">
         <div id="userheader" class="menuheader">edit user</div>
-        <form id="chuserform" onsubmit="chuser(this); return false;" method="post">
+        <form id="chuserform" onsubmit="chuser(); return false;" method="post">
             <input id="chfname" type="text" name="fname" Placeholder="First name"></input>
             <input id="chlname" type="text" name="lname" Placeholder="Last name"></input>
             <input id="submituseredit" type="submit" value="update details">
         </form>
         <div class="smallgap"></div>
-        <form id="chpassform" onsubmit="chpass(this); return false;" method="post">
+        <form id="chpassform" onsubmit="chpass(); return false;" method="post">
             <input id="chpasscur" type="password" name="oldpass" Placeholder="Current password"></input>
             <input id="chpassnew" type="password" name="newpass" Placeholder="New password"></input>
             <input id="submitchpass" type="submit" value="change password">
         </form>
         <div class="microgap"></div>
         <button id="deluserbtn" class="menubutton" onclick='rmuserwarning(); return false;'>delete forever</button>
-        <button id="closeuseredit" class="closebutton" onclick='closeuseredit(); return false;'>cancel</button>
+        <button id="closeuseredit" class="closebutton" onclick='showmenu("none"); return false;'>cancel</button>
     </div>
 
     <div id="hwrap">
         <div id="hdr">
-            <div id="usermenubtn" onclick='openusermenu(); return false;'></div>
+            <div id="usermenubtn" onclick='showmenu("usermenu"); return false;'></div>
             <span id="hdrtxt"></span>
         </div>
         <button id="backbtn">back</button>
-        <form id="additemform" onsubmit="additem(this); return false;" method="post">
+        <form id="additemform" onsubmit="additem(); return false;" method="post">
             <input type="text" class="input" id="itemval" Placeholder="Item to add">
             <input type="submit" value="+" id="additemsubmit">
         </form>

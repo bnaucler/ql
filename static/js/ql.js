@@ -42,7 +42,7 @@ function statuspopup(msg) {
 }
 
 // Attempts user login
-async function loginuser(form) {
+async function loginuser() {
 
     const uname = encodeURIComponent(gid("unameinput").value);
     const pass = encodeURIComponent(gid("passinput").value);
@@ -54,7 +54,7 @@ async function loginuser(form) {
 }
 
 // Attempts creation of new user
-async function mkuser(form) {
+async function mkuser() {
 
     const uname = encodeURIComponent(gid("newunameinput").value);
     const pass = encodeURIComponent(gid("newpassinput").value);
@@ -86,7 +86,7 @@ async function rmuser(ID, action) {
 }
 
 // Requests change of user details
-async function chuser(form) {
+async function chuser() {
 
     const uname = gls("qluname");
     const skey = gls("qlskey");
@@ -227,15 +227,17 @@ async function getshareusers(ID, usearch, ulist) {
 }
 
 // Opens up the item share menu
-function sharemenu(ID, val) {
+function opensharemenu(ID, val) {
 
-    const pdiv = gid("body");
-    const mdiv = mkobj("div", "contextmenu");
+    const mdiv = gid("sharemenu");
     const cmheader = mkobj("div", "menuheader", val);
     const usearch = mkobj("input", "");
     const ulist = mkobj("div", "ulist");
     const searchbtn = mkobj("button", "menubutton", "search");
     const cbtn = mkobj("button", "closebutton", "cancel");
+
+    mdiv.innerHTML = "";
+    showmenu("sharemenu");
 
     usearch.setAttribute("type", "text");
     usearch.placeholder = "user search";
@@ -246,9 +248,8 @@ function sharemenu(ID, val) {
     mdiv.appendChild(ulist);
     mdiv.appendChild(searchbtn);
     mdiv.appendChild(cbtn);
-    pdiv.appendChild(mdiv);
 
-    cbtn.onclick = () => mdiv.remove();
+    cbtn.onclick = () => showmenu("none");
     searchbtn.onclick = () => { getshareusers(ID, usearch, ulist); }
 }
 
@@ -298,8 +299,8 @@ function immenuinactive(ID, mdiv) {
     pdelbtn.style.color = "var(--col-txt)";
     mdiv.appendChild(restorebtn);
     mdiv.appendChild(pdelbtn);
-    restorebtn.onclick = () => { mdiv.remove(); edititem(ID, "open"); }
-    pdelbtn.onclick = () => { mdiv.remove(); permdel(ID); }
+    restorebtn.onclick = () => { showmenu("none"); edititem(ID, "open"); }
+    pdelbtn.onclick = () => { showmenu("none"); permdel(ID); }
 }
 
 // Adds menu option for changing item value
@@ -321,7 +322,7 @@ function immenuchval(ID, val, mdiv) {
     valbtn.onclick = () => {
         const nval = encodeURIComponent(gid("valinput").value);
         edititem(ID, "chval", nval)
-        mdiv.remove();
+        showmenu("none");
     }
 
     showvalbtn.onclick = () => {
@@ -353,7 +354,7 @@ function immenuactive(ID, val, mdiv, link, ctbtn) {
     hrefbtn.onclick = () => {
         const hrefv = encodeURIComponent(gid("hrefinput").value);
         sethref(ID, hrefv);
-        mdiv.remove();
+        showmenu("none");
     }
 
     showhrefbtn.onclick = () => {
@@ -364,7 +365,7 @@ function immenuactive(ID, val, mdiv, link, ctbtn) {
 
     remhrefbtn.onclick = () => {
         sethref(ID, "");
-        mdiv.remove();
+        showmenu("none");
     }
 
     if(link == "") {
@@ -399,7 +400,7 @@ function immenuowner(ID, val, mdiv, ctbtn) {
     mdiv.appendChild(sharebtn);
     mdiv.appendChild(ctbtn);
 
-    sharebtn.onclick = () => { mdiv.remove(); sharemenu(ID, val); }
+    sharebtn.onclick = () => { opensharemenu(ID, val); }
 }
 
 // Adds menu option for list when member
@@ -410,14 +411,16 @@ function immenumember(ID, mdiv) {
     leavebtn.style.background = "var(--col-rm)";
     leavebtn.style.color = "var(--col-txtd)";
     mdiv.appendChild(leavebtn);
-    leavebtn.onclick = () => { mdiv.remove(); leavelist(ID); }
+    leavebtn.onclick = () => { showmenu("none"); leavelist(ID); }
 }
 
 // Opens up item context menu
 function immenu(ID, itype, clen, val, active, owner, link) {
 
-    const pdiv = gid("body");
-    const mdiv = mkobj("div", "contextmenu");
+    showmenu("immenu");
+    mdiv = gid("immenu");
+    mdiv.innerHTML = "";
+
     const cmheader = mkobj("div", "menuheader", val);
     const ctbtn = mkobj("button", "menubutton");
     const cbtn = mkobj("button", "closebutton", "cancel");
@@ -430,10 +433,9 @@ function immenu(ID, itype, clen, val, active, owner, link) {
     else immenumember(ID, mdiv);
 
     mdiv.appendChild(cbtn);
-    pdiv.appendChild(mdiv);
 
-    cbtn.onclick = () => mdiv.remove();
-    ctbtn.onclick = () => { mdiv.remove(); toggletypewrapper(ID, itype, clen); }
+    cbtn.onclick = () => showmenu("none");
+    ctbtn.onclick = () => { showmenu("none"); toggletypewrapper(ID, itype, clen); }
 }
 
 // Requests list contents and sets cpos
@@ -550,7 +552,6 @@ function poplist(obj) {
 
     picksortmethod(lists);
     picksortmethod(items);
-
 }
 
 // Retrieves sorting method from localstorage or sets if nonexistant
@@ -663,17 +664,16 @@ function refresh(obj) {
 // Processes login response
 function trylogin(obj) {
 
-    gid("newuser").style.display = "none";
+    showmenu("none");
 
     if(obj.Status == 0) {
-        gid("login").style.display = "none";
         localStorage.qluname = obj.User.Uname;
         localStorage.qlskey = obj.User.Skey[0];
         localStorage.qlcpos = obj.User.Cpos;
         refresh(obj);
 
     } else {
-        gid("login").style.display = "block";
+        showmenu("login");
         statuspopup(obj.Err);
     }
 }
@@ -756,44 +756,52 @@ function toggletimer() {
     settimerbuttontext();
 }
 
-// Cancels making new user
-function cancelmkuser() {
+// Iterates through elem list and selected popups to show / hide
+function setdisp(elems, val) {
 
-    gid("newuser").style.display = "none";
-    gid("login").style.display = "block";
+    for(const i of elems) gid(i).style.display = i == val ? "block" : "none";
+    gid("closeall").style.display = val === undefined ? "none" : "block";
 }
 
-// Opens user details edit
-function openuseredit() {
+// Opens the appropriate menu, closing all others
+function showmenu(val) {
 
-    gid("usermenu").style.display = "none";
-    gid("useredit").style.display = "block";
-}
+    const elems = ["login", "mkuser", "usermenu", "useredit", "immenu", "sharemenu"];
 
-// Closes user details edit
-function closeuseredit() {
+    switch(val) {
+        case "none":
+            setdisp(elems);
+            break;
 
-    gid("useredit").style.display = "none";
-}
+        case "login":
+            gid("loginform").reset();
+            setdisp(elems, val);
+            break;
 
-// Opens user menu
-function openusermenu() {
+        case "mkuser":
+            gid("newuserform").reset();
+            setdisp(elems, val);
+            break;
 
-    getsortmethod();
-    gid("usermenu").style.display = "block";
-}
+        case "usermenu":
+            setdisp(elems, val);
+            break;
 
-// Closes user menu
-function closeusermenu() {
+        case "useredit":
+            setdisp(elems, val);
+            break;
 
-    gid("usermenu").style.display = "none";
-}
+        case "immenu":
+            setdisp(elems, val);
+            break;
 
-// Opens user registration window
-function openmkuser() {
+        case "sharemenu":
+            setdisp(elems, val);
+            break;
 
-    gid("login").style.display = "none";
-    gid("newuser").style.display = "block";
+        default:
+            break;
+    }
 }
 
 // Initialize / refresh frontend

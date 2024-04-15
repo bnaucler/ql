@@ -68,6 +68,16 @@ p {
     z-index: 100;
 }
 
+#closeall {
+    display: none;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 10;
+}
+
 #usermenubtn {
     position: absolute;
     display: flex;
@@ -101,7 +111,7 @@ p {
     color: var(--col-txtd);
 }
 
-#login, #newuser {
+#login, #mkuser {
     display: none;
     position: fixed;
     top: 0;
@@ -112,7 +122,7 @@ p {
     z-index: 10;
 }
 
-#newuser {
+#mkuser {
     display: none;
 }
 
@@ -184,7 +194,7 @@ p {
     width: 100%;
 }
 
-#usermenu, #useredit {
+#usermenu, #useredit, #immenu, #sharemenu {
     display: none;
 }
 

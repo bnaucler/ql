@@ -10,10 +10,9 @@
 * Function to generate ident string in js (avoid repetition)
 * Adjust autorefresh timer to avoid concurrent updates
 * Replace cherr()
-* Click anywhere to close menus
 * Process URLs without http(s) prefix
-* Consistant way to open/close menus
 * Per-member parent for shared items (allows non-root placement)
+* Contain long headers inside menu window
 * Better looking error popups
 * Launch flags to set port, db name etc
 * Indicator of shared list owner
