@@ -11,7 +11,6 @@
 * Adjust autorefresh timer to avoid concurrent updates
 * Replace cherr()
 * Click anywhere to close menus
-* Make close-X into regular 'cancel'-button
 * Process URLs without http(s) prefix
 * Consistant way to open/close menus
 * Per-member parent for shared items (allows non-root placement)

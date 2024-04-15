@@ -235,7 +235,7 @@ function sharemenu(ID, val) {
     const usearch = mkobj("input", "");
     const ulist = mkobj("div", "ulist");
     const searchbtn = mkobj("button", "menubutton", "search");
-    const cbtn = mkobj("div", "closebutton", "X");
+    const cbtn = mkobj("button", "closebutton", "cancel");
 
     usearch.setAttribute("type", "text");
     usearch.placeholder = "user search";
@@ -420,7 +420,7 @@ function immenu(ID, itype, clen, val, active, owner, link) {
     const mdiv = mkobj("div", "contextmenu");
     const cmheader = mkobj("div", "menuheader", val);
     const ctbtn = mkobj("button", "menubutton");
-    const cbtn = mkobj("div", "closebutton", "X");
+    const cbtn = mkobj("button", "closebutton", "cancel");
 
     mdiv.appendChild(cmheader);
 
