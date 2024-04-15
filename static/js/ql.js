@@ -448,13 +448,11 @@ async function enterlist(ID) {
 function mkediticon() {
 
     const imdiv = mkobj("div", "itemmenubutton");
-    const dot1 = mkobj("div", "dot");
-    const dot2 = mkobj("div", "dot");
-    const dot3 = mkobj("div", "dot");
 
-    imdiv.appendChild(dot1);
-    imdiv.appendChild(dot2);
-    imdiv.appendChild(dot3);
+    for(let i = 0; i < 3; i++) {
+        let dot = mkobj("div", "dot");
+        imdiv.appendChild(dot);
+    }
 
     return imdiv
 }
