@@ -27,6 +27,25 @@ function mkobj(type, cl, txt) {
     return ret;
 }
 
+// Retrieves current position. Logs out if unavailable
+function getcpos() {
+
+    let cpos = gls("qlcpos");
+
+    if(cpos == undefined || cpos.Length < 1) logoutuser();
+    else return cpos;
+}
+
+// Reads ident data from localstorage and creates string for fetch call
+function getidentstring() {
+
+    const uname = gls("qluname");
+    const skey = gls("qlskey");
+    const cpos = getcpos();
+
+    return "uname=" + uname + "&skey=" + skey + "&cpos=" + cpos;
+}
+
 // Shows a temporary status message on the screen
 function statuspopup(msg) {
 
@@ -78,9 +97,8 @@ function rmuserwarning() {
 // Requests removal of user account
 async function rmuser(ID, action) {
 
-    const uname = gls("qluname");
-    const skey = gls("qlskey");
-    const url = "/user?action=rm&uname=" + uname + "&skey=" + skey;
+    const istr = getidentstring();
+    const url = "/user?action=rm&" + istr;
 
     refresh(await gofetch(url));
 }
@@ -88,12 +106,10 @@ async function rmuser(ID, action) {
 // Requests change of user details
 async function chuser() {
 
-    const uname = gls("qluname");
-    const skey = gls("qlskey");
-    const cpos = getcpos();
+    const istr = getidentstring();
     const fname = encodeURIComponent(gid("chfname").value);
     const lname = encodeURIComponent(gid("chlname").value);
-    const url = "/user?action=edit&uname=" + uname + "&skey=" + skey +
+    const url = "/user?action=edit&" + istr +
                 "&fname=" + fname + "&lname=" + lname;
 
     refresh(await gofetch(url));
@@ -102,21 +118,18 @@ async function chuser() {
 // Removes stored user data and displays login screen
 function logoutuser() {
 
+    showpopup("login");
     localStorage.qluname = "";
     localStorage.qlskey = "";
-    gid("login").style.display = "block";
-    gid("usermenu").style.display = "none";
     gid("ui").innerHTML = "";
 }
 
 // Processes item change request
 async function edititem(ID, action, val) {
 
-    const uname = gls("qluname");
-    const skey = gls("qlskey");
-    const cpos = getcpos();
-    const url = "/item?action=" + action + "&uname=" + uname + "&skey=" + skey +
-                "&cpos=" + cpos + "&id=" + ID + "&value=" + val;
+    const istr = getidentstring();
+    const url = "/item?action=" + action + "&" + istr + "&id="
+                + ID + "&value=" + val;
 
     refresh(await gofetch(url));
 }
@@ -149,11 +162,8 @@ function rmitemwrapper(ID, clen) {
 // Requests changing type (list/item) per object ID
 async function toggletype(ID) {
 
-    const uname = gls("qluname");
-    const skey = gls("qlskey");
-    const cpos = getcpos();
-    const url = "/item?action=toggletype&uname=" + uname + "&skey=" + skey +
-                "&cpos=" + cpos + "&id=" + ID;
+    const istr = getidentstring();
+    const url = "/item?action=toggletype&" + istr + "&id=" + ID;
 
     refresh(await gofetch(url));
 }
@@ -169,11 +179,9 @@ function toggletypewrapper(ID, itype, clen) {
 // Requests toggle of item membership
 async function toggleitemmember(val, ID, ulist) {
 
-    const uname = gls("qluname");
-    const skey = gls("qlskey");
-    const cpos = getcpos();
-    const url = "/item?action=togglemember&uname=" + uname + "&skey=" + skey +
-                "&cpos=" + cpos + "&id=" + val + "&value=" + ID;
+    const istr = getidentstring();
+    const url = "/item?action=togglemember&" + istr +
+                "&id=" + val + "&value=" + ID;
 
     ulist.innerHTML = "";
     popshareusers(await gofetch(url), ulist);
@@ -215,12 +223,9 @@ function popshareusers(obj, ulist) {
 // Requests items to populate share menu
 async function getshareusers(ID, usearch, ulist) {
 
+    const istr = getidentstring();
     const val = encodeURIComponent(usearch.value);
-    const uname = gls("qluname");
-    const skey = gls("qlskey");
-    const cpos = getcpos();
-    const url = "/user?action=get&uname=" + uname + "&skey=" + skey +
-                "&cpos=" + cpos + "&id=" + ID + "&value=" + val;
+    const url = "/user?action=get&" + istr + "&id=" + ID + "&value=" + val;
 
     ulist.innerHTML = "";
     popshareusers(await gofetch(url), ulist);
@@ -256,11 +261,8 @@ function opensharemenu(ID, val) {
 // Permanently deletes item from database
 async function permdel(ID) {
 
-    const uname = gls("qluname");
-    const skey = gls("qlskey");
-    const cpos = getcpos();
-    const url = "/item?action=permdel&uname=" + uname + "&skey=" + skey +
-                "&cpos=" + cpos + "&id=" + ID;
+    const istr = getidentstring();
+    const url = "/item?action=permdel&" + istr + "&id=" + ID;
 
     refresh(await gofetch(url));
 }
@@ -268,11 +270,9 @@ async function permdel(ID) {
 // Requests leaving a shared list
 async function leavelist(ID, val) {
 
-    const uname = gls("qluname");
-    const skey = gls("qlskey");
-    const cpos = getcpos();
-    const url = "/item?action=togglemember&uname=" + uname + "&skey=" + skey +
-                "&cpos=" + cpos + "&id=" + ID + "&value=" + uname;
+    const istr = getidentstring();
+    const url = "/item?action=togglemember&" + istr + "&id=" +ID +
+                "&value=" + uname;
 
     refresh(await gofetch(url));
 }
@@ -280,11 +280,8 @@ async function leavelist(ID, val) {
 // Requests update of item Href
 async function sethref(ID, val) {
 
-    const uname = gls("qluname");
-    const skey = gls("qlskey");
-    const cpos = getcpos();
-    const url = "/item?action=href&uname=" + uname + "&skey=" + skey +
-                "&cpos=" + cpos + "&id=" + ID + "&value=" + val;
+    const istr = getidentstring();
+    const url = "/item?action=href&" + istr + "&id=" + ID + "&value=" + val;
 
     refresh(await gofetch(url));
 }
@@ -441,11 +438,8 @@ function immenu(ID, itype, clen, val, active, owner, link) {
 // Requests list contents and sets cpos
 async function enterlist(ID) {
 
-    const uname = gls("qluname");
-    const skey = gls("qlskey");
-    const cpos = getcpos();
-    const url = "/user?action=cspos&uname=" + uname + "&skey=" + skey +
-                "&cpos=" + cpos + "&id=" + ID;
+    const istr = getidentstring();
+    const url = "/user?action=cspos&" + istr + "&id=" + ID;
 
     refresh(await gofetch(url));
 }
@@ -678,23 +672,11 @@ function trylogin(obj) {
     }
 }
 
-// Retrieves current position. Sets to root if unavailable
-function getcpos() {
-
-    let cpos = gls("qlcpos");
-
-    if(cpos == undefined || cpos.Length < 1) logoutuser();
-    else return cpos;
-}
-
 // Toggles showing inactive items
 async function toggleinactive() {
 
-    const uname = gls("qluname");
-    const skey = gls("qlskey");
-    const cpos = getcpos();
-    const url = "/user?action=toggleinactive&uname=" + uname + "&skey=" + skey +
-                "&cpos=" + cpos;
+    const istr = getidentstring();
+    const url = "/user?action=toggleinactive&" + istr;
 
     refresh(await gofetch(url));
 }
@@ -702,13 +684,11 @@ async function toggleinactive() {
 // Requests password change
 async function chpass(elem) {
 
-    const uname = gls("qluname");
-    const skey = gls("qlskey");
-    const cpos = getcpos();
+    const istr = getidentstring();
     const curpass = encodeURIComponent(elem.elements["chpasscur"].value);
     const newpass = encodeURIComponent(elem.elements["chpassnew"].value);
-    const url = "/user?action=chpass&uname=" + uname + "&skey=" + skey +
-                "&pass=" + curpass + "&cpos=" + cpos + "&value=" + newpass;
+    const url = "/user?action=chpass&" + istr + "&pass=" + curpass +
+                "&value=" + newpass;
 
     gid("chpassform").reset();
 
@@ -718,13 +698,10 @@ async function chpass(elem) {
 // Adds item to list
 async function additem(elem) {
 
+    const istr = getidentstring();
     const ival = encodeURIComponent(elem.elements["itemval"].value);
-    const uname = gls("qluname");
-    const skey = gls("qlskey");
     const type = "item";
-    const cpos = getcpos();
-    const url = "/item?action=new&uname=" + uname + "&skey=" + skey +
-                "&type=" + type + "&cpos=" + cpos + "&value=" + ival;
+    const url = "/item?action=new&" + istr + "&type=" + type + "&value=" + ival;
 
     gid("additemform").reset();
 
@@ -807,9 +784,8 @@ function showmenu(val) {
 // Initialize / refresh frontend
 async function qlinit() {
 
-    const uname = gls("qluname");
-    const skey = gls("qlskey");
-    const url = "/user?action=valskey&uname=" + uname + "&skey=" + skey;
+    const istr = getidentstring();
+    const url = "/user?action=valskey&" + istr;
 
     refresh(await gofetch(url));
 }

@@ -7,7 +7,6 @@
 * Make autorefresh db object
 * More instructive README
 * API documentation
-* Function to generate ident string in js (avoid repetition)
 * Adjust autorefresh timer to avoid concurrent updates
 * Replace cherr()
 * Process URLs without http(s) prefix

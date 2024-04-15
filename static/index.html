@@ -86,7 +86,7 @@
             <input id="submituseredit" type="submit" value="update details">
         </form>
         <div class="smallgap"></div>
-        <form id="chpassform" onsubmit="chpass(); return false;" method="post">
+        <form id="chpassform" onsubmit="chpass(this); return false;" method="post">
             <input id="chpasscur" type="password" name="oldpass" Placeholder="Current password"></input>
             <input id="chpassnew" type="password" name="newpass" Placeholder="New password"></input>
             <input id="submitchpass" type="submit" value="change password">
@@ -102,7 +102,7 @@
             <span id="hdrtxt"></span>
         </div>
         <button id="backbtn">back</button>
-        <form id="additemform" onsubmit="additem(); return false;" method="post">
+        <form id="additemform" onsubmit="additem(this); return false;" method="post">
             <input type="text" class="input" id="itemval" Placeholder="Item to add">
             <input type="submit" value="+" id="additemsubmit">
         </form>
