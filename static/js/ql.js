@@ -571,15 +571,7 @@ function sortlist(obj) {
 // Flips 'show inactive' switch to correct position
 function setinactivebtn(val) {
 
-    const sw = gid("toggleinactiveval");
-
-    if(val == true) {
-        sw.style.left = "20px";
-
-    } else {
-        sw.style.left = "0";
-    }
-
+    gid("toggleinactiveval").style.left = val ? "20px" : "0";
     localStorage.qlinactive = val;
 }
 
@@ -592,13 +584,6 @@ function uminit(u) {
 
     umbtn.innerHTML = initials.toUpperCase();
     umhdr.innerHTML = u.Fname + " " + u.Lname;
-}
-
-// Updates values for name changing textboxes
-function setchnamevals(u) {
-
-    gid("chfname").value = u.Fname;
-    gid("chlname").value = u.Lname;
 }
 
 // Adds individual header item and sets link
@@ -646,7 +631,8 @@ function refresh(obj) {
         mkhstr(obj.Hids, obj.Hvals);
         uminit(obj.User);
         poplist(obj);
-        setchnamevals(obj.User);
+        gid("chfname").value = obj.User.Fname;
+        gid("chlname").value = obj.User.Lname;
 
     } else {
         loginscr.style.display = "block";
