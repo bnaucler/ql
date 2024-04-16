@@ -91,12 +91,6 @@ type Item struct {
     ETime time.Time         // End time (item closed)
 }
 
-// Log all errors
-func cherr(e error) error {
-    if e != nil { log.Println(e) }
-    return e
-}
-
 // Create random string of length ln
 func randstr(ln int) (string) {
 
@@ -179,10 +173,9 @@ func getmasterindex(db *bolt.DB) Index {
 func wrmasterindex(db *bolt.DB, i Index) {
 
     bti, e := json.Marshal(i)
-    cherr(e)
 
-    e = wrdb(db, []byte(GLOB), bti, GLOB)
-    cherr(e)
+    if e == nil { e = wrdb(db, []byte(GLOB), bti, GLOB) }
+    if e != nil { log.Printf("ERROR Could not write master index to db") }
 }
 
 // Adds item ID to master index
@@ -247,7 +240,11 @@ func getuser(db *bolt.DB, uname string) User {
 func getcall(r *http.Request) Apicall {
 
     e := r.ParseForm()
-    cherr(e)
+
+    if e != nil {
+        log.Printf("ERROR Could not parse request form (source %s)\n", getreqip(r))
+        return Apicall{}
+    }
 
     ret := Apicall{
         ID:             r.FormValue("id"),
@@ -269,10 +266,8 @@ func getcall(r *http.Request) Apicall {
 func wruser(db *bolt.DB, u User) {
 
     btu, e := json.Marshal(u)
-    cherr(e)
-
-    e = wrdb(db, []byte(u.Uname), btu, UBUC)
-    cherr(e)
+    if e == nil { e = wrdb(db, []byte(u.Uname), btu, UBUC) }
+    if e != nil { log.Printf("ERROR Could not write user %s\n", u.Uname) }
 }
 
 // Returns true if item exists in database
@@ -728,10 +723,8 @@ func getitem(db *bolt.DB, callid string) (Item, int) {
 func writem(db *bolt.DB, i Item) {
 
     bti, e := json.Marshal(i)
-    cherr(e)
-
-    e = wrdb(db, []byte(i.ID), bti, IBUC)
-    cherr(e)
+    if e == nil { e = wrdb(db, []byte(i.ID), bti, IBUC) }
+    if e != nil { log.Printf("ERROR Could not store object %s\n", i.ID) }
 }
 
 // Adds item as child to specified parent
@@ -1370,5 +1363,5 @@ func main() {
 
     lport := fmt.Sprintf(":%d", PORT)
     e := http.ListenAndServe(lport, nil)
-    cherr(e)
+    if e != nil { log.Fatal("Could not open port: exiting") }
 }

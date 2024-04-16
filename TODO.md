@@ -7,7 +7,6 @@
 * Make autorefresh db object
 * More instructive README
 * API documentation
-* Replace cherr()
 * Per-member parent for shared items (allows non-root placement)
 * Contain long headers inside menu window
 * Better looking error popups
