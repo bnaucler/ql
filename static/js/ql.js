@@ -58,6 +58,16 @@ async function edititem(action, ID, val) {
     refresh(await gofetch(url));
 }
 
+// Sends request to item handler
+async function edituser(action, ID, val) {
+
+    const istr = getidentstring();
+    const url = "/user?action=" + action + "&" + istr +
+                "&id=" + ID + "&value=" + val;
+
+    refresh(await gofetch(url));
+}
+
 // Shows a temporary status message on the screen
 function statuspopup(msg) {
 
@@ -103,17 +113,9 @@ async function mkuser() {
 function rmuserwarning() {
 
     showmenu("none");
-    warning("", "", "Delete user account forever?", "deluser", rmuser)
+    warning("", "", "Delete user account forever?", "rm", edituser)
 }
 
-// Requests removal of user account
-async function rmuser(ID, action) {
-
-    const istr = getidentstring();
-    const url = "/user?action=rm&" + istr;
-
-    refresh(await gofetch(url));
-}
 
 // Requests change of user details
 async function chuser() {
@@ -130,7 +132,7 @@ async function chuser() {
 // Removes stored user data and displays login screen
 function logoutuser() {
 
-    showpopup("login");
+    showmenu("login");
     localStorage.qluname = "";
     localStorage.qlskey = "";
     gid("ui").innerHTML = "";
@@ -441,15 +443,6 @@ function immenu(ID, itype, clen, val, active, owner, link) {
     ctbtn.onclick = () => { showmenu("none"); toggletypewrapper(ID, itype, clen); }
 }
 
-// Requests list contents and sets cpos
-async function enterlist(ID) {
-
-    const istr = getidentstring();
-    const url = "/user?action=cspos&" + istr + "&id=" + ID;
-
-    refresh(await gofetch(url));
-}
-
 // Creates and returns an edit icon
 function mkediticon() {
 
@@ -472,7 +465,7 @@ function addlistitem(ID, val, itype, active, clen, owner, link) {
     if(itype == "list") {
         ival.innerHTML = val + " (" + clen + ")";
         ival.style.fontWeight = "700";
-        ival.onclick = () => enterlist(ID);
+        ival.onclick = () => edituser("cspos", ID, "");
         ival.style.cursor = "pointer";
 
     } else if(link.length > 0) {
@@ -594,7 +587,7 @@ function mkhstritem(id, val, pdiv) {
 
     const p = mkobj("p", "pointer", val);
     pdiv.appendChild(p);
-    p.onclick = () => enterlist(id);
+    p.onclick = () => edituser("cspos", id, "");
 }
 
 // Creates header string with clickable links
@@ -630,7 +623,7 @@ function refresh(obj) {
     const loginscr = gid("login");
 
     if(obj.Head.Parent.length > 1)
-        gid("backbtn").onclick = () => enterlist(obj.Head.Parent)
+        gid("backbtn").onclick = () => edituser("cspos", obj.Head.Parent, "");
     else gid("backbtn").onclick = () => qlinit(); // Window refresh if at root
 
     if(obj.Status == 0) {
@@ -664,15 +657,6 @@ function trylogin(obj) {
         showmenu("login");
         statuspopup(obj.Err);
     }
-}
-
-// Toggles showing inactive items
-async function toggleinactive() {
-
-    const istr = getidentstring();
-    const url = "/user?action=toggleinactive&" + istr;
-
-    refresh(await gofetch(url));
 }
 
 // Requests password change
