@@ -7,7 +7,6 @@
 * Make autorefresh db object
 * More instructive README
 * API documentation
-* Adjust autorefresh timer to avoid concurrent updates
 * Replace cherr()
 * Process URLs without http(s) prefix
 * Per-member parent for shared items (allows non-root placement)

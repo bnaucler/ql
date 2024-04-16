@@ -2,6 +2,8 @@
 const gid = document.getElementById.bind(document);
 const gls = localStorage.getItem.bind(localStorage);
 
+const TIMERINTERVAL = 10000; // ms between autorefresh calls
+
 let qlautoref;
 
 // HTTP request wrapper
@@ -617,6 +619,13 @@ function refresh(obj) {
     localStorage.qlcpos = obj.User.Cpos;
     setinactivebtn(obj.User.Inactive);
 
+    // Reset timer if defined
+    if(qlautoref !== undefined) {
+        qlautoref = setTimeout(() => {
+            qlinit();
+        }, TIMERINTERVAL);
+    }
+
     const loginscr = gid("login");
 
     if(obj.Head.Parent.length > 1)
@@ -701,13 +710,13 @@ function settimerbuttontext() {
     else timersw.style.left = "20px";
 }
 
-// Toggles auto-refresh (10 sec interval)
+// Toggles auto-refresh
 function toggletimer() {
 
     if(qlautoref == undefined) {
-        qlautoref = setInterval(() => {
+        qlautoref = setTimeout(() => {
             qlinit();
-        }, 10000);
+        }, TIMERINTERVAL);
 
     } else {
         clearInterval(qlautoref);
