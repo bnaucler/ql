@@ -504,12 +504,13 @@ func getuserspersearch(db *bolt.DB, call Apicall) []User {
 
     mi := getmasterindex(db)
     list := []User{}
+    lcv := strings.ToLower(call.Value)
 
     for _, uid := range mi.User {
         tu := getuser(db, uid)
-        if strings.Contains(tu.Uname, call.Value) ||
-           strings.Contains(tu.Fname, call.Value) ||
-           strings.Contains(tu.Lname, call.Value) {
+        if strings.Contains(strings.ToLower(tu.Uname), lcv) ||
+           strings.Contains(strings.ToLower(tu.Fname), lcv) ||
+           strings.Contains(strings.ToLower(tu.Lname), lcv) {
             if !uidinuserlist(tu.Uname, list) {
                 list = append(list, tu)
             }
