@@ -126,16 +126,6 @@ function logoutuser() {
     gid("ui").innerHTML = "";
 }
 
-// Processes item change request
-async function edititem(ID, action, val) {
-
-    const istr = getidentstring();
-    const url = "/item?action=" + action + "&" + istr + "&id="
-                + ID + "&value=" + val;
-
-    refresh(await gofetch(url));
-}
-
 // Shows removal warning window
 function warning(ID, clen, wtxt, action, efunc) {
 
@@ -150,14 +140,14 @@ function warning(ID, clen, wtxt, action, efunc) {
     mdiv.appendChild(nobtn);
     pdiv.appendChild(mdiv);
 
-    yesbtn.onclick = () => { mdiv.remove(); efunc(ID, action); }
+    yesbtn.onclick = () => { mdiv.remove(); efunc(action, ID, ""); }
     nobtn.onclick = () => mdiv.remove();
 }
 
 // Wrapper to check for empty list and show warning
 function rmitemwrapper(ID, clen) {
 
-    if(clen == 0) edititem(ID, "close");
+    if(clen == 0) edititem("close", ID, "");
     else warning(ID, clen, "Remove non-empty list?", "close", edititem);
 }
 
@@ -298,30 +288,12 @@ function opensharemenu(ID, val) {
     getshareusers(ID, "", ulist);
 }
 
-// Permanently deletes item from database TODO merge
-async function permdel(ID) {
+// Sends request to item handler
+async function edititem(action, ID, val) {
 
     const istr = getidentstring();
-    const url = "/item?action=permdel&" + istr + "&id=" + ID;
-
-    refresh(await gofetch(url));
-}
-
-// Requests leaving a shared list TODO merge
-async function leavelist(ID, val) {
-
-    const istr = getidentstring();
-    const url = "/item?action=togglemember&" + istr + "&id=" +ID +
-                "&value=" + uname;
-
-    refresh(await gofetch(url));
-}
-
-// Requests update of item Href TODO merge
-async function sethref(ID, val) {
-
-    const istr = getidentstring();
-    const url = "/item?action=href&" + istr + "&id=" + ID + "&value=" + val;
+    const url = "/item?action=" + action + "&" + istr +
+                "&id=" + ID + "&value=" + val;
 
     refresh(await gofetch(url));
 }
@@ -336,8 +308,8 @@ function immenuinactive(ID, mdiv) {
     pdelbtn.style.color = "var(--col-txt)";
     mdiv.appendChild(restorebtn);
     mdiv.appendChild(pdelbtn);
-    restorebtn.onclick = () => { showmenu("none"); edititem(ID, "open"); }
-    pdelbtn.onclick = () => { showmenu("none"); permdel(ID); }
+    restorebtn.onclick = () => { showmenu("none"); edititem("open", ID); }
+    pdelbtn.onclick = () => { showmenu("none"); edititem("permdel", ID); }
 }
 
 // Adds menu option for changing item value
@@ -358,7 +330,7 @@ function immenuchval(ID, val, mdiv) {
 
     valbtn.onclick = () => {
         const nval = encodeURIComponent(gid("valinput").value);
-        edititem(ID, "chval", nval)
+        edititem("chval", ID, nval)
         showmenu("none");
     }
 
@@ -390,7 +362,7 @@ function immenuactive(ID, val, mdiv, link, ctbtn) {
 
     hrefbtn.onclick = () => {
         const hrefv = encodeURIComponent(gid("hrefinput").value);
-        sethref(ID, hrefv);
+        edititem("href", ID, hrefv);
         showmenu("none");
     }
 
@@ -401,7 +373,7 @@ function immenuactive(ID, val, mdiv, link, ctbtn) {
     }
 
     remhrefbtn.onclick = () => {
-        sethref(ID, "");
+        edititem("href", ID, "");
         showmenu("none");
     }
 
@@ -448,7 +420,10 @@ function immenumember(ID, mdiv) {
     leavebtn.style.background = "var(--col-rm)";
     leavebtn.style.color = "var(--col-txtd)";
     mdiv.appendChild(leavebtn);
-    leavebtn.onclick = () => { showmenu("none"); leavelist(ID); }
+    leavebtn.onclick = () => {
+        showmenu("none");
+        edititem("togglemember", ID, gls("qluname"));
+    }
 }
 
 // Opens up item context menu
@@ -522,7 +497,7 @@ function addlistitem(ID, val, itype, active, clen, owner, link) {
         ival.style.background = "var(--col-bginact)";
         rmdiv.style.background = "var(--col-bginact)";
         rmdiv.innerHTML = "+";
-        rmdiv.onclick = () => edititem(ID, "open");
+        rmdiv.onclick = () => edititem("open", ID, "");
     }
 
     idiv.appendChild(ival);
