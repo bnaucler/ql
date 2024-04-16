@@ -48,6 +48,16 @@ function getidentstring() {
     return "uname=" + uname + "&skey=" + skey + "&cpos=" + cpos;
 }
 
+// Sends request to item handler
+async function edititem(action, ID, val) {
+
+    const istr = getidentstring();
+    const url = "/item?action=" + action + "&" + istr +
+                "&id=" + ID + "&value=" + val;
+
+    refresh(await gofetch(url));
+}
+
 // Shows a temporary status message on the screen
 function statuspopup(msg) {
 
@@ -151,21 +161,12 @@ function rmitemwrapper(ID, clen) {
     else warning(ID, clen, "Remove non-empty list?", "close", edititem);
 }
 
-// Requests changing type (list/item) per object ID
-async function toggletype(ID) {
-
-    const istr = getidentstring();
-    const url = "/item?action=toggletype&" + istr + "&id=" + ID;
-
-    refresh(await gofetch(url));
-}
-
 // Wrapper to check for contents and generate warning when making to item
 function toggletypewrapper(ID, itype, clen) {
 
     if(clen != 0 && itype == "list")
         warning(ID, clen, "List has contents. Proceed?", "toggletype", edititem);
-    else toggletype(ID);
+    else edititem("toggletype", ID, "");
 }
 
 // Requests toggle of item membership
@@ -286,16 +287,6 @@ function opensharemenu(ID, val) {
     searchbtn.onclick = () => { getshareusers(ID, usearch, ulist); }
 
     getshareusers(ID, "", ulist);
-}
-
-// Sends request to item handler
-async function edititem(action, ID, val) {
-
-    const istr = getidentstring();
-    const url = "/item?action=" + action + "&" + istr +
-                "&id=" + ID + "&value=" + val;
-
-    refresh(await gofetch(url));
 }
 
 // Adds menu option for inactive item
