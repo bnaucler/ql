@@ -179,14 +179,32 @@ function toggletypewrapper(ID, itype, clen) {
 }
 
 // Requests toggle of item membership
-async function toggleitemmember(val, ID, ulist) {
+async function toggleitemmember(ID, val, ulist) {
 
     const istr = getidentstring();
     const url = "/item?action=togglemember&" + istr +
-                "&id=" + val + "&value=" + ID;
+                "&id=" + ID + "&value=" + val;
 
     ulist.innerHTML = "";
     popshareusers(await gofetch(url), ulist);
+}
+
+// Create confirmation window for member toggle request TODO: merge with warning()
+function memberwarning(oid, uname, ulist, wtxt) {
+
+    const pdiv = gid("ui");
+    const mdiv = mkobj("div", "contextmenu");
+    const yesbtn = mkobj("button", "menubutton", "Do it");
+    const nobtn = mkobj("button", "menubutton", "Cancel");
+    const cmheader = mkobj("div", "menuheader", wtxt);
+
+    mdiv.appendChild(cmheader);
+    mdiv.appendChild(yesbtn);
+    mdiv.appendChild(nobtn);
+    pdiv.appendChild(mdiv);
+
+    yesbtn.onclick = () => { mdiv.remove(); toggleitemmember(oid, uname, ulist); }
+    nobtn.onclick = () => mdiv.remove();
 }
 
 // Adds a non-member entry to share list
@@ -194,11 +212,19 @@ function addshareuser(u, oid, ismember, ulist) {
 
     const nstr = u.Fname + " " + u.Lname + " (@" + u.Uname + ")";
     const undiv = mkobj("div", "slname", nstr);
+    let wtxt;
 
-    if(!ismember) undiv.style.color = "var(--col-rm)";
+    if(!ismember) {
+        undiv.style.color = "var(--col-rm)";
+        wtxt = "Add " + u.Uname + " to shared list?";
+
+    } else {
+        wtxt = "Remove " + u.Uname + " from shared list?";
+    }
 
     undiv.onclick = () => {
-        toggleitemmember(oid, u.Uname, ulist);
+        memberwarning(oid, u.Uname, ulist, wtxt);
+        gid("usearchinput").value = "";
         showmenu("sharemenu");
     }
 
@@ -212,15 +238,24 @@ function popshareusers(obj, ulist) {
         statuspopup(obj.Err);
     else poplist(obj);
 
+    console.log(obj);
+
     if(obj.Umembers != undefined) {
+        const membheader = mkobj("div", "subheader", "list members:");
+        ulist.appendChild(membheader);
         for(const u of obj.Umembers)
             ulist.appendChild(addshareuser(u, obj.Ref, true, ulist));
     }
 
-    if(obj.Ulist != undefined) {
+    if(obj.Ulist != undefined && obj.Ulist.length > 0) {
+        const otherheader = mkobj("div", "subheader", "click to add:");
+        ulist.appendChild(otherheader);
         for(const u of obj.Ulist)
             ulist.appendChild(addshareuser(u, obj.Ref, false, ulist));
     }
+
+    const gap = mkobj("div", "microgap");
+    ulist.appendChild(gap);
 
     refresh(obj);
 }
@@ -242,7 +277,7 @@ function opensharemenu(ID, val) {
     const mdiv = gid("sharemenu");
     const cmheader = mkobj("div", "menuheader", val);
     const usearch = mkobj("input", "");
-    const ulist = mkobj("div", "ulist");
+    const ulist = mkobj("div");
     const searchbtn = mkobj("button", "menubutton", "search");
     const cbtn = mkobj("button", "closebutton", "cancel");
 
@@ -254,13 +289,15 @@ function opensharemenu(ID, val) {
     usearch.id = "usearchinput";
 
     mdiv.appendChild(cmheader);
-    mdiv.appendChild(usearch);
     mdiv.appendChild(ulist);
+    mdiv.appendChild(usearch);
     mdiv.appendChild(searchbtn);
     mdiv.appendChild(cbtn);
 
     cbtn.onclick = () => showmenu("none");
     searchbtn.onclick = () => { getshareusers(ID, usearch, ulist); }
+
+    getshareusers(ID, "", ulist);
 }
 
 // Permanently deletes item from database

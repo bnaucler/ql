@@ -1,7 +1,6 @@
 # ql TODO list
 
 ## Necessary
-* Better looking share menu
 
 ## Undecided / non-critical
 * Make autorefresh db object

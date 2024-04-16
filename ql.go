@@ -566,7 +566,9 @@ func getuserlist(db *bolt.DB, call Apicall) Resp {
         }
 
         // Append users based on search request
-        tmplist = append(tmplist, getuserspersearch(db, call)...)
+        if call.Value != "" {
+            tmplist = append(tmplist, getuserspersearch(db, call)...)
+        }
 
         // Remove duplicates
         tmplist = rmduplicateusers(tmplist)
@@ -1101,7 +1103,7 @@ func togglemember(db *bolt.DB, call Apicall) Resp {
         }
 
         resp.Head, status = getitem(db, call.Cpos)
-        resp.Ulist, resp.Umembers = splituserlist(db, call.ID, tmplist)
+        _, resp.Umembers = splituserlist(db, call.ID, tmplist)
         resp.Ref = call.ID
 
     } else {

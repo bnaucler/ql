@@ -16,6 +16,7 @@
     --col-sel: #666;
     --col-txtd: #222;
     --col-txtl: #eee;
+    --col-txtld: #ccc;
     --col-input: #eee;
 }
 
@@ -237,10 +238,6 @@ p {
     transition: 1s;
 }
 
-.ulist {
-    /* TODO */
-}
-
 .toggleswitch {
     margin-right: 20px;
     float: right;
@@ -261,13 +258,10 @@ p {
 
 .slname {
     display: block;
-    float: left;
     color: var(--col-txtl);
-    padding: 5px;
     margin-left: 10px;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
     font-size: 1.2em;
-    border: 1px var(--col-border) solid;
     cursor: pointer;
 }
 
@@ -345,12 +339,20 @@ p {
     background-color: var(--col-bg);
 }
 
-.menuheader {
+.subheader, .menuheader {
     padding: 10px;
     width: calc(100% - 20px);
+}
+
+.menuheader {
     text-align: center;
     font-size: 1.6em;
     color: var(--col-txtl);
+}
+
+.subheader {
+    font-size: 1.2em;
+    color: var(--col-txtld);
 }
 
 .menubutton, .closebutton {
