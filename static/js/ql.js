@@ -58,7 +58,7 @@ async function edititem(action, ID, val) {
     refresh(await gofetch(url));
 }
 
-// Sends request to item handler
+// Sends request to user handler
 async function edituser(action, ID, val) {
 
     const istr = getidentstring();
@@ -338,7 +338,7 @@ function immenuchval(ID, val, mdiv) {
     mdiv.appendChild(showvalbtn);
 }
 
-// Adds menu option for active item
+// Adds menu option for active item TODO refactor
 function immenuactive(ID, val, mdiv, link, ctbtn) {
 
     const href = mkobj("input", "");
@@ -620,8 +620,6 @@ function refresh(obj) {
         }, TIMERINTERVAL);
     }
 
-    const loginscr = gid("login");
-
     if(obj.Head.Parent.length > 1)
         gid("backbtn").onclick = () => edituser("cspos", obj.Head.Parent, "");
     else gid("backbtn").onclick = () => qlinit(); // Window refresh if at root
@@ -629,16 +627,16 @@ function refresh(obj) {
     if(obj.Status == 0) {
         if(obj.Err != undefined && obj.Err != "" && obj.Err != "OK")
             statuspopup(obj.Err);
-        loginscr.style.display = "none";
-        useredit.style.display = "none";
+
         mkhstr(obj.Hids, obj.Hvals);
         uminit(obj.User);
         poplist(obj);
+
         gid("chfname").value = obj.User.Fname;
         gid("chlname").value = obj.User.Lname;
 
     } else {
-        loginscr.style.display = "block";
+        showmenu("login");
     }
 }
 
@@ -686,12 +684,12 @@ async function additem(elem) {
     refresh(await gofetch(url));
 }
 
-// Sets appropriate text for timer toggle button
-function settimerbuttontext() {
+// Sets timer switch into correct position
+function settimersw() {
 
     const timersw = gid("toggletimerval");
 
-    if(qlautoref == undefined) timersw.style.left = "0";
+    if(qlautoref === undefined) timersw.style.left = "0";
     else timersw.style.left = "20px";
 }
 
@@ -708,7 +706,7 @@ function toggletimer() {
         qlautoref = undefined;
     }
 
-    settimerbuttontext();
+    settimersw();
 }
 
 // Iterates through elem list and selected popups to show / hide
