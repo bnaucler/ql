@@ -13,7 +13,6 @@ Usage of bin/ql:
     	specify database to open (default "./data/ql.db")
   -p int
     	port number to listen (default 9955)
-
 ```
 
 ## Written by

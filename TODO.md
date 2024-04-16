@@ -1,6 +1,7 @@
 # ql TODO list
 
 ## Necessary
+* Make completion of shared lists unavailable when not owner
 
 ## Undecided / non-critical
 * Make autorefresh db object

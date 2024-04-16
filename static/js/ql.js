@@ -14,7 +14,7 @@ async function gofetch(url) {
     if(resp.ok) return resp.json();
 }
 
-// Returns DOM object of requested type, and with class & text defined if requested
+// Returns DOM object of requested type, with class & text defined if requested
 function mkobj(type, cl, txt) {
 
     let ret = document.createElement(type);
@@ -92,7 +92,7 @@ async function mkuser() {
 // Shows warning when attempting to delete user account
 function rmuserwarning() {
 
-    gid("useredit").style.display = "none";
+    showmenu("none");
     warning("", "", "Delete user account forever?", "deluser", rmuser)
 }
 
@@ -238,8 +238,6 @@ function popshareusers(obj, ulist) {
         statuspopup(obj.Err);
     else poplist(obj);
 
-    console.log(obj);
-
     if(obj.Umembers != undefined) {
         const membheader = mkobj("div", "subheader", "list members:");
         ulist.appendChild(membheader);
@@ -300,7 +298,7 @@ function opensharemenu(ID, val) {
     getshareusers(ID, "", ulist);
 }
 
-// Permanently deletes item from database
+// Permanently deletes item from database TODO merge
 async function permdel(ID) {
 
     const istr = getidentstring();
@@ -309,7 +307,7 @@ async function permdel(ID) {
     refresh(await gofetch(url));
 }
 
-// Requests leaving a shared list
+// Requests leaving a shared list TODO merge
 async function leavelist(ID, val) {
 
     const istr = getidentstring();
@@ -319,7 +317,7 @@ async function leavelist(ID, val) {
     refresh(await gofetch(url));
 }
 
-// Requests update of item Href
+// Requests update of item Href TODO merge
 async function sethref(ID, val) {
 
     const istr = getidentstring();
@@ -489,14 +487,11 @@ async function enterlist(ID) {
 // Creates and returns an edit icon
 function mkediticon() {
 
-    const imdiv = mkobj("div", "itemmenubutton");
+    const ret = mkobj("div", "itemmenubutton");
 
-    for(let i = 0; i < 3; i++) {
-        let dot = mkobj("div", "dot");
-        imdiv.appendChild(dot);
-    }
+    for(let i = 0; i++ < 3;) ret.appendChild(mkobj("div", "dot"));
 
-    return imdiv
+    return ret
 }
 
 // Adds individual list item
