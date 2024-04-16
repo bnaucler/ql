@@ -197,7 +197,10 @@ function addshareuser(u, oid, ismember, ulist) {
 
     if(!ismember) undiv.style.color = "var(--col-rm)";
 
-    undiv.onclick = () => toggleitemmember(oid, u.Uname, ulist);
+    undiv.onclick = () => {
+        toggleitemmember(oid, u.Uname, ulist);
+        showmenu("sharemenu");
+    }
 
     return undiv
 }
