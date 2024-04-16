@@ -8,7 +8,6 @@
 * More instructive README
 * API documentation
 * Replace cherr()
-* Process URLs without http(s) prefix
 * Per-member parent for shared items (allows non-root placement)
 * Contain long headers inside menu window
 * Better looking error popups

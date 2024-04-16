@@ -1146,6 +1146,12 @@ func sethref(db *bolt.DB, call Apicall) (Item, int, string) {
     call.Value = strings.TrimSpace(call.Value)
     err := ""
 
+    _, e := url.ParseRequestURI(call.Value)
+
+    if e != nil && call.Value != ""  {
+        call.Value = fmt.Sprintf("http://%s", call.Value)
+    }
+
     if status == 0 {
         i, status = getitem(db, call.ID)
         if status == 0 {
