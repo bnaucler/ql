@@ -5,6 +5,7 @@ import (
     "log"
     "net"
     "time"
+    "flag"
     "slices"
     "regexp"
     "strings"
@@ -17,8 +18,8 @@ import (
     bcrypt "golang.org/x/crypto/bcrypt"
 )
 
-const PORT = 9955
-const DBNAME = "./data/ql.db"
+const DEF_PORT = 9955               // Default port to listen
+const DEF_DBNAME = "./data/ql.db"   // Default database filename
 
 const CLEANCHECK = 1 * time.Hour    // Time interval to check for inactive items
 const KEEPTIME = 120 * time.Hour    // How long to keep item after closing
@@ -1345,7 +1346,13 @@ func qlinit(db *bolt.DB) {
 
 func main() {
 
-    db := opendb(DBNAME)
+    pptr := flag.Int("p", DEF_PORT, "port number to listen")
+    dbptr := flag.String("d", DEF_DBNAME, "specify database to open")
+    flag.Parse()
+
+    rand.Seed(time.Now().UnixNano())
+
+    db := opendb(*dbptr)
     defer db.Close()
     qlinit(db)
 
@@ -1364,7 +1371,7 @@ func main() {
         h_item(w, r, db)
     })
 
-    lport := fmt.Sprintf(":%d", PORT)
+    lport := fmt.Sprintf(":%d", *pptr)
     e := http.ListenAndServe(lport, nil)
     if e != nil { log.Fatal("Could not open port: exiting") }
 }

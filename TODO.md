@@ -8,7 +8,6 @@
 * API documentation
 * Per-member parent for shared items (allows non-root placement)
 * Better looking error popups
-* Launch flags to set port, db name etc
 * Indicator of shared list owner
 * Password required for user account deletion
 
