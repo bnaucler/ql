@@ -345,6 +345,7 @@ p {
 }
 
 .menuheader {
+    overflow: hidden;
     text-align: center;
     font-size: 1.6em;
     color: var(--col-txtl);

@@ -7,7 +7,6 @@
 * More instructive README
 * API documentation
 * Per-member parent for shared items (allows non-root placement)
-* Contain long headers inside menu window
 * Better looking error popups
 * Launch flags to set port, db name etc
 * Indicator of shared list owner
