@@ -33,7 +33,7 @@ const SKNUM = 5             // Max number of concurrent session keys
 const HOMENAME = "home"     // Name for root/head list
 
 var GLOB = []byte("glob")   // Global settings
-var IBUC = []byte("lbuc")   // Item bucket
+var IBUC = []byte("lbuc")   // Item bucket TODO
 var UBUC = []byte("ubuc")   // User bucket
 
 type Index struct {
@@ -247,7 +247,7 @@ func getcall(r *http.Request) Apicall {
         return Apicall{}
     }
 
-    ret := Apicall{
+    return Apicall{
         ID:             r.FormValue("id"),
         Action:         r.FormValue("action"),
         Value:          r.FormValue("value"),
@@ -259,8 +259,6 @@ func getcall(r *http.Request) Apicall {
         Skey:           r.FormValue("skey"),
         Cpos:           r.FormValue("cpos"),
     }
-
-    return ret
 }
 
 // Stores user object in database
@@ -341,10 +339,6 @@ func mkuser(db *bolt.DB, call Apicall, r *http.Request) (User, int, string) {
         log.Printf("New user %s created (source %+v)\n", u.Uname, getreqip(r))
     }
 
-    if status != 0 {
-        u = User{}
-    }
-
     return u, status, err
 }
 
@@ -364,8 +358,7 @@ func addskey(db *bolt.DB, u User) User {
 func loginuser(db *bolt.DB, call Apicall, r *http.Request) (User, int, string) {
 
     uname := strings.ToLower(strings.TrimSpace(call.Uname))
-
-    u := getuser(db, strings.ToLower(uname))
+    u := getuser(db, uname)
     status := 0
     err := ""
 
@@ -375,7 +368,7 @@ func loginuser(db *bolt.DB, call Apicall, r *http.Request) (User, int, string) {
         status = 1
         err = "Incorrect username / password"
         log.Printf("Failed login for user %s (source %+v)\n",
-            strings.ToLower(call.Uname), getreqip(r))
+            uname, getreqip(r))
 
     } else {
         u = addskey(db, u)
@@ -422,7 +415,7 @@ func valskey(db *bolt.DB, call Apicall) (User, int) {
         if v == call.Skey { status = 0 }
     }
 
-    if status != 0 && call.Uname != "" {
+    if status != 0 && call.Uname != "" { // "": special case when no localstorage
         log.Printf("Session key verification error for user %s\n", call.Uname)
     }
 
@@ -490,16 +483,6 @@ func splituserlist(db *bolt.DB, iid string, tmplist []User) ([]User, []User) {
     return ulist, umembers
 }
 
-// Loops through slice of users, returns true if uid is included
-func uidinuserlist(uid string, list []User) bool {
-
-    for _, u := range list {
-        if u.Uname == uid { return true }
-    }
-
-    return false
-}
-
 // Returns a slice of users based on API request
 func getuserspersearch(db *bolt.DB, call Apicall) []User {
 
@@ -512,9 +495,7 @@ func getuserspersearch(db *bolt.DB, call Apicall) []User {
         if strings.Contains(strings.ToLower(tu.Uname), lcv) ||
            strings.Contains(strings.ToLower(tu.Fname), lcv) ||
            strings.Contains(strings.ToLower(tu.Lname), lcv) {
-            if !uidinuserlist(tu.Uname, list) {
                 list = append(list, tu)
-            }
         }
     }
 
@@ -795,7 +776,8 @@ func propmembers(db *bolt.DB, i Item) []string {
 }
 
 // Creates new item
-func mkitem(db *bolt.DB, val string, parent string, tp string, u User) (Item, int, string) {
+func mkitem(db *bolt.DB, val string, parent string, tp string,
+            u User) (Item, int, string) {
 
     i := Item{}
     p, status := getitem(db, parent)
@@ -806,18 +788,15 @@ func mkitem(db *bolt.DB, val string, parent string, tp string, u User) (Item, in
 
         if len(val) > 0 {
             i.Value = val
+            i.Parent = parent
+            i.Owner = u.Uname
+            i.CTime = time.Now()
+            i.Active = true
+
+            if !isroot(db, i.Parent) { i.Members = propmembers(db, i) }
 
         } else {
             err = "Cannot add items without name"
-        }
-
-        i.Parent = parent
-        i.Owner = u.Uname
-        i.CTime = time.Now()
-        i.Active = true
-
-        if !isroot(db, i.Parent) {
-            i.Members = propmembers(db, i)
         }
 
         if tp == "item" || tp == "list" {
@@ -832,6 +811,7 @@ func mkitem(db *bolt.DB, val string, parent string, tp string, u User) (Item, in
             writem(db, i)
             p = setitemchild(db, i)
         }
+
     } else {
         err = "Could not open parent item"
     }
@@ -839,7 +819,7 @@ func mkitem(db *bolt.DB, val string, parent string, tp string, u User) (Item, in
     return p, status, err
 }
 
-// Apicall wrapper for mkitem()
+// Apicall wrapper for mkitem() // TODO needed?
 func mkitemfromcall(db *bolt.DB, call Apicall, r *http.Request) (Item, int, string) {
 
     i := Item{}
@@ -861,6 +841,7 @@ func checkactive(db *bolt.DB, iid string) bool {
     return false
 }
 
+// Removes inactive items from slice TODO return string instead of item
 func stripinactive(db *bolt.DB, ci Item) Item {
 
     litm := Item{}
@@ -891,7 +872,7 @@ func ismember(db *bolt.DB, iid string, uid string) bool {
     return false
 }
 
-// Returns header string based on Cpos
+// Returns header value & ID slices based on cpos
 func getheader(db *bolt.DB, uid string, cpos string) ([]string, []string) {
 
     ids := []string{}
