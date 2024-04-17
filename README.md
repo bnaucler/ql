@@ -1,9 +1,12 @@
 
 # ql / quicklist
-Quicklist is a tool for creating / sharing lists. For oneself or sharing with others. It's built to have a minimal and intuitive UI without clutter and low requirements for backend capacity.
+Quicklist is a tool for creating / sharing lists. For oneself or sharing with others. It's built to have a minimal and intuitive UI without clutter and low requirements for backend capacity. The UI is optimized for mobile (portrait) usage, and proportions will look odd during desktop use.
 
 ## Building
 `bin/build.sh` creates the `bin/ql` binary.
+
+## Dependencies
+`ql.go` requres import of `bbolt` which serves as the database and `bcrypt` for password hashing. No additional libraries or frameworks are required.
 
 ## Usage
 Output of `bin/ql -h`:
@@ -23,6 +26,8 @@ This piece of software has not been thoroughly tested, use at own risk.
 
 ## Contributing
 Pull requests welcome!
+
+For now, issues & feature ideas are kept track of in a simple [TODO](TODO.md) list.
 
 ## License
 MIT (do whatever you want)

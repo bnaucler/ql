@@ -5,12 +5,12 @@
 
 ## Undecided / non-critical
 * Make autorefresh db object
-* More instructive README
 * API documentation
 * Per-member parent for shared items (allows non-root placement)
 * Better looking error popups
-* Indicator of shared list owner
+* Indicator of shared list owner & members
 * Password required for user account deletion
+* Responsive layout for desktop
 
 ## Backburner
 * CLI/TUI tool
