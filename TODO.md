@@ -1,7 +1,6 @@
 # ql TODO list
 
 ## Necessary
-* Remove orphaned items
 
 ## Undecided / non-critical
 * Make autorefresh db object

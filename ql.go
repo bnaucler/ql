@@ -1277,15 +1277,30 @@ func rmitem(db *bolt.DB, iid string) {
     }
 }
 
+// Returns true if item parent does not exist
+func isorphan(db *bolt.DB, iid string) bool {
+
+    i, status := getitem(db, iid)
+
+    if status == 0 {
+        _, status = getitem(db, i.Parent)
+        if status != 0 { return true }
+    }
+
+    return false
+}
+
 // Periodically removes old items
 func cleanup(db *bolt.DB) {
 
     for range time.Tick(CLEANCHECK) {
         olditems := []string{}
         i := getmasterindex(db)
+        ci := Item{}
 
+        // Removing old inactive items
         for _, i := range i.Item {
-            ci, _ := getitem(db, i)
+            ci, _ = getitem(db, i)
             if !ci.Active && time.Since(ci.ETime) > KEEPTIME {
                 olditems = append(olditems, ci.ID)
             }
@@ -1294,8 +1309,19 @@ func cleanup(db *bolt.DB) {
         oilen := len(olditems)
         for _, oid := range olditems { rmitem(db, oid) }
 
-        if oilen > 0 {
-            log.Printf("Periodical cleanup removed %d items\n", oilen)
+        // Removing orphans
+        i = getmasterindex(db)
+        orlen := 0
+        for _, i := range i.Item {
+            if isorphan(db, i) {
+                rmitem(db, i)
+                orlen++
+            }
+        }
+
+        if oilen > 0 || orlen > 0 {
+            log.Printf("Periodical cleanup removed %d items and %d orphans\n",
+                       oilen, orlen)
         }
     }
 }
