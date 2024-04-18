@@ -1,7 +1,6 @@
 # ql TODO list
 
 ## Necessary
-* Make completion of shared lists unavailable when not owner
 * Ensure user removal does not remove shared lists not owned
 
 ## Undecided / non-critical

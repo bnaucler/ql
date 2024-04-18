@@ -474,7 +474,10 @@ function addlistitem(ID, val, itype, active, clen, owner, link) {
         ival.style.textDecoration = "underline";
     }
 
-    if(active) {
+    if(active && itype == "list" && owner != gls("qluname")) {
+        rmdiv.style.background = "var(--col-bginact)";
+
+    } else if(active) {
         rmdiv.onclick = () => rmitemwrapper(ID, clen);
 
     } else {
@@ -496,8 +499,9 @@ function addlistitem(ID, val, itype, active, clen, owner, link) {
 function addlistitemwrapper(co) {
 
     let clen = 0;
-    if(co.Contents != null && co.Contents != undefined)
-        clen = co.Contents.length;
+
+    if(co.Contents != null && co.Contents != undefined) clen = co.Contents.length;
+
     addlistitem(co.ID, co.Value, co.Type, co.Active, clen, co.Owner, co.Href);
 }
 
