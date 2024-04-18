@@ -776,19 +776,20 @@ func propmembers(db *bolt.DB, i Item) []string {
 }
 
 // Creates new item
-func mkitem(db *bolt.DB, val string, parent string, tp string,
-            u User) (Item, int, string) {
+func mkitem(db *bolt.DB, call Apicall) (Item, int, string) {
 
     i := Item{}
-    p, status := getitem(db, parent)
+    p, status := getitem(db, call.Cpos)
+    u := getuser(db, call.Uname)
+    call.Value = strings.TrimSpace(call.Value)
     err := ""
 
     if status == 0 {
         i.ID = mkitemid(db)
 
-        if len(val) > 0 {
-            i.Value = val
-            i.Parent = parent
+        if len(call.Value) > 0 {
+            i.Value = call.Value
+            i.Parent = p.ID
             i.Owner = u.Uname
             i.CTime = time.Now()
             i.Active = true
@@ -799,8 +800,8 @@ func mkitem(db *bolt.DB, val string, parent string, tp string,
             err = "Cannot add items without name"
         }
 
-        if tp == "item" || tp == "list" {
-            i.Type = tp
+        if call.Type == "item" || call.Type == "list" {
+            i.Type = call.Type
 
         } else {
             status = 1
@@ -817,18 +818,6 @@ func mkitem(db *bolt.DB, val string, parent string, tp string,
     }
 
     return p, status, err
-}
-
-// Apicall wrapper for mkitem() // TODO needed?
-func mkitemfromcall(db *bolt.DB, call Apicall, r *http.Request) (Item, int, string) {
-
-    i := Item{}
-    u, status := valskey(db, call)
-    err := ""
-
-    if status == 0 { i, status, err = mkitem(db, call.Value, call.Cpos, call.Type, u) }
-
-    return i, status, err
 }
 
 // Returns true if item is active
@@ -1182,7 +1171,7 @@ func h_item(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
                 resp.Head, resp.Status = getitem(db, call.ID)
 
             case "new":
-                resp.Head, resp.Status, resp.Err = mkitemfromcall(db, call, r)
+                resp.Head, resp.Status, resp.Err = mkitem(db, call)
 
             case "open":
                 resp.Head, resp.Status = toggleactive(db, call)
