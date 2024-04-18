@@ -1063,10 +1063,6 @@ func togglemember(db *bolt.DB, call Apicall) Resp {
             rmmember(db, call.ID, call.Value)
             rmfromroot(db, call.ID, call.Value)
 
-        } else if i.Owner == call.Uname {
-            addmember(db, call.ID, call.Value)
-            addtoroot(db, call.ID, call.Value)
-
         } else {
             resp.Err = "Only list owner can share"
         }
@@ -1226,18 +1222,14 @@ func processinvite(db *bolt.DB, call Apicall, u User) (Item, User, string) {
     err := ""
 
     if call.Value == "true" {
-
         addmember(db, call.ID, u.Uname)
         addtoroot(db, call.ID, u.Uname)
         u = rminvite(u, call.ID)
         wruser(db, u)
 
-        fmt.Printf("DEBUG invite accepted: %s\n", call.ID)
-
     } else {
         u = rminvite(u, call.ID)
         wruser(db, u)
-        fmt.Printf("DEBUG invite removed: %s\n", call.ID)
     }
 
     return p, u, err

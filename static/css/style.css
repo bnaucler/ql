@@ -402,9 +402,14 @@ p {
     color: var(--col-txtld);
 }
 
-.menubutton, .closebutton {
+.menubutton, .closebutton, .rmbtn {
     width: calc(100% - 20px);
     margin: 10px;
+}
+
+.rmbtn {
+    background-color: var(--col-rm);
+    color: var(--col-txt);
 }
 
 .clear {

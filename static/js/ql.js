@@ -116,7 +116,6 @@ function rmuserwarning() {
     warning("", "", "Delete user account forever?", "rm", edituser)
 }
 
-
 // Requests change of user details
 async function chuser() {
 
@@ -247,9 +246,7 @@ function addshareuser(u, oid, ismember, ulist) {
 // Populates user list for sharing items
 function popshareusers(obj, ulist) {
 
-    if(obj.Status != 0 || obj.Err == undefined || obj.Err != "")
-        statuspopup(obj.Err);
-    else poplist(obj);
+    if(obj.Status == 0 && (obj.Err == undefined || obj.Err != "")) poplist(obj);
 
     if(obj.Umembers != undefined) {
         const membheader = mkobj("div", "subheader", "list members:");
@@ -315,10 +312,8 @@ function opensharemenu(ID, val) {
 function immenuinactive(ID, mdiv) {
 
     const restorebtn = mkobj("button", "menubutton", "restore");
-    const pdelbtn = mkobj("button", "menubutton", "delete forever");
+    const pdelbtn = mkobj("button", "rmbtn", "delete forever");
 
-    pdelbtn.style.background = "var(--col-rm)";
-    pdelbtn.style.color = "var(--col-txt)";
     mdiv.appendChild(restorebtn);
     mdiv.appendChild(pdelbtn);
     restorebtn.onclick = () => { showmenu("none"); edititem("open", ID); }
@@ -428,10 +423,8 @@ function immenuowner(ID, val, mdiv, ctbtn) {
 // Adds menu option for list when member
 function immenumember(ID, mdiv) {
 
-    const leavebtn = mkobj("button", "menubutton", "leave shared list");
+    const leavebtn = mkobj("button", "rmbtn", "leave shared list");
 
-    leavebtn.style.background = "var(--col-rm)";
-    leavebtn.style.color = "var(--col-txtd)";
     mdiv.appendChild(leavebtn);
     leavebtn.onclick = () => {
         showmenu("none");
@@ -525,12 +518,6 @@ function addlistitemwrapper(co) {
     addlistitem(co.ID, co.Value, co.Type, co.Active, clen, co.Owner, co.Href);
 }
 
-// Sorts items alphabetically
-function alphasort(arr) {
-
-    return arr.sort((a, b) => a.Value.localeCompare(b.Value));
-}
-
 // Loops through list according to selected sorting method
 function picksortmethod(obj) {
 
@@ -543,8 +530,8 @@ function picksortmethod(obj) {
     } else if(method == "chrond") {
         for(const co of obj) addlistitemwrapper(co);
 
-    } else {
-        obj = alphasort(obj);
+    } else { // Alphabetical
+        obj = obj.sort((a, b) => a.Value.localeCompare(b.Value));
         for(const co of obj) addlistitemwrapper(co);
     }
 }
@@ -609,8 +596,6 @@ function createinviteobj(inv) {
     cval.appendChild(abtn);
     cval.appendChild(rbtn);
     container.appendChild(cval);
-
-    console.log(inv); // DEBUG
 
     abtn.onclick = () => edititem("accept", inv.ID, true);
     rbtn.onclick = () => edititem("accept", inv.ID, false);
@@ -682,9 +667,7 @@ function refresh(obj) {
 
     // Reset timer if defined
     if(qlautoref !== undefined) {
-        qlautoref = setTimeout(() => {
-            qlinit();
-        }, TIMERINTERVAL);
+        qlautoref = setTimeout(() => { qlinit(); }, TIMERINTERVAL);
     }
 
     if(obj.Head.Parent.length > 1)
@@ -692,8 +675,7 @@ function refresh(obj) {
     else gid("backbtn").onclick = () => qlinit(); // Window refresh if at root
 
     if(obj.Status == 0) {
-        if(obj.Err != undefined && obj.Err != "" && obj.Err != "OK")
-            statuspopup(obj.Err);
+        if(obj.Err != undefined && obj.Err != "") statuspopup(obj.Err);
 
         mkhstr(obj.Hids, obj.Hvals);
         uminit(obj.User);
@@ -764,9 +746,7 @@ function settimersw() {
 function toggletimer() {
 
     if(qlautoref == undefined) {
-        qlautoref = setTimeout(() => {
-            qlinit();
-        }, TIMERINTERVAL);
+        qlautoref = setTimeout(() => { qlinit(); }, TIMERINTERVAL);
 
     } else {
         clearInterval(qlautoref);

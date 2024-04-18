@@ -2,11 +2,10 @@
 
 ## Necessary
 
-## Known bugs
-* Duplicate status messages at invite
-
 ## Undecided / non-critical
 * Make autorefresh db object
+* Way to list all users in db for sharing
+* Way to cancel invites
 * API documentation
 * Per-member parent for shared items (allows non-root placement)
 * Better looking error popups
