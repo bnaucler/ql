@@ -98,6 +98,18 @@ p {
     cursor: pointer;
 }
 
+#notificationdot {
+    display: none;
+    position: absolute;
+    right: 7px;
+    top: 7px;
+    height: 8px;
+    width: 8px;
+    border: 1px var(--col-bg) solid;
+    background-color: var(--col-rm);
+    border-radius: 50%;
+}
+
 #addbtn {
     float: none;
 }
@@ -297,6 +309,40 @@ p {
 
 .itemmenubutton:hover {
     background-color: var(--col-sel);
+}
+
+/* TODO shorthand */
+.invite {
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-bottom: 10px;
+    padding: 3px;
+    border: 1px var(--col-border) solid;
+}
+
+.invitelabel {
+    color: var(--col-txtld);
+}
+
+.invitelname {
+    color: var(--col-txtl);
+    font-weight: bold;
+}
+
+.inlinebtn {
+    display: inline-block;
+    float: right;
+    padding: 3px;
+    margin: 3px;
+    background-color: var(--col-bgi);
+    color: var(--col-txtd);
+    opacity: .8;
+    transition: .3s;
+    cursor: pointer;
+}
+
+.inlinebtn:hover {
+    opacity: 1;
 }
 
 .dot {

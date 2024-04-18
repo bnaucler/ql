@@ -182,8 +182,19 @@ async function toggleitemmember(ID, val, ulist) {
     popshareusers(await gofetch(url), ulist);
 }
 
+// Requests toggle of item membership
+async function inviteuser(ID, val, ulist) {
+
+    const istr = getidentstring();
+    const url = "/item?action=invite&" + istr +
+                "&id=" + ID + "&value=" + val;
+
+    ulist.innerHTML = "";
+    popshareusers(await gofetch(url), ulist);
+}
+
 // Create confirmation window for member toggle request TODO: merge with warning()
-function memberwarning(oid, uname, ulist, wtxt) {
+function memberwarning(oid, uname, ulist, wtxt, action) {
 
     const pdiv = gid("ui");
     const mdiv = mkobj("div", "contextmenu");
@@ -196,7 +207,12 @@ function memberwarning(oid, uname, ulist, wtxt) {
     mdiv.appendChild(nobtn);
     pdiv.appendChild(mdiv);
 
-    yesbtn.onclick = () => { mdiv.remove(); toggleitemmember(oid, uname, ulist); }
+    if(action == "invite") {
+        yesbtn.onclick = () => { mdiv.remove(); inviteuser(oid, uname, ulist); }
+    } else {
+        yesbtn.onclick = () => { mdiv.remove(); toggleitemmember(oid, uname, ulist); }
+    }
+
     nobtn.onclick = () => mdiv.remove();
 }
 
@@ -205,18 +221,22 @@ function addshareuser(u, oid, ismember, ulist) {
 
     const nstr = u.Fname + " " + u.Lname + " (@" + u.Uname + ")";
     const undiv = mkobj("div", "slname", nstr);
+
     let wtxt;
+    let action;
 
     if(!ismember) {
+        action = "invite";
         undiv.style.color = "var(--col-rm)";
-        wtxt = "Add " + u.Uname + " to shared list?";
+        wtxt = "Invite " + u.Uname + " to shared list?";
 
     } else {
+        action = "remove";
         wtxt = "Remove " + u.Uname + " from shared list?";
     }
 
     undiv.onclick = () => {
-        memberwarning(oid, u.Uname, ulist, wtxt);
+        memberwarning(oid, u.Uname, ulist, wtxt, action);
         gid("usearchinput").value = "";
         showmenu("sharemenu");
     }
@@ -575,12 +595,55 @@ function setinactivebtn(val) {
     localStorage.qlinactive = val;
 }
 
+// Returns div with invite for adding to menu
+function createinviteobj(inv) {
+
+    const ptxt = inv.Owner + " has invited you to shared list: ";
+    const otxt = mkobj("p", "invitelname", inv.Value);
+    const container = mkobj("div", "invite");
+    const cval = mkobj("p", "invitelabel", ptxt);
+    const abtn = mkobj("div", "inlinebtn", "join");
+    const rbtn = mkobj("div", "inlinebtn", "cancel");
+
+    cval.appendChild(otxt);
+    cval.appendChild(abtn);
+    cval.appendChild(rbtn);
+    container.appendChild(cval);
+
+    console.log(inv); // DEBUG
+
+    abtn.onclick = () => edititem("accept", inv.ID, true);
+    rbtn.onclick = () => edititem("accept", inv.ID, false);
+
+    return container;
+}
+
+// Adds invitations to user menu
+function addinvites(invites) {
+
+    const pdiv = gid("invites");
+    pdiv.innerHTML = "";
+
+    for(const i of invites) {
+        pdiv.appendChild(createinviteobj(i));
+    }
+}
+
 // Updates user menu
 function uminit(u) {
 
     const initials = u.Fname[0] + u.Lname[0];
     const umbtn = gid("usermenubtn");
     const umhdr = gid("userheader");
+    const ndot = gid("notificationdot");
+
+    if(u.Invites == null || u.Invites == undefined || u.Invites.length == 0) {
+        ndot.style.display = "none";
+
+    } else {
+        ndot.style.display = "block";
+        addinvites(u.Invites);
+    }
 
     umbtn.innerHTML = initials.toUpperCase();
     umhdr.innerHTML = u.Fname + " " + u.Lname;

@@ -33,7 +33,7 @@ const SKNUM = 5             // Max number of concurrent session keys
 const HOMENAME = "home"     // Name for root/head list
 
 var GLOB = []byte("glob")   // Global settings
-var IBUC = []byte("lbuc")   // Item bucket TODO
+var IBUC = []byte("ibuc")   // Item bucket
 var UBUC = []byte("ubuc")   // User bucket
 
 type Index struct {
@@ -76,6 +76,7 @@ type User struct {
     Cpos string             // Current list
     Root string             // Root item ID
     Inactive bool           // Showing inactive items
+    Invites []Invite        // Invitations to shared lists
 }
 
 type Item struct {
@@ -90,6 +91,12 @@ type Item struct {
     Href string             // Item link
     CTime time.Time         // Time of creation
     ETime time.Time         // End time (item closed)
+}
+
+type Invite struct {
+    ID string               // List ID
+    Value string            // List value
+    Owner string            // List owner
 }
 
 // Create random string of length ln
@@ -1155,6 +1162,87 @@ func chval(db *bolt.DB, call Apicall, r *http.Request) (Item, int, string) {
     return pos, status, err
 }
 
+// Returns true if invite is already pending
+func inviteexists(db *bolt.DB, iid string, u User) bool {
+
+    for _, inv := range u.Invites {
+        if inv.ID == iid { return true }
+    }
+
+    return false
+}
+
+// Removes invite based on item id
+func rminvite(u User, iid string) User {
+
+    nl := []Invite{}
+
+    for _, i := range u.Invites {
+        if i.ID != iid { nl = append(nl, i) }
+    }
+
+    u.Invites = nl
+    return u
+}
+
+// Processes invitation to shared list
+func inviteuser(db *bolt.DB, call Apicall) (Item, string) {
+
+    i, status := getitem(db, call.ID)
+    p, _ := getitem(db, call.Cpos)
+    err := ""
+
+    if status == 0 {
+        u := getuser(db, call.Value)
+
+        if len(u.Uname) > 0 && !inviteexists(db, call.ID, u) {
+            o := getuser(db, call.Uname)
+            ostr := fmt.Sprintf("%s %s (@%s)", o.Fname, o.Lname, o.Uname)
+            inv := Invite{
+                ID:         call.ID,
+                Value:      i.Value,
+                Owner:      ostr,
+            }
+            u.Invites = append(u.Invites, inv)
+            fmt.Printf("DEBUG invited user: %+v\n", u)
+            err = fmt.Sprintf("User %s invited to shared list", u.Uname)
+            wruser(db, u)
+
+        } else if len(u.Uname) > 1 {
+            err = "User already invited - response pending"
+        }
+
+    } else {
+        err = "Could not open requested item"
+    }
+
+    return p, err
+}
+
+// Processes response to invitation
+func processinvite(db *bolt.DB, call Apicall, u User) (Item, User, string) {
+
+    p, _ := getitem(db, call.Cpos)
+    err := ""
+
+    if call.Value == "true" {
+
+        addmember(db, call.ID, u.Uname)
+        addtoroot(db, call.ID, u.Uname)
+        u = rminvite(u, call.ID)
+        wruser(db, u)
+
+        fmt.Printf("DEBUG invite accepted: %s\n", call.ID)
+
+    } else {
+        u = rminvite(u, call.ID)
+        wruser(db, u)
+        fmt.Printf("DEBUG invite removed: %s\n", call.ID)
+    }
+
+    return p, u, err
+}
+
 // Handles item related requests
 func h_item(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
 
@@ -1181,6 +1269,12 @@ func h_item(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
 
             case "permdel":
                 resp.Head, resp.Err = permdel(db, call)
+
+            case "invite":
+                resp.Head, resp.Err = inviteuser(db, call)
+
+            case "accept":
+                resp.Head, resp.User, resp.Err = processinvite(db, call, resp.User)
 
             case "chval":
                 resp.Head, resp.Status, resp.Err = chval(db, call, r)

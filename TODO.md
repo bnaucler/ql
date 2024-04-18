@@ -2,6 +2,9 @@
 
 ## Necessary
 
+## Known bugs
+* Duplicate status messages at invite
+
 ## Undecided / non-critical
 * Make autorefresh db object
 * API documentation
