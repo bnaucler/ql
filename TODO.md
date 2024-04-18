@@ -1,7 +1,7 @@
 # ql TODO list
 
 ## Necessary
-* Ensure user removal does not remove shared lists not owned
+* Remove orphaned items
 
 ## Undecided / non-critical
 * Make autorefresh db object

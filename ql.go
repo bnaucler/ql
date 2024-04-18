@@ -1263,7 +1263,10 @@ func rmitem(db *bolt.DB, iid string) {
     i, status := getitem(db, iid)
 
     if status == 0 && len(i.Contents) > 0 {
-        for _, cid := range i.Contents { rmitem(db, cid) }
+        for _, cid := range i.Contents {
+            ci, _ := getitem(db, cid)
+            if ci.Owner == i.Owner { rmitem(db, cid) }
+        }
     }
 
     if status == 0 {
