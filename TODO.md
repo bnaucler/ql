@@ -10,7 +10,6 @@
 * Way to cancel invites
 * API documentation
 * Per-member parent for shared items (allows non-root placement)
-* Better looking error popups
 * Indicator of shared list owner & members
 * Password required for user account deletion
 * Invite links

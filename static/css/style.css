@@ -245,13 +245,24 @@ p {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 100%;
-    height: 50px;
-    border-bottom: 1px #222 solid;
-    background-color: var(--col-bg);
-    color: var(--col-txtl);
-    opacity: .8;
+    margin: 10px;
+    width: calc(100% - 23px);
+    height: 70px;
+    font-size: 1.3em;
+    border: 3px var(--col-border) solid;
+    background: repeating-linear-gradient(
+        -45deg,
+        var(--col-bgi),
+        var(--col-bgi) 20px,
+        var(--col-bginact) 20px,
+        var(--col-bginact) 40px
+    );
+    color: var(--col-txt);
     transition: 1s;
+}
+
+.fade-out {
+    opacity: 0;
 }
 
 .toggleswitch {
@@ -442,6 +453,12 @@ p {
         min-height: calc(100vh - 110px);
         background-color: var(--col-bg);
         border: 5px var(--col-bg) solid;
+    }
+
+    #spopcontainer {
+        width: 600px;
+        left: calc(100vw / 2 - 300px);
+        top: 75px;
     }
 
     .contextmenu {
