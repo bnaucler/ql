@@ -61,6 +61,10 @@ p {
     display: inline-block;
 }
 
+#pgcontainer {
+    min-height: 100vh;
+}
+
 #spopcontainer {
     position: fixed;
     left: 0;
@@ -418,4 +422,30 @@ p {
     height: 0;
     width: 0;
     clear: both;
+}
+
+@media screen and (min-width: 600px) {
+
+    body {
+        background: repeating-linear-gradient(
+            45deg,
+            var(--col-sel),
+            var(--col-sel) 50px,
+            var(--col-bginact) 50px,
+            var(--col-bginact) 100px
+        );
+    }
+
+    #pgcontainer {
+        width: 600px;
+        margin: 50px auto;
+        min-height: calc(100vh - 110px);
+        background-color: var(--col-bg);
+        border: 5px var(--col-bg) solid;
+    }
+
+    .contextmenu {
+        width: 400px;
+        left: calc(100vw / 2 - 200px);
+    }
 }

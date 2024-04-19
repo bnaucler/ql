@@ -13,7 +13,6 @@
 * Better looking error popups
 * Indicator of shared list owner & members
 * Password required for user account deletion
-* Responsive layout for desktop
 * Invite links
 
 ## Backburner
