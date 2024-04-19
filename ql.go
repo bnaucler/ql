@@ -527,12 +527,44 @@ func rmduplicateusers(sl []User) []User {
     return ret
 }
 
+// Compiles user list based on membership and search request
+func compileuserlist(db *bolt.DB, i Item, call Apicall) ([]User, []User) {
+
+    tu := User{}
+    tmplist := []User{}
+
+    // Append owner
+    tmplist = append(tmplist, getuser(db, i.Owner))
+
+    // Append users based on item members
+    for _, imuid := range i.Members {
+        tu = getuser(db, imuid)
+        tmplist = append(tmplist, tu)
+    }
+
+    // Append users based on search request
+    if call.Value != "" {
+        tmplist = append(tmplist, getuserspersearch(db, call)...)
+    }
+
+    // Remove duplicates
+    tmplist = rmduplicateusers(tmplist)
+
+    // Remove sensitive / unnecessary data from list
+    for ix, _ := range tmplist {
+        tmplist[ix].Skey = []string{}
+        tmplist[ix].Pass = []byte{}
+        tmplist[ix].Cpos = ""
+        tmplist[ix].Root = ""
+    }
+
+    return splituserlist(db, call.ID, tmplist)
+}
+
 // Returns user list based on search request TODO refactor
 func getuserlist(db *bolt.DB, call Apicall) Resp {
 
     resp := Resp{}
-    tmplist := []User{}
-    tu := User{}
     i := Item{}
 
     resp.User, resp.Status = valskey(db, call)
@@ -546,32 +578,7 @@ func getuserlist(db *bolt.DB, call Apicall) Resp {
     }
 
     if resp.Status == 0 {
-        // Append owner
-        tmplist = append(tmplist, getuser(db, i.Owner))
-
-        // Append users based on item members
-        for _, imuid := range i.Members {
-            tu = getuser(db, imuid)
-            tmplist = append(tmplist, tu)
-        }
-
-        // Append users based on search request
-        if call.Value != "" {
-            tmplist = append(tmplist, getuserspersearch(db, call)...)
-        }
-
-        // Remove duplicates
-        tmplist = rmduplicateusers(tmplist)
-
-        // Remove sensitive / unnecessary data from list
-        for _, tu = range tmplist {
-            tu.Skey = []string{}
-            tu.Pass = []byte{}
-            tu.Cpos = ""
-            tu.Root = ""
-        }
-
-        resp.Ulist, resp.Umembers = splituserlist(db, call.ID, tmplist)
+        resp.Ulist, resp.Umembers = compileuserlist(db, i, call)
         resp.Ref = call.ID
     }
 
@@ -1182,7 +1189,7 @@ func rminvite(u User, iid string) User {
 }
 
 // Processes invitation to shared list
-func inviteuser(db *bolt.DB, call Apicall) (Item, string) {
+func inviteuser(db *bolt.DB, call Apicall) (Item, string, []User, []User) {
 
     i, status := getitem(db, call.ID)
     p, _ := getitem(db, call.Cpos)
@@ -1211,7 +1218,9 @@ func inviteuser(db *bolt.DB, call Apicall) (Item, string) {
         err = "Could not open requested item"
     }
 
-    return p, err
+    ulist, umembers := compileuserlist(db, i, call)
+
+    return p, err, ulist, umembers
 }
 
 // Processes response to invitation
@@ -1267,7 +1276,7 @@ func h_item(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
                 resp.Head, resp.Err = permdel(db, call)
 
             case "invite":
-                resp.Head, resp.Err = inviteuser(db, call)
+                resp.Head, resp.Err, resp.Ulist, resp.Umembers = inviteuser(db, call)
 
             case "accept":
                 resp.Head, resp.User, resp.Err = processinvite(db, call, resp.User)

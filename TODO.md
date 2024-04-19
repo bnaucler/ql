@@ -3,7 +3,6 @@
 ## Necessary
 
 ## Known bugs
-* User list empty after sent invite
 
 ## Undecided / non-critical
 * Make autorefresh db object
