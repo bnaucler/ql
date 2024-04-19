@@ -1219,18 +1219,24 @@ func inviteuser(db *bolt.DB, call Apicall) (Item, string) {
 func processinvite(db *bolt.DB, call Apicall, u User) (Item, User, string) {
 
     p, _ := getitem(db, call.Cpos)
+    iex := itemexists(db, call.ID)
     err := ""
 
-    if call.Value == "true" {
+    if call.Value == "true"  && iex {
+        u = rminvite(u, call.ID)
+        wruser(db, u)
         addmember(db, call.ID, u.Uname)
         addtoroot(db, call.ID, u.Uname)
+
+    } else if iex {
         u = rminvite(u, call.ID)
         wruser(db, u)
 
     } else {
-        u = rminvite(u, call.ID)
-        wruser(db, u)
+        err = "Could not open requested object"
     }
+
+    p, _ = getitem(db, call.Cpos) // Reload necessary to getcontents()
 
     return p, u, err
 }
@@ -1243,7 +1249,6 @@ func h_item(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
 
     resp := Resp{}
     resp.User, resp.Status = valskey(db, call)
-    resp.User.Skey = []string{}
 
     if resp.Status == 0 {
         switch call.Action {
@@ -1296,6 +1301,7 @@ func h_item(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
         resp.Head = Item{}
     }
 
+    resp.User.Skey = []string{}
     resp.User.Pass = []byte("")
     enc.Encode(resp)
 }

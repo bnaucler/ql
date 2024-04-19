@@ -623,6 +623,7 @@ function uminit(u) {
     const ndot = gid("notificationdot");
 
     if(u.Invites == null || u.Invites == undefined || u.Invites.length == 0) {
+        gid("invites").innerHTML = "";
         ndot.style.display = "none";
 
     } else {
