@@ -1200,7 +1200,6 @@ func inviteuser(db *bolt.DB, call Apicall) (Item, string) {
                 Owner:      ostr,
             }
             u.Invites = append(u.Invites, inv)
-            fmt.Printf("DEBUG invited user: %+v\n", u)
             err = fmt.Sprintf("User %s invited to shared list", u.Uname)
             wruser(db, u)
 
