@@ -1236,13 +1236,12 @@ func processinvite(db *bolt.DB, call Apicall, u User) (Item, User, string) {
         addmember(db, call.ID, u.Uname)
         addtoroot(db, call.ID, u.Uname)
 
-    } else if iex {
+    } else {
         u = rminvite(u, call.ID)
         wruser(db, u)
-
-    } else {
-        err = "Could not open requested object"
     }
+
+    if !iex && call.Value == "true" { err = "Could not open requested object" }
 
     p, _ = getitem(db, call.Cpos) // Reload necessary to getcontents()
 
