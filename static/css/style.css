@@ -346,10 +346,12 @@ p {
 
 .inlinebtn {
     display: inline-block;
+    width: calc(50% - 12px);
     float: right;
     padding: 3px;
     margin: 3px;
     background-color: var(--col-bgi);
+    text-align: center;
     color: var(--col-txtd);
     opacity: .8;
     transition: .3s;

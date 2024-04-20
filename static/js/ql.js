@@ -132,8 +132,14 @@ async function chuser() {
 function logoutuser() {
 
     showmenu("login");
-    localStorage.qluname = "";
-    localStorage.qlskey = "";
+
+    localStorage.removeItem("qluname");
+    localStorage.removeItem("qlskey");
+    localStorage.removeItem("qlcpos");
+    localStorage.removeItem("qlurl");
+    localStorage.removeItem("qlsort");
+    localStorage.removeItem("qlinactive");
+
     gid("ui").innerHTML = "";
 }
 

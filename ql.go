@@ -685,6 +685,7 @@ func h_user(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
 
     if call.Action != "login" && call.Action != "new" {
         resp.User.Skey = []string{}
+
     } else {
         mi := getmasterindex(db);
         resp.URL = mi.URL
