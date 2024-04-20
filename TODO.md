@@ -2,17 +2,15 @@
 
 ## Necessary
 
-## Known bugs
-
 ## Undecided / non-critical
 * Make autorefresh db object
 * Way to list all users in db for sharing
 * Way to cancel invites
 * API documentation
 * Per-member parent for shared items (allows non-root placement)
-* Indicator of shared list owner & members
 * Password required for user account deletion
-* Invite links
+* Auto-removal of inactive user accounts
+* Better looking login/registration screens on desktop
 
 ## Backburner
 * CLI/TUI tool

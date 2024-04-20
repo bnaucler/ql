@@ -2,6 +2,8 @@
 # ql / quicklist
 Quicklist is a tool for creating / sharing lists. For oneself or sharing with others. It's built to have a minimal and intuitive UI without clutter and low requirements for backend capacity. The UI is optimized for mobile (portrait) usage, and proportions will look odd during desktop use.
 
+There is a public instance running at [ql.bnaucler.se](https://ql.bnaucler.se) if you want to give it try.
+
 ## Building
 `bin/build.sh` creates the `bin/ql` binary.
 
