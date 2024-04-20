@@ -27,7 +27,7 @@ const KEEPTIME = 120 * time.Hour    // How long to keep item after closing
 const MINPASSLEN = 4        // Minimum password length
 
 const SKLEN = 30            // Session key length
-const IDLEN = 15            // ID length
+const IDLEN = 15            // ID length (hardcoded also in JS)
 const SKNUM = 5             // Max number of concurrent session keys
 
 const HOMENAME = "home"     // Name for root/head list
@@ -37,6 +37,7 @@ var IBUC = []byte("ibuc")   // Item bucket
 var UBUC = []byte("ubuc")   // User bucket
 
 type Index struct {
+    URL string              // Instance URL
     User []string           // All usernames in DB
     Item []string           // All item IDs in DB
 }
@@ -57,6 +58,7 @@ type Apicall struct {
 type Resp struct {
     Status int              // Status code
     Err string              // Error message
+    URL string              // Public URL
     Head Item               // Current head / list
     Hids []string           // Header link IDs
     Hvals []string          // Header link values
@@ -683,6 +685,9 @@ func h_user(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
 
     if call.Action != "login" && call.Action != "new" {
         resp.User.Skey = []string{}
+    } else {
+        mi := getmasterindex(db);
+        resp.URL = mi.URL
     }
 
     if resp.Status != 0 {
@@ -1442,10 +1447,51 @@ func qlinit(db *bolt.DB) {
     mkbucket(db, GLOB)
 }
 
+// Reads instance URL flag and adds to correct db object
+func seturl(db *bolt.DB, s string) {
+
+    _, e := url.ParseRequestURI(s)
+    i := getmasterindex(db)
+    status := 1
+
+    if e == nil {
+        status = 0
+
+    } else {
+        s = fmt.Sprintf("http://%s", s)
+        _, e := url.ParseRequestURI(s)
+        if e == nil { status = 0 }
+    }
+
+    if status == 0 {
+        log.Printf("Setting instance URL to: %s\n", s)
+        i.URL = s
+        wrmasterindex(db, i)
+
+    } else {
+        log.Printf("ERROR invalid instance URL: %s\n", s)
+    }
+}
+
+// Checks for URL configuration, outputting launch msg to screen
+func initmsg(db *bolt.DB) {
+
+    i := getmasterindex(db)
+    _, e := url.ParseRequestURI(i.URL)
+
+    if e != nil {
+        log.Fatal("No valid instance URL set: exiting")
+
+    } else {
+        log.Printf("ql instance up and running at %s\n", i.URL)
+    }
+}
+
 func main() {
 
     pptr := flag.Int("p", DEF_PORT, "port number to listen")
     dbptr := flag.String("d", DEF_DBNAME, "specify database to open")
+    uptr := flag.String("u", "", "instance URL")
     flag.Parse()
 
     rand.Seed(time.Now().UnixNano())
@@ -1453,6 +1499,8 @@ func main() {
     db := opendb(*dbptr)
     defer db.Close()
     qlinit(db)
+
+    if *uptr != "" { seturl(db, *uptr) }
 
     go cleanup(db)
 
@@ -1468,6 +1516,8 @@ func main() {
     http.HandleFunc("/item", func(w http.ResponseWriter, r *http.Request) {
         h_item(w, r, db)
     })
+
+    initmsg(db);
 
     lport := fmt.Sprintf(":%d", *pptr)
     e := http.ListenAndServe(lport, nil)

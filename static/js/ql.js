@@ -279,6 +279,25 @@ async function getshareusers(ID, usearch, ulist) {
     popshareusers(await gofetch(url), ulist);
 }
 
+// Copies public sharing link to clipboard
+function getplink(ID) {
+
+    const urlhead = gls("qlurl");
+    const link = urlhead + "?iid=" + ID;
+
+    const pdiv = gid("spopcontainer");
+    const tmp = document.createElement('textarea');
+
+    pdiv.appendChild(tmp);
+    tmp.value = link;
+    tmp.select();
+    tmp.setSelectionRange(0, 99999);
+    document.execCommand('copy');
+    pdiv.removeChild(tmp);
+
+    statuspopup("Invite link copied to clipboard");
+}
+
 // Opens up the item share menu
 function opensharemenu(ID, val) {
 
@@ -287,6 +306,7 @@ function opensharemenu(ID, val) {
     const usearch = mkobj("input", "");
     const ulist = mkobj("div");
     const searchbtn = mkobj("button", "menubutton", "search");
+    const linkbtn = mkobj("button", "menubutton", "copy link");
     const cbtn = mkobj("button", "closebutton", "cancel");
 
     mdiv.innerHTML = "";
@@ -300,10 +320,12 @@ function opensharemenu(ID, val) {
     mdiv.appendChild(ulist);
     mdiv.appendChild(usearch);
     mdiv.appendChild(searchbtn);
+    mdiv.appendChild(linkbtn);
     mdiv.appendChild(cbtn);
 
     cbtn.onclick = () => showmenu("none");
     searchbtn.onclick = () => { getshareusers(ID, usearch, ulist); }
+    linkbtn.onclick = () => { getplink(ID); }
 
     getshareusers(ID, "", ulist);
 }
@@ -671,11 +693,21 @@ function refresh(obj) {
         qlautoref = setTimeout(() => { qlinit(); }, TIMERINTERVAL);
     }
 
+    const invid = gls("qlinvid");
+
     if(obj.Head.Parent.length > 1)
         gid("backbtn").onclick = () => edituser("cspos", obj.Head.Parent, "");
     else gid("backbtn").onclick = () => qlinit(); // Window refresh if at root
 
     if(obj.Status == 0) {
+
+        if(invid !== undefined && invid !== null) {
+            edititem("accept", invid, true);
+            localStorage.removeItem("qlinvid");
+        }
+
+        if(obj.URL !== undefined && obj.URL != "") localStorage.qlurl = obj.URL;
+
         if(obj.Err != undefined && obj.Err != "") statuspopup(obj.Err);
 
         mkhstr(obj.Hids, obj.Hvals);
@@ -805,8 +837,23 @@ function showmenu(val) {
     }
 }
 
+// Adds icode to localstorage
+function checkuriforicode() {
+
+    const url = window.location.href;
+
+    if(!url.includes("?iid=")) return;
+
+    const iidpos = url.indexOf("?iid=") + 5;
+    const iid = url.substring(iidpos, iidpos + 15);
+
+    localStorage.qlinvid = iid;
+}
+
 // Initialize / refresh frontend
 async function qlinit() {
+
+    checkuriforicode();
 
     const istr = getidentstring();
     const url = "/user?action=valskey&" + istr;

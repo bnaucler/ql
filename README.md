@@ -16,7 +16,11 @@ Usage of bin/ql:
     	specify database to open (default "./data/ql.db")
   -p int
     	port number to listen (default 9955)
+  -u string
+    	instance URL
 ```
+
+The `-u` flag needs to be used at first launch.
 
 ## Written by
 Björn Westerberg Nauclér (mail@bnaucler.se)
