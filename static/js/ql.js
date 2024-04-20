@@ -688,6 +688,22 @@ function mkhstr(ids, vals) {
     }
 }
 
+// Processes potential link-based invites
+function chkinvid(cts) {
+
+    const invid = gls("qlinvid");
+
+    if(invid !== undefined && invid !== null) {
+        localStorage.removeItem("qlinvid");
+
+        for(const ci of cts) {
+            if(ci.ID == invid) return;
+        }
+
+        edititem("accept", invid, true);
+    }
+}
+
 // Refreshes window
 function refresh(obj) {
 
@@ -699,18 +715,12 @@ function refresh(obj) {
         qlautoref = setTimeout(() => { qlinit(); }, TIMERINTERVAL);
     }
 
-    const invid = gls("qlinvid");
-
     if(obj.Head.Parent.length > 1)
         gid("backbtn").onclick = () => edituser("cspos", obj.Head.Parent, "");
     else gid("backbtn").onclick = () => qlinit(); // Window refresh if at root
 
     if(obj.Status == 0) {
-
-        if(invid !== undefined && invid !== null) {
-            edititem("accept", invid, true);
-            localStorage.removeItem("qlinvid");
-        }
+        chkinvid(obj.Contents);
 
         if(obj.URL !== undefined && obj.URL != "") localStorage.qlurl = obj.URL;
 
