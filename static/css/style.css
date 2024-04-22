@@ -220,7 +220,7 @@ p {
 }
 
 .giantgap {
-    height: 200px;
+    height: 100px;
 }
 
 .smallgap {
@@ -468,6 +468,10 @@ p {
         width: 600px;
         left: calc(100vw / 2 - 300px);
         top: 75px;
+    }
+
+    .giantgap {
+        height: 200px;
     }
 
     .contextmenu {
