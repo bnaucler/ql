@@ -424,7 +424,8 @@ func valskey(db *bolt.DB, call Apicall) (User, int) {
         if v == call.Skey { status = 0 }
     }
 
-    if status != 0 && call.Uname != "" { // "": special case when no localstorage
+    // "": special case when no localstorage
+    if status != 0 && call.Uname != "" && call.Uname != "null" {
         log.Printf("Session key verification error for user %s\n", call.Uname)
     }
 
