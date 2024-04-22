@@ -617,12 +617,14 @@ function createinviteobj(inv) {
     const otxt = mkobj("p", "invitelname", inv.Value);
     const container = mkobj("div", "invite");
     const cval = mkobj("p", "invitelabel", ptxt);
+    const br = mkobj("br");
     const abtn = mkobj("div", "inlinebtn", "join");
     const rbtn = mkobj("div", "inlinebtn", "cancel");
 
     cval.appendChild(otxt);
-    cval.appendChild(abtn);
+    cval.appendChild(br);
     cval.appendChild(rbtn);
+    cval.appendChild(abtn);
     container.appendChild(cval);
 
     abtn.onclick = () => edititem("accept", inv.ID, true);
