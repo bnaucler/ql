@@ -457,6 +457,13 @@ p {
         border: 5px var(--col-bg) solid;
     }
 
+    #login, #mkuser {
+        width: 610px;
+        top: 50px;
+        left: calc(100vw / 2 - 305px);
+        height: calc(100vh - 100px);
+    }
+
     #spopcontainer {
         width: 600px;
         left: calc(100vw / 2 - 300px);

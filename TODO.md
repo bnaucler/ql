@@ -10,7 +10,7 @@
 * Per-member parent for shared items (allows non-root placement)
 * Password required for user account deletion
 * Auto-removal of inactive user accounts
-* Better looking login/registration screens on desktop
+* Invite links to create invites rather than unconditionally add
 
 ## Backburner
 * CLI/TUI tool
