@@ -1,6 +1,7 @@
 # ql TODO list
 
 ## Necessary
+* Fix login & new user screens for mobile landscape
 
 ## Undecided / non-critical
 * Make autorefresh db object
@@ -11,6 +12,8 @@
 * Password required for user account deletion
 * Auto-removal of inactive user accounts
 * Invite links to create invites rather than unconditionally add
+* Inactive items listed below active
+* Inactive items sorted on ETime
 
 ## Backburner
 * CLI/TUI tool
