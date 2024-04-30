@@ -16,7 +16,6 @@
 * Inactive items sorted on ETime
 
 ## Backburner
-* CLI/TUI tool
 * Admin interface
 * Statistics
 * Color themes
