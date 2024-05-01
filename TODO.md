@@ -3,7 +3,6 @@
 ## Necessary
 * Fix login & new user screens for mobile landscape
 * API call before 'pwd' (qlcli)
-* Fix qlcli 'back' when home error
 
 ## Undecided / non-critical
 * Make autorefresh db object

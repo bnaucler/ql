@@ -442,8 +442,11 @@ func cspos(db *bolt.DB, call Apicall) (User, int, string) {
     if status == 0 {
         np, status = getitem(db, call.ID)
         if np.Owner == u.Uname || existsinstringslice(u.Uname, np.Members) {
-            if np.Type == "list" { u.Cpos = np.ID }
-            err = "Requested item is not a list"
+            if np.Type == "list" {
+                u.Cpos = np.ID
+            } else {
+                err = "Requested item is not a list"
+            }
 
         } else {
             u.Cpos = u.Root

@@ -20,7 +20,7 @@ PDESC = '''\
 Quicklist CLI actions:
     login:      Logs user in
     logout:     Logs user out
-    list:       Lists contents of current list 
+    list:       Lists contents of current list
     new:        Adds new item to current list
     toggletype: Changes item type for [arg] (item / list)
     close:      Closes item [arg]
@@ -192,9 +192,9 @@ def uhcall(data, val, inact, action):
     call = mkcallskel(data, action)
     call["id"] = data["Head"]["Parent"] if val == None else getidbyval(val)
 
-    if call["id"]:
+    if call["id"] and len(call["id"]) > 0:
         updatewr(requests.post(ENDPOINTUSER, data=call).json(), inact)
-    else:
+    elif call["id"]:
         print("No item with value", val, "found")
 
 
