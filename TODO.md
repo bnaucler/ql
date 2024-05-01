@@ -2,8 +2,8 @@
 
 ## Necessary
 * Fix login & new user screens for mobile landscape
-* Check item type before 'enter' (qlcli)
 * API call before 'pwd' (qlcli)
+* Fix qlcli 'back' when home error
 
 ## Undecided / non-critical
 * Make autorefresh db object

@@ -433,18 +433,21 @@ func valskey(db *bolt.DB, call Apicall) (User, int) {
 }
 
 // Changes user cpos to call request
-func cspos(db *bolt.DB, call Apicall) (User, int) {
+func cspos(db *bolt.DB, call Apicall) (User, int, string) {
 
     u, status := valskey(db, call)
     np := Item{}
+    err := ""
 
     if status == 0 {
         np, status = getitem(db, call.ID)
         if np.Owner == u.Uname || existsinstringslice(u.Uname, np.Members) {
-            u.Cpos = np.ID
+            if np.Type == "list" { u.Cpos = np.ID }
+            err = "Requested item is not a list"
 
         } else {
             u.Cpos = u.Root
+            err = fmt.Sprintf("Setting position to %s", HOMENAME)
         }
 
         wruser(db, u)
@@ -453,7 +456,7 @@ func cspos(db *bolt.DB, call Apicall) (User, int) {
         status = 1
     }
 
-    return u, status
+    return u, status, err
 }
 
 // Toggles user inactive setting
@@ -671,7 +674,7 @@ func h_user(w http.ResponseWriter, r *http.Request, db *bolt.DB) {
             resp.User, resp.Status = valskey(db, call)
 
         case "cspos":
-            resp.User, resp.Status = cspos(db, call)
+            resp.User, resp.Status, resp.Err = cspos(db, call)
 
         case "toggleinactive":
             resp.User, resp.Status = toggleinactive(db, call)
