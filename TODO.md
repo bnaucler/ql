@@ -2,6 +2,8 @@
 
 ## Necessary
 * Fix login & new user screens for mobile landscape
+* Check item type before 'enter' (qlcli)
+* API call before 'pwd' (qlcli)
 
 ## Undecided / non-critical
 * Make autorefresh db object
@@ -14,6 +16,7 @@
 * Invite links to create invites rather than unconditionally add
 * Inactive items listed below active
 * Inactive items sorted on ETime
+* Partial matches for item/list arg (qlcli)
 
 ## Backburner
 * Admin interface
