@@ -37,6 +37,11 @@ class color:
    BOLD = '\033[1m'
    END = '\033[0m'
 
+# Kills client with message
+def die(ecode, msg):
+    print(msg)
+    sys.exit(ecode)
+
 # Prints list item to screen
 def printitem(item, inact):
     if item["Active"]:
@@ -96,11 +101,12 @@ def printcontents(contents, inact):
     for li in aitems:
         printitem(li, inact)
 
-    for li in ilists:
-        printlist(li, inact)
+    if inact:
+        for li in ilists:
+            printlist(li, inact)
 
-    for li in iitems:
-        printitem(li, inact)
+        for li in iitems:
+            printitem(li, inact)
 
 # Writes user data to file
 def updateufile(resp):
@@ -209,7 +215,7 @@ def refresh(data, inact, pvals):
     try:
         updatewr(requests.post(ENDPOINTUSER, data=call).json(), inact, pvals)
     except:
-        print("Could not connect to", ENDPOINTUSER)
+        die(1, "Could not connect to " + ENDPOINTUSER)
 
 # Shows header string
 def showhdr(data):
@@ -226,7 +232,7 @@ def additem(data, val, inact):
     try:
         updatewr(requests.post(ENDPOINTITEM, data=call).json(), inact, True)
     except:
-        print("Could not connect to", ENDPOINTITEM)
+        die(1, "Could not connect to " + ENDPOINTITEM)
 
 # Makes call to item handler
 def ihcall(data, val, inact, action):
@@ -237,7 +243,7 @@ def ihcall(data, val, inact, action):
         try:
             updatewr(requests.post(ENDPOINTITEM, data=call).json(), inact, True)
         except:
-            print("Could not connect to", ENDPOINTITEM)
+            die("Could not connect to " + ENDPOINTITEM)
     else:
         print("No item with value", val, "found")
 
@@ -250,7 +256,7 @@ def uhcall(data, val, inact, action):
         try:
             updatewr(requests.post(ENDPOINTUSER, data=call).json(), inact, True)
         except:
-            print("Could not connect to", ENDPOINTUSER)
+            die(1, "Could not connect to " + ENDPOINTUSER)
     elif call["id"]:
         print("No item with value", val, "found")
 
@@ -259,8 +265,7 @@ def touchfile():
     try:
         Path.touch(UFNAME, mode=0o600, exist_ok=True)
     except:
-        print("Could not create/access", UFNAME)
-        sys.exit(1)
+        die(1, "Could not create/access " + UFNAME)
 
 # Calls appropriate function based on cli args
 def launch(args):
@@ -284,16 +289,14 @@ def launch(args):
             if data and args.arg:
                 additem(data, args.arg, args.i)
             else:
-                print("Please provide item value")
-                sys.exit(1)
+                die(1, "Please provide item value")
 
         case "toggletype" | "close" | "open":
             data = checklogin(args.i)
             if data and args.arg:
                 ihcall(data, args.arg, args.i, args.action)
             else:
-                print("Please provide item value")
-                sys.exit(1)
+                die(1, "Please provide item value")
 
         case "pwd":
             data = checklogin(args.i)
@@ -312,8 +315,7 @@ def launch(args):
                 uhcall(data, None, args.i, "cspos")
 
         case _:
-            print("Invalid action")
-            sys.exit(1)
+            die(1, "Invalid action")
 
 # Creates and compounds cli args
 parser = argparse.ArgumentParser(formatter_class =
