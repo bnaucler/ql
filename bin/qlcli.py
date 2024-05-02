@@ -105,16 +105,23 @@ def getidbyval(val):
 def loginuser(inact):
     uname = input("Enter username: ")
     passwd = getpass.getpass("Enter pass: ")
+    data = None
 
     call = {"action": "login",
             "uname": uname,
             "pass": passwd
            }
 
-    data = requests.post(ENDPOINTUSER, data=call).json()
+    try:
+        data = requests.post(ENDPOINTUSER, data=call).json()
 
-    if data["Status"] == 0:
-        updateufile(data)
+        if data["Status"] == 0:
+            updateufile(data)
+        else:
+            print("Login failed")
+
+    except:
+        print("Could not connect to", ENDPOINTUSER)
 
     return data
 
@@ -161,7 +168,10 @@ def mkcallskel(data, action):
 # Refreshes window
 def refresh(data, inact, pvals):
     call = mkcallskel(data, "valskey")
-    updatewr(requests.post(ENDPOINTUSER, data=call).json(), inact, pvals)
+    try:
+        updatewr(requests.post(ENDPOINTUSER, data=call).json(), inact, pvals)
+    except:
+        print("Could not connect to", ENDPOINTUSER)
 
 # Shows header string
 def showhdr(data):
@@ -175,7 +185,10 @@ def additem(data, val, inact):
     call["type"] = "item"
     call["value"] = val
 
-    updatewr(requests.post(ENDPOINTITEM, data=call).json(), inact, True)
+    try:
+        updatewr(requests.post(ENDPOINTITEM, data=call).json(), inact, True)
+    except:
+        print("Could not connect to", ENDPOINTITEM)
 
 # Makes call to item handler
 def ihcall(data, val, inact, action):
@@ -183,7 +196,10 @@ def ihcall(data, val, inact, action):
     call["id"] = getidbyval(val)
 
     if call["id"]:
-        updatewr(requests.post(ENDPOINTITEM, data=call).json(), inact, True)
+        try:
+            updatewr(requests.post(ENDPOINTITEM, data=call).json(), inact, True)
+        except:
+            print("Could not connect to", ENDPOINTITEM)
     else:
         print("No item with value", val, "found")
 
@@ -193,7 +209,10 @@ def uhcall(data, val, inact, action):
     call["id"] = data["Head"]["Parent"] if val == None else getidbyval(val)
 
     if call["id"] and len(call["id"]) > 0:
-        updatewr(requests.post(ENDPOINTUSER, data=call).json(), inact, True)
+        try:
+            updatewr(requests.post(ENDPOINTUSER, data=call).json(), inact, True)
+        except:
+            print("Could not connect to", ENDPOINTUSER)
     elif call["id"]:
         print("No item with value", val, "found")
 
