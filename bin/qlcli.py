@@ -119,9 +119,9 @@ def loginuser(inact):
     return data
 
 # Wrapper for window refresh - checking for errors
-def updatewr(resp, inact):
+def updatewr(resp, inact, pvals):
 
-    if resp["Contents"] != None and len(resp["Contents"]) > 0:
+    if pvals and resp["Contents"] != None and len(resp["Contents"]) > 0:
         printcontents(resp["Contents"], inact)
 
     if len(resp["Err"]) > 0:
@@ -159,9 +159,9 @@ def mkcallskel(data, action):
            }
 
 # Refreshes window
-def refresh(data, inact):
+def refresh(data, inact, pvals):
     call = mkcallskel(data, "valskey")
-    updatewr(requests.post(ENDPOINTUSER, data=call).json(), inact)
+    updatewr(requests.post(ENDPOINTUSER, data=call).json(), inact, pvals)
 
 # Shows header string
 def showhdr(data):
@@ -175,7 +175,7 @@ def additem(data, val, inact):
     call["type"] = "item"
     call["value"] = val
 
-    updatewr(requests.post(ENDPOINTITEM, data=call).json(), inact)
+    updatewr(requests.post(ENDPOINTITEM, data=call).json(), inact, True)
 
 # Makes call to item handler
 def ihcall(data, val, inact, action):
@@ -183,7 +183,7 @@ def ihcall(data, val, inact, action):
     call["id"] = getidbyval(val)
 
     if call["id"]:
-        updatewr(requests.post(ENDPOINTITEM, data=call).json(), inact)
+        updatewr(requests.post(ENDPOINTITEM, data=call).json(), inact, True)
     else:
         print("No item with value", val, "found")
 
@@ -193,7 +193,7 @@ def uhcall(data, val, inact, action):
     call["id"] = data["Head"]["Parent"] if val == None else getidbyval(val)
 
     if call["id"] and len(call["id"]) > 0:
-        updatewr(requests.post(ENDPOINTUSER, data=call).json(), inact)
+        updatewr(requests.post(ENDPOINTUSER, data=call).json(), inact, True)
     elif call["id"]:
         print("No item with value", val, "found")
 
@@ -211,7 +211,7 @@ def launch(args):
         case "list":
             data = checklogin(args.i)
             if data:
-                refresh(data, args.i)
+                refresh(data, args.i, True)
 
         case "new":
             data = checklogin(args.i)
@@ -230,6 +230,7 @@ def launch(args):
         case "pwd":
             data = checklogin(args.i)
             if data:
+                refresh(data, args.i, False)
                 showhdr(data)
 
         case "enter":

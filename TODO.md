@@ -2,7 +2,6 @@
 
 ## Necessary
 * Fix login & new user screens for mobile landscape
-* API call before 'pwd' (qlcli)
 
 ## Undecided / non-critical
 * Make autorefresh db object
@@ -16,6 +15,7 @@
 * Inactive items listed below active
 * Inactive items sorted on ETime
 * Partial matches for item/list arg (qlcli)
+* qlcli sort order flags
 
 ## Backburner
 * Admin interface
