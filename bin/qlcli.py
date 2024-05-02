@@ -244,6 +244,7 @@ def ihcall(data, val, inact, action):
             updatewr(requests.post(ENDPOINTITEM, data=call).json(), inact, True)
         except:
             die("Could not connect to " + ENDPOINTITEM)
+
     else:
         print("No item with value", val, "found")
 
@@ -257,6 +258,7 @@ def uhcall(data, val, inact, action):
             updatewr(requests.post(ENDPOINTUSER, data=call).json(), inact, True)
         except:
             die(1, "Could not connect to " + ENDPOINTUSER)
+
     elif call["id"]:
         print("No item with value", val, "found")
 
@@ -272,7 +274,6 @@ def launch(args):
     touchfile()
 
     match args.action:
-
         case "login":
             loginuser(args.i)
 
