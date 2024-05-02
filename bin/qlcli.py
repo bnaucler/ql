@@ -285,6 +285,7 @@ def launch(args):
                 additem(data, args.arg, args.i)
             else:
                 print("Please provide item value")
+                sys.exit(1)
 
         case "toggletype" | "close" | "open":
             data = checklogin(args.i)
@@ -292,6 +293,7 @@ def launch(args):
                 ihcall(data, args.arg, args.i, args.action)
             else:
                 print("Please provide item value")
+                sys.exit(1)
 
         case "pwd":
             data = checklogin(args.i)
@@ -311,6 +313,7 @@ def launch(args):
 
         case _:
             print("Invalid action")
+            sys.exit(1)
 
 # Creates and compounds cli args
 parser = argparse.ArgumentParser(formatter_class =
