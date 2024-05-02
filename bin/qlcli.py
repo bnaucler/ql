@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import sys
 import json
 import getpass
 import requests
@@ -124,7 +125,7 @@ def getufile():
 # Performs logout (removal of credentials file)
 def logout():
     try:
-        Path.unlink(UFNAME)
+        Path.unlink(UFNAME, missing_ok=True)
     except:
         pass
 
@@ -253,9 +254,18 @@ def uhcall(data, val, inact, action):
     elif call["id"]:
         print("No item with value", val, "found")
 
+## Creates / updates UFILE
+def touchfile():
+    try:
+        Path.touch(UFNAME, mode=0o600, exist_ok=True)
+    except:
+        print("Could not create/access", UFNAME)
+        sys.exit(1)
 
 # Calls appropriate function based on cli args
 def launch(args):
+    touchfile()
+
     match args.action:
 
         case "login":

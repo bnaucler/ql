@@ -1,6 +1,6 @@
 
 # ql / quicklist
-Quicklist is a tool for creating / sharing lists, for oneself or with others. It's built to have a minimal and intuitive UI without clutter and low requirements for backend capacity. The interface is designed primarily for mobile use; desktop is a bit of an afterthought.
+Quicklist is a tool for creating / sharing lists, for oneself or with others. It's built to have a minimal and intuitive UI without clutter and low requirements for backend capacity. The web interface is designed primarily for mobile use; desktop is a bit of an afterthought.
 
 There is a public instance running at [ql.bnaucler.se](https://ql.bnaucler.se) if you want to give it try.
 
@@ -25,7 +25,7 @@ Usage of bin/ql:
 The `-u` flag needs to be used at first launch.
 
 ## CLI tool usage
-The repo includes a simple CLI client `qlcli.py` if you prefer communicating with ql through the terminal. Or just download the script and connect to a remote instance. Make sure to edit the `ENDPOINT` const first, to set remote host address. Per default it points to `localhost:9955`.
+The repo includes a simple CLI client `qlcli.py` if you prefer communicating with ql through the terminal. Or just download the script and connect to a remote instance. Make sure to edit the `ENDPOINT` const to set remote host address. Per default it points to `localhost:9955`.
 
 Output of `bin/qlcli.py -h`:
 ```
