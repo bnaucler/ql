@@ -54,15 +54,52 @@ def printlist(item, inact):
     if item["Active"]:
         print(color.BOLD, pline, color.END, sep="")
     elif inact and item["Active"] == False:
-        print(color.BOLD, pline, color.END, sep="")
+        print(color.BOLD, color.RED, pline, color.END, sep="")
+
+# Splits contents into lists & items
+def splititemlist(lst):
+    items = []
+    lists = []
+
+    for li in lst:
+        if li["Type"] == "item":
+            items.append(li)
+        elif li["Type"] == "list":
+            lists.append(li)
+
+    return lists, items
+
+# Splits contents into active & inactive
+def splitactive(lst):
+    active = []
+    inactive = []
+
+    for li in lst:
+        if li["Active"] == True:
+            active.append(li)
+        else:
+            inactive.append(li)
+
+    return active, inactive
 
 # Prints contents list to terminal
 def printcontents(contents, inact):
-    for li in contents:
-        if li["Type"] == "item":
-            printitem(li, inact)
-        elif li["Type"] == "list":
-            printlist(li, inact)
+
+    lists, items = splititemlist(contents)
+    aitems, iitems = splitactive(items)
+    alists, ilists = splitactive(lists)
+
+    for li in alists:
+        printlist(li, inact)
+
+    for li in aitems:
+        printitem(li, inact)
+
+    for li in ilists:
+        printlist(li, inact)
+
+    for li in iitems:
+        printitem(li, inact)
 
 # Writes user data to file
 def updateufile(resp):
