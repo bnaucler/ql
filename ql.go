@@ -22,7 +22,7 @@ const DEF_PORT = 9955               // Default port to listen
 const DEF_DBNAME = "./data/ql.db"   // Default database filename
 
 const CLEANCHECK = 1 * time.Hour    // Time interval to check for inactive items
-const KEEPTIME = 120 * time.Hour    // How long to keep item after closing
+const KEEPTIME = 2 * time.Hour      // How long to keep item after closing
 
 const MINPASSLEN = 4        // Minimum password length
 
